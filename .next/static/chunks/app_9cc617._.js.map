@@ -1,0 +1,7 @@
+{
+  "version": 3,
+  "sources": [],
+  "sections": [
+    {"offset": {"line": 16, "column": 0}, "map": {"version":3,"sources":["file://C%3A/Users/Ayoub/smart_pfe_W/app/pages/tut_soumis/page.tsx"],"sourcesContent":["\"use client\"\r\n\r\nimport TuteurGroupDocumentsPage from \"../../components/tuteur_sout/tut_soumettre\" // Adjust the import path based on your structure\r\n\r\nexport default function TuteurDocuments() {\r\n  return <TuteurGroupDocumentsPage />\r\n}"],"names":[],"mappings":";;;;AAEA,sQAAkF,iDAAiD;AAFnI;;;AAIe,SAAS;IACtB,qBAAO,6LAAC,qJAAA,CAAA,UAAwB;;;;;AAClC;KAFwB"}},
+    {"offset": {"line": 37, "column": 0}, "map": {"version":3,"sources":[],"names":[],"mappings":"A"}}]
+}

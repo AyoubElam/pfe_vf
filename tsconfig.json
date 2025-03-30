@@ -1,0 +1,44 @@
+{
+  "compilerOptions": {
+    "typeRoots": ["./node_modules/@types", "./types"],
+    "target": "ES2017",
+    "lib": ["dom", "dom.iterable", "esnext"],
+    "allowJs": true,
+    "skipLibCheck": true,
+    "strict": true,
+    "noEmit": true,
+    "esModuleInterop": true,
+    "module": "esnext",
+    "moduleResolution": "node", // Changed to "node" for better compatibility with jspdf
+    "resolveJsonModule": true,
+    "isolatedModules": true,
+    "jsx": "preserve",
+    "incremental": true,
+    "plugins": [
+      {
+        "name": "next"
+      }
+    ],
+    "paths": {
+      "@/*": ["./*"]
+    }
+  },
+  "include": [
+    "next-env.d.ts",
+    "**/*.ts",
+    "**/*.tsx",
+    ".next/types/**/*.ts",
+    "types/**/*.d.ts",
+    "app/pages/api/soutenance.js",
+    "app/pages/api/jurys.js",
+    "app/pages/api/groups.js",
+    "app/components/PlanifierSoutenance/JurySelector.jsx",
+    "app/components/ListeSoutenances/SoutenanceTable.jsx",
+    "app/pages/api/tut_soumettre.js"
+  ],
+  "exclude": [
+    "node_modules",
+    "config/db.js",
+    "server.js"
+  ]
+}
