@@ -3,19 +3,19 @@ import db from "../../../config/db.js";
 
 const router = express.Router();
 
-// Fetch all soutenances with groupIds included, with optional year filter
+// Fetch all soutenances
 router.get("/", (req, res) => {
-  const year = req.query.year; // Get the year query parameter if provided
+  const year = req.query.year;
   let query = `
     SELECT s.idSoutenance, s.date, s.time, s.location, s.status, 
            GROUP_CONCAT(DISTINCT g.nomGroupe ORDER BY g.nomGroupe ASC SEPARATOR ' | ') AS groupNames,
            GROUP_CONCAT(DISTINCT g.idGroupe ORDER BY g.nomGroupe ASC SEPARATOR ',') AS groupIds,
            GROUP_CONCAT(DISTINCT j.nom ORDER BY j.nom ASC SEPARATOR ' | ') AS juryNames
-    FROM soutenance s
-    LEFT JOIN soutenance_groupe sg ON s.idSoutenance = sg.idSoutenance
-    LEFT JOIN groupe g ON sg.idGroupe = g.idGroupe
-    JOIN soutenance_jury sj ON sj.idSoutenance = s.idSoutenance
-    JOIN jury j ON sj.idJury = j.idJury
+    FROM smart_v.soutenance s
+    LEFT JOIN smart_v.soutenance_groupe sg ON s.idSoutenance = sg.idSoutenance
+    LEFT JOIN smart_v.groupe g ON sg.idGroupe = g.idGroupe
+    JOIN smart_v.soutenance_jury sj ON sj.idSoutenance = s.idSoutenance
+    JOIN smart_v.jury j ON sj.idJury = j.idJury
   `;
   const values = [];
   if (year && year !== "all") {
@@ -23,58 +23,54 @@ router.get("/", (req, res) => {
     values.push(year);
   }
   query += " GROUP BY s.idSoutenance;";
-  
+
   db.query(query, values, (err, results) => {
     if (err) {
       console.error("❌ Error fetching soutenance data:", err);
-      return res.status(500).json({ error: "Failed to fetch soutenance" });
+      return res.status(500).json({ error: "Failed to fetch soutenance", details: err.sqlMessage });
     }
     res.json(results);
   });
 });
 
-// Insert a new soutenance
+// Insert a new soutenance (unchanged, included for completeness)
 router.post("/", (req, res) => {
   const { date, time, location, juryIds, groupIds, status } = req.body;
-  console.log("Received data:", req.body);
-
   if (!date || !time || !location || !juryIds || !groupIds || !status) {
     return res.status(400).json({ error: "All fields are required" });
   }
 
   const querySoutenance = `
-    INSERT INTO soutenance (date, time, location, status)
+    INSERT INTO smart_v.soutenance (date, time, location, status)
     VALUES (?, ?, ?, ?)`;
   const valuesSoutenance = [date, time, location, status];
 
   db.query(querySoutenance, valuesSoutenance, (err, result) => {
     if (err) {
       console.error("❌ Error inserting soutenance:", err);
-      return res.status(500).json({ error: "Database error" });
+      return res.status(500).json({ error: "Database error", details: err.sqlMessage });
     }
 
     const soutenanceId = result.insertId;
 
-    // Insert jury members
     const juryInsertQuery = `
-      INSERT INTO soutenance_jury (idSoutenance, idJury) VALUES ?`;
+      INSERT INTO smart_v.soutenance_jury (idSoutenance, idJury) VALUES ?`;
     const juryValues = juryIds.map((idJury) => [soutenanceId, idJury]);
 
     db.query(juryInsertQuery, [juryValues], (err) => {
       if (err) {
         console.error("❌ Error inserting jury members:", err);
-        return res.status(500).json({ error: "Failed to assign jury members" });
+        return res.status(500).json({ error: "Failed to assign jury members", details: err.sqlMessage });
       }
 
-      // Insert multiple groups
       const groupInsertQuery = `
-        INSERT INTO soutenance_groupe (idSoutenance, idGroupe) VALUES ?`;
+        INSERT INTO smart_v.soutenance_groupe (idSoutenance, idGroupe) VALUES ?`;
       const groupValues = groupIds.map((idGroupe) => [soutenanceId, idGroupe]);
 
       db.query(groupInsertQuery, [groupValues], (err) => {
         if (err) {
           console.error("❌ Error inserting groups:", err);
-          return res.status(500).json({ error: "Failed to assign groups" });
+          return res.status(500).json({ error: "Failed to assign groups", details: err.sqlMessage });
         }
 
         const queryWithDetails = `
@@ -82,11 +78,11 @@ router.post("/", (req, res) => {
                  GROUP_CONCAT(DISTINCT g.nomGroupe ORDER BY g.nomGroupe ASC SEPARATOR ' | ') AS groupNames,
                  GROUP_CONCAT(DISTINCT g.idGroupe ORDER BY g.nomGroupe ASC SEPARATOR ',') AS groupIds,
                  GROUP_CONCAT(DISTINCT j.nom ORDER BY j.nom ASC SEPARATOR ' | ') AS juryNames
-          FROM soutenance s
-          LEFT JOIN soutenance_groupe sg ON s.idSoutenance = sg.idSoutenance
-          LEFT JOIN groupe g ON sg.idGroupe = g.idGroupe
-          JOIN soutenance_jury sj ON sj.idSoutenance = s.idSoutenance
-          JOIN jury j ON sj.idJury = j.idJury
+          FROM smart_v.soutenance s
+          LEFT JOIN smart_v.soutenance_groupe sg ON s.idSoutenance = sg.idSoutenance
+          LEFT JOIN smart_v.groupe g ON sg.idGroupe = g.idGroupe
+          JOIN smart_v.soutenance_jury sj ON sj.idSoutenance = s.idSoutenance
+          JOIN smart_v.jury j ON sj.idJury = j.idJury
           WHERE s.idSoutenance = ?
           GROUP BY s.idSoutenance;
         `;
@@ -94,20 +90,10 @@ router.post("/", (req, res) => {
         db.query(queryWithDetails, [soutenanceId], (err, results) => {
           if (err) {
             console.error("❌ Error fetching detailed soutenance data:", err);
-            return res.status(500).json({ error: "Failed to fetch detailed soutenance data" });
+            return res.status(500).json({ error: "Failed to fetch detailed soutenance data", details: err.sqlMessage });
           }
-
           const soutenanceData = results[0];
-          res.status(201).json({
-            idSoutenance: soutenanceData.idSoutenance,
-            date: soutenanceData.date,
-            time: soutenanceData.time,
-            location: soutenanceData.location,
-            status: soutenanceData.status,
-            groupNames: soutenanceData.groupNames,
-            groupIds: soutenanceData.groupIds,
-            juryNames: soutenanceData.juryNames,
-          });
+          res.status(201).json(soutenanceData);
         });
       });
     });
@@ -117,52 +103,46 @@ router.post("/", (req, res) => {
 // Bulk update soutenance statuses
 router.put("/bulk-update", (req, res) => {
   const { ids, status } = req.body;
-  console.log("Received payload:", req.body);
-
   if (!ids || !Array.isArray(ids) || ids.length === 0 || !status) {
-    console.log("Validation failed");
     return res.status(400).json({ error: "IDs and status are required" });
   }
 
   const placeholders = ids.map(() => "?").join(", ");
   const query = `
-    UPDATE soutenance
+    UPDATE smart_v.soutenance
     SET status = ?
     WHERE idSoutenance IN (${placeholders});
   `;
 
-  console.log("Executing query with:", status, ids);
   db.query(query, [status, ...ids], (err, result) => {
     if (err) {
       console.error("❌ DB Error:", err);
       return res.status(500).json({ error: "Failed to update soutenances" });
     }
-    console.log("Query result:", result);
     res.json({ message: `Successfully updated ${result.affectedRows} soutenances` });
   });
 });
 
-// Get a specific soutenance by ID with groupIds
-router.get("/:id", async (req, res) => {
+// Get a specific soutenance by ID
+router.get("/:id", (req, res) => {
   const { id } = req.params;
-
   const query = `
     SELECT s.idSoutenance, s.date, s.time, s.location, s.status, 
            GROUP_CONCAT(DISTINCT g.nomGroupe ORDER BY g.nomGroupe ASC SEPARATOR ' | ') AS groupNames,
            GROUP_CONCAT(DISTINCT g.idGroupe ORDER BY g.nomGroupe ASC SEPARATOR ',') AS groupIds,
            GROUP_CONCAT(DISTINCT j.nom ORDER BY j.nom ASC SEPARATOR ' | ') AS juryNames
-    FROM soutenance s
-    LEFT JOIN soutenance_groupe sg ON s.idSoutenance = sg.idSoutenance
-    LEFT JOIN groupe g ON sg.idGroupe = g.idGroupe
-    JOIN soutenance_jury sj ON sj.idSoutenance = s.idSoutenance
-    JOIN jury j ON sj.idJury = j.idJury
+    FROM smart_v.soutenance s
+    LEFT JOIN smart_v.soutenance_groupe sg ON s.idSoutenance = sg.idSoutenance
+    LEFT JOIN smart_v.groupe g ON sg.idGroupe = g.idGroupe
+    JOIN smart_v.soutenance_jury sj ON sj.idSoutenance = s.idSoutenance
+    JOIN smart_v.jury j ON sj.idJury = j.idJury
     WHERE s.idSoutenance = ?
     GROUP BY s.idSoutenance;
   `;
 
-  db.query(query, [id], (error, rows) => {
-    if (error) {
-      console.error("Error fetching soutenance:", error.message);
+  db.query(query, [id], (err, rows) => {
+    if (err) {
+      console.error("Error fetching soutenance:", err);
       return res.status(500).json({ message: "Error fetching soutenance" });
     }
     if (rows.length === 0) {
@@ -182,7 +162,7 @@ router.put("/:id", (req, res) => {
   }
 
   const querySoutenance = `
-    UPDATE soutenance
+    UPDATE smart_v.soutenance
     SET date = ?, time = ?, location = ?, status = ?
     WHERE idSoutenance = ?;
   `;
@@ -194,7 +174,7 @@ router.put("/:id", (req, res) => {
       return res.status(500).json({ error: "Failed to update soutenance" });
     }
 
-    const juryDeleteQuery = `DELETE FROM soutenance_jury WHERE idSoutenance = ?`;
+    const juryDeleteQuery = `DELETE FROM smart_v.soutenance_jury WHERE idSoutenance = ?`;
     db.query(juryDeleteQuery, [id], (err) => {
       if (err) {
         console.error("❌ Error deleting previous jury members:", err);
@@ -202,7 +182,7 @@ router.put("/:id", (req, res) => {
       }
 
       const juryInsertQuery = `
-        INSERT INTO soutenance_jury (idSoutenance, idJury) VALUES ?;
+        INSERT INTO smart_v.soutenance_jury (idSoutenance, idJury) VALUES ?;
       `;
       const juryValues = juryIds.map((idJury) => [id, idJury]);
 
@@ -212,7 +192,7 @@ router.put("/:id", (req, res) => {
           return res.status(500).json({ error: "Failed to assign jury members" });
         }
 
-        const groupDeleteQuery = `DELETE FROM soutenance_groupe WHERE idSoutenance = ?`;
+        const groupDeleteQuery = `DELETE FROM smart_v.soutenance_groupe WHERE idSoutenance = ?`;
         db.query(groupDeleteQuery, [id], (err) => {
           if (err) {
             console.error("❌ Error deleting previous groups:", err);
@@ -220,7 +200,7 @@ router.put("/:id", (req, res) => {
           }
 
           const groupInsertQuery = `
-            INSERT INTO soutenance_groupe (idSoutenance, idGroupe) VALUES ?;
+            INSERT INTO smart_v.soutenance_groupe (idSoutenance, idGroupe) VALUES ?;
           `;
           const groupValues = groupIds.map((idGroupe) => [id, idGroupe]);
 
@@ -235,11 +215,11 @@ router.put("/:id", (req, res) => {
                      GROUP_CONCAT(DISTINCT g.nomGroupe ORDER BY g.nomGroupe ASC SEPARATOR ' | ') AS groupNames,
                      GROUP_CONCAT(DISTINCT g.idGroupe ORDER BY g.nomGroupe ASC SEPARATOR ',') AS groupIds,
                      GROUP_CONCAT(DISTINCT j.nom ORDER BY j.nom ASC SEPARATOR ' | ') AS juryNames
-              FROM soutenance s
-              LEFT JOIN soutenance_groupe sg ON s.idSoutenance = sg.idSoutenance
-              LEFT JOIN groupe g ON sg.idGroupe = g.idGroupe
-              JOIN soutenance_jury sj ON sj.idSoutenance = s.idSoutenance
-              JOIN jury j ON sj.idJury = j.idJury
+              FROM smart_v.soutenance s
+              LEFT JOIN smart_v.soutenance_groupe sg ON s.idSoutenance = sg.idSoutenance
+              LEFT JOIN smart_v.groupe g ON sg.idGroupe = g.idGroupe
+              JOIN smart_v.soutenance_jury sj ON sj.idSoutenance = s.idSoutenance
+              JOIN smart_v.jury j ON sj.idJury = j.idJury
               WHERE s.idSoutenance = ?
               GROUP BY s.idSoutenance;
             `;
@@ -248,8 +228,7 @@ router.put("/:id", (req, res) => {
                 console.error("❌ Error fetching updated soutenance data:", err);
                 return res.status(500).json({ error: "Failed to fetch updated soutenance data" });
               }
-              const updatedSoutenance = results[0];
-              res.json(updatedSoutenance);
+              res.json(results[0]);
             });
           });
         });
@@ -262,21 +241,21 @@ router.put("/:id", (req, res) => {
 router.delete("/:id", (req, res) => {
   const { id } = req.params;
 
-  const juryDeleteQuery = `DELETE FROM soutenance_jury WHERE idSoutenance = ?`;
+  const juryDeleteQuery = `DELETE FROM smart_v.soutenance_jury WHERE idSoutenance = ?`;
   db.query(juryDeleteQuery, [id], (err) => {
     if (err) {
       console.error("❌ Error deleting jury members:", err);
       return res.status(500).json({ error: "Failed to delete jury members" });
     }
 
-    const groupDeleteQuery = `DELETE FROM soutenance_groupe WHERE idSoutenance = ?`;
+    const groupDeleteQuery = `DELETE FROM smart_v.soutenance_groupe WHERE idSoutenance = ?`;
     db.query(groupDeleteQuery, [id], (err) => {
       if (err) {
         console.error("❌ Error deleting groups:", err);
         return res.status(500).json({ error: "Failed to delete groups" });
       }
 
-      const soutenanceDeleteQuery = `DELETE FROM soutenance WHERE idSoutenance = ?`;
+      const soutenanceDeleteQuery = `DELETE FROM smart_v.soutenance WHERE idSoutenance = ?`;
       db.query(soutenanceDeleteQuery, [id], (err) => {
         if (err) {
           console.error("❌ Error deleting soutenance:", err);
@@ -292,17 +271,41 @@ router.delete("/:id", (req, res) => {
 router.get("/jury-groups/:idJury", (req, res) => {
   const { idJury } = req.params;
   const query = `
-    SELECT DISTINCT g.idGroupe, g.nomGroupe
-    FROM jury j
-    LEFT JOIN encadrant e ON j.idEncadrant = e.idEncadrant
-    LEFT JOIN sujet s ON e.idEncadrant = s.idEncadrant
-    LEFT JOIN etudiantsujet es ON s.idSujet = es.idSujet
-    LEFT JOIN etudiantgroupe eg ON es.idEtudiant = eg.idEtudiant
-    JOIN groupe g ON eg.idGroupe = g.idGroupe
-    WHERE j.idJury = ? AND j.idEncadrant IS NOT NULL;
+    SELECT DISTINCT g.idGroupe, g.nomGroupe, g.annee, t.nom AS tuteurNom, s.titre AS sujetTitre, e.nom AS encadrantNom
+    FROM smart_v.jury j
+    JOIN smart_v.encadrant e ON j.idEncadrant = e.idEncadrant
+    LEFT JOIN (
+        -- Path 1: Groups via Sujet
+        SELECT g.idGroupe, g.nomGroupe, g.annee, g.idTuteur, g.idSujet
+        FROM smart_v.groupe g
+        JOIN smart_v.sujet s ON g.idSujet = s.idSujet
+        WHERE s.idEncadrant = (
+            SELECT idEncadrant FROM smart_v.jury WHERE idJury = ?
+        )
+        UNION
+        -- Path 2: Groups via Soutenance
+        SELECT g.idGroupe, g.nomGroupe, g.annee, g.idTuteur, g.idSujet
+        FROM smart_v.groupe g
+        JOIN smart_v.soutenance sout ON g.idGroupe = sout.idGroupe
+        JOIN smart_v.encadrantsoutenance es ON sout.idSoutenance = es.idSoutenance
+        WHERE es.idEncadrant = (
+            SELECT idEncadrant FROM smart_v.jury WHERE idJury = ?
+        )
+        UNION
+        -- Path 3: Groups via Evaluation
+        SELECT g.idGroupe, g.nomGroupe, g.annee, g.idTuteur, g.idSujet
+        FROM smart_v.groupe g
+        JOIN smart_v.evaluation eval ON g.idGroupe = eval.idGroupe
+        WHERE eval.idEncadrant = (
+            SELECT idEncadrant FROM smart_v.jury WHERE idJury = ?
+        )
+    ) g ON 1=1
+    LEFT JOIN smart_v.tuteur t ON g.idTuteur = t.idTuteur
+    LEFT JOIN smart_v.sujet s ON g.idSujet = s.idSujet
+    WHERE j.idJury = ?;
   `;
 
-  db.query(query, [idJury], (err, results) => {
+  db.query(query, [idJury, idJury, idJury, idJury], (err, results) => {
     if (err) {
       console.error("❌ Error fetching jury groups:", err);
       return res.status(500).json({ error: "Failed to fetch jury groups" });

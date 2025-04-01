@@ -1,7 +1,6 @@
 "use client"
 
 import type React from "react"
-
 import { useState, useEffect } from "react"
 import { Users, Calendar, Home, User, Loader2, X, Check } from "lucide-react"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
@@ -21,7 +20,11 @@ import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group"
 interface Group {
   idGroupe: string
   nomGroupe: string
-  nbEtudiants: number
+  nbEtudiants?: number // Optional since not all queries return this
+  annee?: number
+  tuteurNom?: string
+  sujetTitre?: string
+  encadrantNom?: string
 }
 
 interface Jury {
@@ -72,32 +75,13 @@ const rooms: Room[] = [
 ]
 
 const timeSlots = [
-  "08:00",
-  "08:30",
-  "09:00",
-  "09:30",
-  "10:00",
-  "10:30",
-  "11:00",
-  "11:30",
-  "12:00",
-  "12:30",
-  "13:00",
-  "13:30",
-  "14:00",
-  "14:30",
-  "15:00",
-  "15:30",
-  "16:00",
-  "16:30",
-  "17:00",
-  "17:30",
-  "18:00",
+  "08:00", "08:30", "09:00", "09:30", "10:00", "10:30", "11:00", "11:30",
+  "12:00", "12:30", "13:00", "13:30", "14:00", "14:30", "15:00", "15:30",
+  "16:00", "16:30", "17:00", "17:30", "18:00",
 ]
 
 // Component
 export default function PlanifierSoutenance() {
-  // State
   const [formData, setFormData] = useState<FormData>(INITIAL_FORM_STATE)
   const [groups, setGroups] = useState<Group[]>([])
   const [availableGroups, setAvailableGroups] = useState<Group[]>([])
@@ -109,36 +93,35 @@ export default function PlanifierSoutenance() {
   const [mode, setMode] = useState<SelectionMode>("manual")
   const [isSubmitting, setIsSubmitting] = useState(false)
 
-  // Fetch data
-  useEffect(() => {
-    const fetchData = async () => {
-      try {
-        setLoading(true)
-        const [groupsResponse, jurysResponse] = await Promise.all([
-          fetch("http://localhost:5000/api/groups"),
-          fetch("http://localhost:5000/api/jurys"),
-        ])
+// Fetch data
+useEffect(() => {
+  const fetchData = async () => {
+    try {
+      setLoading(true)
+      const [groupsResponse, jurysResponse] = await Promise.all([
+        fetch("http://localhost:5000/api/groups"),
+        fetch("http://localhost:5000/api/jurys"),
+      ])
 
-        if (!groupsResponse.ok || !jurysResponse.ok) {
-          throw new Error("Failed to fetch data")
-        }
-
-        const [groupsData, jurysData] = await Promise.all([groupsResponse.json(), jurysResponse.json()])
-
-        setGroups(groupsData)
-        setAvailableGroups(groupsData)
-        setJurys(jurysData)
-      } catch (error) {
-        setError("Erreur lors du chargement des données. Veuillez réessayer.")
-        console.error("Error fetching data:", error)
-      } finally {
-        setLoading(false)
+      if (!groupsResponse.ok || !jurysResponse.ok) {
+        throw new Error("Failed to fetch data")
       }
+
+      const [groupsData, jurysData] = await Promise.all([groupsResponse.json(), jurysResponse.json()])
+
+      setGroups(groupsData)
+      setAvailableGroups(groupsData)
+      setJurys(jurysData)
+    } catch (error) {
+      setError("Erreur lors du chargement des données. Veuillez réessayer.")
+      console.error("Error fetching data:", error)
+    } finally {
+      setLoading(false)
     }
+  }
 
-    fetchData()
-  }, [])
-
+  fetchData()
+}, [])
   // Reset form when mode changes
   useEffect(() => {
     setFormData(INITIAL_FORM_STATE)
@@ -206,9 +189,7 @@ export default function PlanifierSoutenance() {
   const handleJuryChange = async (juryId: string, checked: boolean) => {
     let newJury = [...formData.jury]
 
-    // Update jury selection based on mode
     if (mode === "aleatoire") {
-      // In aleatoire mode, allow only one jury.
       if (checked) {
         if (newJury.length === 0) {
           newJury = [juryId]
@@ -220,7 +201,6 @@ export default function PlanifierSoutenance() {
         newJury = newJury.filter((id) => id !== juryId)
       }
     } else if (mode === "semi-aleatoire" || mode === "manual") {
-      // In semi-aleatoire and manual modes, allow up to 3 jurys.
       if (checked) {
         if (newJury.length < 3) {
           newJury.push(juryId)
@@ -233,23 +213,14 @@ export default function PlanifierSoutenance() {
       }
     }
 
-    // For manual mode, simply update the jury selection
-    if (mode === "manual") {
-      setFormData({ ...formData, jury: newJury })
-      return
-    }
-
-    // Update form's jury field
     setFormData({ ...formData, jury: newJury })
 
-    // For auto modes, fetch associated groups
-    if (newJury.length > 0) {
+    if (newJury.length > 0 && (mode === "aleatoire" || mode === "semi-aleatoire")) {
       try {
         if (mode === "aleatoire") {
-          // In aleatoire mode, use the first selected jury only
           const response = await fetch(`http://localhost:5000/api/soutenance/jury-groups/${newJury[0]}`)
           if (!response.ok) throw new Error("Failed to fetch jury groups")
-          const associatedGroups = await response.json()
+          const associatedGroups: Group[] = await response.json()
           setAvailableGroups(associatedGroups)
 
           if (associatedGroups.length > 0) {
@@ -260,21 +231,14 @@ export default function PlanifierSoutenance() {
             setToast({ type: "info", message: "Aucun groupe associé à ce jury." })
           }
         } else if (mode === "semi-aleatoire") {
-          // For each selected jury, fetch its associated groups
           const groupPromises = newJury.map((id) =>
-            fetch(`http://localhost:5000/api/soutenance/jury-groups/${id}`).then((res) => res.json()),
+            fetch(`http://localhost:5000/api/soutenance/jury-groups/${id}`).then((res) => res.json())
           )
-          const groupArrays = await Promise.all(groupPromises)
-
-          // For each jury, select the first group (if available)
+          const groupArrays: Group[][] = await Promise.all(groupPromises)
           const autoSelectedGroups = groupArrays
             .map((groups) => (groups.length > 0 ? groups[0].idGroupe : null))
             .filter((g): g is string => g !== null)
-
-          // Remove duplicates
           const uniqueGroups = Array.from(new Set(autoSelectedGroups))
-
-          // Update available groups
           const mergedAvailable = groupArrays.flat()
           setAvailableGroups(mergedAvailable)
           setFormData((prev) => ({ ...prev, group: uniqueGroups }))
@@ -282,22 +246,20 @@ export default function PlanifierSoutenance() {
           if (uniqueGroups.length > 0) {
             setToast({
               type: "success",
-              message: `${uniqueGroups.length} groupe(s) automatiquement sélectionné(s) pour ${newJury.length} jury(s).`,
+              message: `${uniqueGroups.length} groupe(s) automatiquement sélectionné(s).`,
             })
           } else {
             setToast({
-              type: "error",
-              message: "Aucun groupe associé aux jurys sélectionnés. Sélectionnez manuellement si nécessaire.",
+              type: "info",
+              message: "Aucun groupe associé aux jurys sélectionnés.",
             })
-            setFormData((prev) => ({ ...prev, group: [] }))
           }
         }
       } catch (error) {
         setAvailableGroups(groups)
         setToast({ type: "error", message: "Erreur lors de la récupération des groupes." })
       }
-    } else {
-      // If no jurys are selected, reset available groups
+    } else if (newJury.length === 0) {
       setAvailableGroups(groups)
       setFormData((prev) => ({ ...prev, group: [] }))
     }
@@ -313,7 +275,6 @@ export default function PlanifierSoutenance() {
     }))
   }
 
-  // Loading state
   if (loading) {
     return (
       <div className="flex items-center justify-center min-h-screen bg-[#EFEFEE]">
@@ -325,7 +286,6 @@ export default function PlanifierSoutenance() {
     )
   }
 
-  // Error state
   if (error) {
     return (
       <div className="flex items-center justify-center min-h-screen p-8 bg-gradient-to-b from-background to-muted/20">
@@ -338,7 +298,6 @@ export default function PlanifierSoutenance() {
 
   return (
     <div className="flex items-center justify-center min-h-screen bg-[#EFEFEE]">
-      {/* Toast notification */}
       {toast && (
         <div className="fixed top-4 left-1/2 transform -translate-x-1/2 z-50 animate-in fade-in slide-in-from-top duration-300 w-full max-w-md">
           <Alert
@@ -365,7 +324,6 @@ export default function PlanifierSoutenance() {
       )}
 
       <div className="max-w-5xl mx-auto">
-        {/* Header */}
         <div className="text-center mb-12">
           <h1 className="text-4xl sm:text-5xl font-bold bg-gradient-to-r from-[#b17a56] to-[#5b8cb5] bg-clip-text text-transparent">
             Planification des Soutenances
@@ -375,17 +333,14 @@ export default function PlanifierSoutenance() {
           </p>
         </div>
 
-        {/* Main form card */}
         <Card className="overflow-hidden bg-[#EFEFEE] border-[#b17a56]/10 shadow-xl">
           <CardHeader className="bg-gradient-to-r from-[#b17a56]/10 to-[#5b8cb5]/5 pb-6">
             <CardTitle className="text-2xl text-center text-[#b17a56]">Formulaire de Planification</CardTitle>
           </CardHeader>
           <CardContent className="p-6">
-            {/* Selection mode */}
             <div className="mb-8">
               <h2 className="text-2xl font-semibold mb-4 text-[#b17a56]">Mode de Sélection</h2>
               <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-                {/* Manual mode */}
                 <SelectionModeCard
                   mode="manual"
                   currentMode={mode}
@@ -393,8 +348,6 @@ export default function PlanifierSoutenance() {
                   title="Manuel"
                   description="Sélection manuelle de tous les éléments"
                 />
-
-                {/* Random mode */}
                 <SelectionModeCard
                   mode="aleatoire"
                   currentMode={mode}
@@ -402,8 +355,6 @@ export default function PlanifierSoutenance() {
                   title="Aléatoire"
                   description="1 jury, 1 groupe automatique"
                 />
-
-                {/* Semi-random mode */}
                 <SelectionModeCard
                   mode="semi-aleatoire"
                   currentMode={mode}
@@ -415,15 +366,12 @@ export default function PlanifierSoutenance() {
             </div>
 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-              {/* Group selection */}
               <GroupSelection
                 availableGroups={availableGroups}
                 selectedGroups={formData.group}
                 onGroupChange={handleGroupChange}
                 isManualMode={mode === "manual"}
               />
-
-              {/* Date and time selection */}
               <DateTimeSelection
                 date={formData.date}
                 time={formData.time}
@@ -436,19 +384,14 @@ export default function PlanifierSoutenance() {
                 setOpenTimePopover={setOpenTimePopover}
                 timeSlots={timeSlots}
               />
-
-              {/* Room selection */}
               <RoomSelection
                 selectedRoom={formData.location}
                 onRoomChange={(roomId) => setFormData({ ...formData, location: roomId })}
                 rooms={rooms}
               />
-
-              {/* Jury selection */}
               <JurySelection jurys={jurys} selectedJurys={formData.jury} onJuryChange={handleJuryChange} mode={mode} />
             </div>
 
-            {/* Submit button */}
             <div className="mt-8 flex justify-center">
               <Button
                 onClick={onAddSoutenance}
@@ -548,7 +491,7 @@ function GroupSelection({ availableGroups, selectedGroups, onGroupChange, isManu
                 htmlFor={`group-${group.idGroupe}`}
                 className={`text-base cursor-pointer ${selectedGroups.includes(group.idGroupe) ? "font-medium" : ""}`}
               >
-                {group.nomGroupe} ({group.nbEtudiants} étudiants)
+                {group.nomGroupe} {group.nbEtudiants !== undefined ? `(${group.nbEtudiants} étudiants)` : ""}
               </Label>
             </div>
           ))}
@@ -806,4 +749,3 @@ function Clock(props: React.SVGProps<SVGSVGElement>) {
     </svg>
   )
 }
-

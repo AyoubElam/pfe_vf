@@ -25,40 +25,37 @@ const queryPromise = (query, params) => {
 router.get("/tuteur/:idTuteur", async (req, res) => {
   const { idTuteur } = req.params;
 
-  const tuteurId = parseInt(idTuteur, 10);
-  if (isNaN(tuteurId)) {
-    return res.status(400).json({ error: "Invalid idTuteur: must be a number" });
+  if (!idTuteur) {
+    return res.status(400).json({ error: "Missing idTuteur" });
   }
 
   try {
     const query = `
       SELECT 
-  s.idSoutenance,
-  DATE(s.date) AS date,
-  s.time,
-  s.location,
-  s.status,
-  g.idGroupe,
-  g.nomGroupe,
-  j.nom AS juryNom
-FROM 
-  soutenance s
-INNER JOIN 
-  soutenance_groupe sg ON s.idSoutenance = sg.idSoutenance
-INNER JOIN 
-  groupe g ON sg.idGroupe = g.idGroupe
-INNER JOIN 
-  pfe_groupe pg ON g.idGroupe = pg.idGroupe
-INNER JOIN 
-  pfe p ON pg.idPFE = p.idPFE
-LEFT JOIN 
-  soutenance_jury sj ON s.idSoutenance = sj.idSoutenance
-LEFT JOIN 
-  jury j ON sj.idJury = j.idJury
-WHERE 
-  p.idTuteur = ?;
+        s.idSoutenance,
+        DATE(s.date) AS date,
+        s.time,
+        s.location,
+        s.status,
+        g.idGroupe,
+        g.nomGroupe,
+        j.nom AS juryNom
+      FROM 
+        soutenance s
+      INNER JOIN 
+        soutenance_groupe sg ON s.idSoutenance = sg.idSoutenance
+      INNER JOIN 
+        groupe g ON sg.idGroupe = g.idGroupe
+      INNER JOIN 
+        pfe p ON g.idGroupe = p.idGroupe  -- Use pfe.idGroupe instead of pfe_groupe
+      LEFT JOIN 
+        soutenance_jury sj ON s.idSoutenance = sj.idSoutenance
+      LEFT JOIN 
+        jury j ON sj.idJury = j.idJury
+      WHERE 
+        p.idTuteur = ?;
     `;
-    const results = await queryPromise(query, [tuteurId]);
+    const results = await queryPromise(query, [idTuteur]);
 
     // Aggregate jury names by soutenance
     const soutenancesMap = new Map();

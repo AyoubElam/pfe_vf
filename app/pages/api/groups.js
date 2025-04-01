@@ -8,23 +8,22 @@ router.get("/", (req, res) => {
     SELECT 
       g.idGroupe, 
       g.nomGroupe, 
-      COUNT(eg.idEtudiant) AS nbEtudiants,
+      COUNT(e.idEtudiant) AS nbEtudiants,
       GROUP_CONCAT(CONCAT(e.prenom, ' ', e.nom) SEPARATOR ', ') AS students
     FROM groupe g
-    LEFT JOIN etudiantgroupe eg ON g.idGroupe = eg.idGroupe
-    LEFT JOIN etudiant e ON eg.idEtudiant = e.idEtudiant
+    LEFT JOIN etudiant e ON g.idGroupe = e.idGroupe
     GROUP BY g.idGroupe, g.nomGroupe;
   `;
 
   db.query(query, (err, results) => {
     if (err) {
       console.error("Error fetching groups data:", err);
-      return res.status(500).json({ error: "Failed to fetch groups" });
+      return res.status(500).json({ error: "Failed to fetch groups", details: err.sqlMessage });
     }
 
     // Transform results into a structured format
     const formattedResults = results.map((row) => ({
-      idGroupe: row.idGroupe.toString(), // Convert to string if needed
+      idGroupe: row.idGroupe.toString(), // Convert to string if needed (depends on your schema)
       nomGroupe: row.nomGroupe,
       nbEtudiants: row.nbEtudiants,
       students: row.students ? row.students.split(", ") : [], // Split names into an array

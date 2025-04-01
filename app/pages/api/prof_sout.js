@@ -1,70 +1,128 @@
-import express from "express";
-import db from "../../../config/db.js";
+import express from "express"
+import db from "../../../config/db.js"
 
-const router = express.Router();
+const router = express.Router()
 
-const queryPromise = (query, params) => {
-  return new Promise((resolve, reject) => {
-    db.query(query, params, (error, results) => {
-      if (error) {
-        console.error("Query error:", error);
-        reject(error);
-      } else {
-        resolve(results);
-      }
-    });
-  });
-};
+// GET documents for professor
+router.get("/", (req, res) => {
+  const { idEncadrant } = req.query
 
-router.get("/soutenances/:id", async (req, res) => {
-  const { id } = req.params;
-  const { year } = req.query; // Optional year query parameter
-
-  if (!id || isNaN(parseInt(id))) {
-    return res.status(400).json({ error: "Valid idEncadrant is required" });
+  if (!idEncadrant) {
+    return res.status(400).json({ error: "Missing idEncadrant parameter" })
   }
 
-  try {
-    let query = `
-      SELECT 
-        s.idSoutenance,
-        s.date,
-        s.time,
-        s.location,
-        g.nomGroupe,
-        (SELECT GROUP_CONCAT(j.nom SEPARATOR ', ')
-         FROM soutenance_jury sj
-         INNER JOIN jury j ON sj.idJury = j.idJury
-         WHERE sj.idSoutenance = s.idSoutenance) AS juryNames,
-        s.status,
-        sg.idGroupe
-      FROM soutenance s
-      INNER JOIN soutenance_groupe sg ON s.idSoutenance = sg.idSoutenance
-      INNER JOIN groupe g ON sg.idGroupe = g.idGroupe
-      INNER JOIN etudiantgroupe eg ON g.idGroupe = eg.idGroupe
-      INNER JOIN etudiantsujet es ON eg.idEtudiant = es.idEtudiant
-      INNER JOIN sujet su ON es.idSujet = su.idSujet
-      WHERE su.idEncadrant = ?`;
-      
-    const params = [id];
+  const query = `
+    SELECT 
+      pl.id,
+      pl.idPFE,
+      pl.fichier,
+      pl.type,
+      g.nomGroupe,
+      COUNT(DISTINCT e.idEtudiant) AS nbEtudiants,
+      GROUP_CONCAT(DISTINCT CONCAT(e.nom, ' ', e.prenom) SEPARATOR ', ') AS studentNames,
+      s.titre AS subjectTitle,
+      vc.validationStatus,
+      vc.comment,
+      pl.idLivrable
+    FROM pfe_livrable pl
+    JOIN groupe g ON pl.idGroupe = g.idGroupe
+    JOIN sujet s ON g.idSujet = s.idSujet
+    LEFT JOIN etudiant e ON g.idGroupe = e.idGroupe
+    LEFT JOIN validation_comment vc ON pl.id = vc.pfeLivrableId AND vc.idEncadrant = ?
+    WHERE s.idEncadrant = ?
+    GROUP BY pl.id, pl.idPFE, pl.fichier, pl.type, g.nomGroupe, s.titre, vc.validationStatus, vc.comment, pl.idLivrable;
+  `
 
-    // Apply year filter if provided and not set to "all"
-    if (year && year !== "all") {
-      query += " AND YEAR(s.date) = ?";
-      params.push(year);
-    }
-    
-    const results = await queryPromise(query, params);
+  console.log("Executing query:", query)
+  console.log("Parameters:", [idEncadrant, idEncadrant])
 
-    if (results.length === 0) {
-      return res.status(404).json({ error: "No soutenances found for this professor" });
+  db.query(query, [idEncadrant, idEncadrant], (err, results) => {
+    if (err) {
+      console.error("Error fetching documents:", err)
+      return res.status(500).json({ error: "Server error", details: err.message })
     }
 
-    res.status(200).json(results);
-  } catch (error) {
-    console.error("Error fetching soutenances:", error);
-    res.status(500).json({ error: "Failed to fetch soutenances", message: error.message });
+    console.log("Query results:", results)
+
+    const documents = results.map((row) => ({
+      id: row.id,
+      idPFE: row.idPFE,
+      fichier: row.fichier,
+      type: row.type,
+      nomGroupe: row.nomGroupe,
+      nbEtudiants: row.nbEtudiants,
+      authorName: row.studentNames,
+      subjectTitle: row.subjectTitle,
+      validationStatus: row.validationStatus || "pending",
+      comment: row.comment,
+      idLivrable: row.idLivrable,
+    }))
+
+    res.json(documents)
+  })
+})
+
+// POST route for professor to validate documents
+router.post("/validate", (req, res) => {
+  const { idPFE, pfeLivrableId, idEncadrant, validationStatus, comment } = req.body
+  console.log("Received validation request:", req.body)
+
+  if (!idPFE || !pfeLivrableId || !idEncadrant || !validationStatus) {
+    console.log("Missing fields:", { idPFE, pfeLivrableId, idEncadrant, validationStatus })
+    return res.status(400).json({ error: "Missing required fields" })
   }
-});
 
-export default router;
+  const validateQuery = `
+    INSERT INTO validation_comment (idPFE, pfeLivrableId, idEncadrant, validationStatus, comment)
+    VALUES (?, ?, ?, ?, ?)
+    ON DUPLICATE KEY UPDATE
+      validationStatus = VALUES(validationStatus),
+      comment = VALUES(comment)
+  `
+
+  db.query(validateQuery, [idPFE, pfeLivrableId, idEncadrant, validationStatus, comment || null], (err, result) => {
+    if (err) {
+      console.error("Validation insert/update error:", err)
+      return res.status(500).json({ error: `Server error: ${err.message}` })
+    }
+    console.log("Query result:", result)
+    res.json({
+      message:
+        result.affectedRows > 0
+          ? result.insertId
+            ? "Validation created successfully"
+            : "Validation updated successfully"
+          : "No changes made",
+    })
+  })
+})
+
+// DELETE route for professor to remove validation
+router.delete("/validate", (req, res) => {
+  const { idPFE, pfeLivrableId, idEncadrant } = req.query
+
+  if (!idPFE || !pfeLivrableId || !idEncadrant) {
+    return res.status(400).json({ error: "Missing required fields" })
+  }
+
+  const deleteQuery = `
+    DELETE FROM validation_comment
+    WHERE idPFE = ? AND pfeLivrableId = ? AND idEncadrant = ?
+  `
+
+  db.query(deleteQuery, [idPFE, pfeLivrableId, idEncadrant], (err, result) => {
+    if (err) {
+      console.error("Error deleting validation:", err)
+      return res.status(500).json({ error: "Server error", details: err.message })
+    }
+
+    if (result.affectedRows === 0) {
+      return res.status(404).json({ message: "Validation not found" })
+    }
+
+    return res.json({ message: "Validation deleted successfully" })
+  })
+})
+
+export default router
+

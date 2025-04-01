@@ -1,8 +1,10 @@
 import express from "express";
 const router = express.Router();
-import db from "../../../config/db.js"; // Adjust path as needed
+import db from "../../../config/db.js";
 
-router.get('/group-documents', (req, res) => {
+// tut_soumettre.js
+// tut_soumettre.js
+router.get("/group-documents", (req, res) => {
   const { idTuteur } = req.query;
 
   if (!idTuteur) {
@@ -16,35 +18,42 @@ router.get('/group-documents', (req, res) => {
       pl.fichier,
       pl.type,
       g.nomGroupe,
+      COUNT(DISTINCT e.idEtudiant) AS nbEtudiants,
+      pl.idLivrable,
       vc.validationStatus,
       vc.comment,
       GROUP_CONCAT(DISTINCT CONCAT(e.nom, ' ', e.prenom) SEPARATOR ', ') AS studentNames
     FROM pfe_livrable pl
     JOIN pfe p ON pl.idPFE = p.idPFE
-    JOIN pfe_groupe pg ON pl.idPFE = pg.idPFE
-    JOIN groupe g ON pg.idGroupe = g.idGroupe
-    JOIN etudiantgroupe eg ON g.idGroupe = eg.idGroupe
-    JOIN etudiant e ON eg.idEtudiant = e.idEtudiant
-    LEFT JOIN validation_comment vc ON pl.idPFE = vc.idPFE AND pl.id = vc.idLivrable AND vc.idTuteur = ?
-    WHERE p.idTuteur = ? AND pl.fichier IS NOT NULL
-    GROUP BY pl.id, pl.idPFE, pl.fichier, pl.type, g.nomGroupe, vc.validationStatus, vc.comment
+    JOIN groupe g ON pl.idGroupe = g.idGroupe AND p.idGroupe = g.idGroupe
+    LEFT JOIN etudiant e ON g.idGroupe = e.idGroupe
+    LEFT JOIN validation_comment vc ON pl.id = vc.pfeLivrableId AND vc.idTuteur = ?
+    WHERE p.idTuteur = ?
+    GROUP BY pl.id, pl.idPFE, pl.fichier, pl.type, g.nomGroupe, pl.idLivrable, vc.validationStatus, vc.comment;
   `;
 
   db.query(query, [idTuteur, idTuteur], (err, results) => {
     if (err) {
-      console.error('Error fetching documents:', err);
-      return res.status(500).json({ error: 'Server error', details: err.message });
+      console.error("Error fetching documents:", err);
+      return res.status(500).json({ error: "Server error", details: err.message });
     }
-    res.json(results.map(row => ({
+
+    console.log("Raw query results:", JSON.stringify(results, null, 2)); // Debug log
+
+    const uniqueResults = results.map((row) => ({
       id: row.id,
       idPFE: row.idPFE,
       fichier: row.fichier,
       type: row.type,
       nomGroupe: row.nomGroupe,
-      validationStatus: row.validationStatus,
+      nbEtudiants: row.nbEtudiants,
+      idLivrable: row.idLivrable || null,
+      validationStatus: row.validationStatus || "pending",
       comment: row.comment,
-      authorName: row.studentNames
-    })));
+      authorName: row.studentNames,
+    }));
+
+    res.json(uniqueResults);
   });
 });
 

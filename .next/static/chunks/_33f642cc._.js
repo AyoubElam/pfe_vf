@@ -434,21 +434,21 @@ const LIVRABLE_ICONS = {
         className: "h-5 w-5"
     }, void 0, false, {
         fileName: "[project]/app/components/etu_soutenance/soumettre.tsx",
-        lineNumber: 57,
-        columnNumber: 8
+        lineNumber: 59,
+        columnNumber: 10
     }, this),
     Presentation: /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$lucide$2d$react$2f$dist$2f$esm$2f$icons$2f$file$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__$3c$export__default__as__FileIcon$3e$__["FileIcon"], {
         className: "h-5 w-5"
     }, void 0, false, {
         fileName: "[project]/app/components/etu_soutenance/soumettre.tsx",
-        lineNumber: 58,
-        columnNumber: 17
+        lineNumber: 60,
+        columnNumber: 19
     }, this)
 };
 function SoumettrePage() {
     _s();
     const searchParams = (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$navigation$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["useSearchParams"])();
-    const idEtudiant = searchParams.get("idEtudiant") || "4";
+    const idEtudiant = searchParams.get("idEtudiant") || "E003";
     const idGroupe = searchParams.get("idGroupe") || "2";
     // State
     const [pdfFile, setPdfFile] = (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$index$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["useState"])(null);
@@ -468,16 +468,12 @@ function SoumettrePage() {
             setFetchError(null);
             try {
                 const response = await fetch(`${API_BASE_URL}/api/livrable/documents?idEtudiant=${idEtudiant}`);
-                if (!response.ok) {
-                    const errorData = await response.json();
-                    throw new Error(errorData.error || "Impossible de récupérer les documents");
-                }
+                if (!response.ok) throw new Error("Failed to fetch documents");
                 const data = await response.json();
-                console.log("Fetched documents with validations:", JSON.stringify(data, null, 2));
+                console.log("Fetched documents:", JSON.stringify(data, null, 2));
                 setSubmittedDocuments(data);
             } catch (error) {
                 setFetchError(error.message);
-                console.error("Fetch error:", error);
             } finally{
                 setIsLoading(false);
             }
@@ -559,10 +555,14 @@ function SoumettrePage() {
             setIsSubmitting(false);
         }
     };
-    // Document deletion
     const handleDelete = async (idPFE, id)=>{
         if (!confirm("Êtes-vous sûr de vouloir supprimer ce document ?")) return;
         try {
+            console.log("Sending delete request:", {
+                idEtudiant,
+                idPFE,
+                id
+            });
             const response = await fetch(`${API_BASE_URL}/api/livrable/delete-document`, {
                 method: "POST",
                 headers: {
@@ -575,13 +575,15 @@ function SoumettrePage() {
                 })
             });
             if (response.ok) {
+                console.log("Delete successful");
                 fetchDocuments();
             } else {
                 const errorText = await response.text();
+                console.error("Delete failed:", errorText);
                 alert(`Erreur lors de la suppression : ${errorText}`);
             }
         } catch (error) {
-            console.error("Erreur de connexion:", error);
+            console.error("Connection error:", error);
             alert("Erreur de connexion au serveur");
         }
     };
@@ -595,7 +597,7 @@ function SoumettrePage() {
                 }, void 0, false, {
                     fileName: "[project]/app/components/etu_soutenance/soumettre.tsx",
                     lineNumber: 207,
-                    columnNumber: 16
+                    columnNumber: 18
                 }, this);
             case "rejected":
                 return /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$lucide$2d$react$2f$dist$2f$esm$2f$icons$2f$circle$2d$x$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__$3c$export__default__as__XCircle$3e$__["XCircle"], {
@@ -603,7 +605,7 @@ function SoumettrePage() {
                 }, void 0, false, {
                     fileName: "[project]/app/components/etu_soutenance/soumettre.tsx",
                     lineNumber: 209,
-                    columnNumber: 16
+                    columnNumber: 18
                 }, this);
             default:
                 return /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$lucide$2d$react$2f$dist$2f$esm$2f$icons$2f$clock$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__$3c$export__default__as__Clock$3e$__["Clock"], {
@@ -611,7 +613,7 @@ function SoumettrePage() {
                 }, void 0, false, {
                     fileName: "[project]/app/components/etu_soutenance/soumettre.tsx",
                     lineNumber: 211,
-                    columnNumber: 16
+                    columnNumber: 18
                 }, this);
         }
     };
@@ -651,7 +653,7 @@ function SoumettrePage() {
                         }, void 0, false, {
                             fileName: "[project]/app/components/etu_soutenance/soumettre.tsx",
                             lineNumber: 243,
-                            columnNumber: 11
+                            columnNumber: 13
                         }, this),
                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$card$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["CardDescription"], {
                             className: "text-gray-600 dark:text-gray-300",
@@ -659,13 +661,13 @@ function SoumettrePage() {
                         }, void 0, false, {
                             fileName: "[project]/app/components/etu_soutenance/soumettre.tsx",
                             lineNumber: 244,
-                            columnNumber: 11
+                            columnNumber: 13
                         }, this)
                     ]
                 }, void 0, true, {
                     fileName: "[project]/app/components/etu_soutenance/soumettre.tsx",
                     lineNumber: 242,
-                    columnNumber: 9
+                    columnNumber: 11
                 }, this),
                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$card$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["CardContent"], {
                     className: "p-6",
@@ -677,7 +679,7 @@ function SoumettrePage() {
                         }, void 0, false, {
                             fileName: "[project]/app/components/etu_soutenance/soumettre.tsx",
                             lineNumber: 250,
-                            columnNumber: 29
+                            columnNumber: 31
                         }, this),
                         submitError && /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(SubmissionAlert, {
                             type: "error",
@@ -686,7 +688,7 @@ function SoumettrePage() {
                         }, void 0, false, {
                             fileName: "[project]/app/components/etu_soutenance/soumettre.tsx",
                             lineNumber: 251,
-                            columnNumber: 27
+                            columnNumber: 29
                         }, this),
                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$tabs$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["Tabs"], {
                             value: activeTab,
@@ -703,7 +705,7 @@ function SoumettrePage() {
                                         }, void 0, false, {
                                             fileName: "[project]/app/components/etu_soutenance/soumettre.tsx",
                                             lineNumber: 255,
-                                            columnNumber: 15
+                                            columnNumber: 17
                                         }, this),
                                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$tabs$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["TabsTrigger"], {
                                             value: "upload",
@@ -712,13 +714,13 @@ function SoumettrePage() {
                                         }, void 0, false, {
                                             fileName: "[project]/app/components/etu_soutenance/soumettre.tsx",
                                             lineNumber: 261,
-                                            columnNumber: 15
+                                            columnNumber: 17
                                         }, this)
                                     ]
                                 }, void 0, true, {
                                     fileName: "[project]/app/components/etu_soutenance/soumettre.tsx",
                                     lineNumber: 254,
-                                    columnNumber: 13
+                                    columnNumber: 15
                                 }, this),
                                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$tabs$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["TabsContent"], {
                                     value: "submitted",
@@ -738,12 +740,12 @@ function SoumettrePage() {
                                     }, void 0, false, {
                                         fileName: "[project]/app/components/etu_soutenance/soumettre.tsx",
                                         lineNumber: 270,
-                                        columnNumber: 15
+                                        columnNumber: 17
                                     }, this)
                                 }, void 0, false, {
                                     fileName: "[project]/app/components/etu_soutenance/soumettre.tsx",
                                     lineNumber: 269,
-                                    columnNumber: 13
+                                    columnNumber: 15
                                 }, this),
                                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$tabs$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["TabsContent"], {
                                     value: "upload",
@@ -760,24 +762,24 @@ function SoumettrePage() {
                                     }, void 0, false, {
                                         fileName: "[project]/app/components/etu_soutenance/soumettre.tsx",
                                         lineNumber: 286,
-                                        columnNumber: 15
+                                        columnNumber: 17
                                     }, this)
                                 }, void 0, false, {
                                     fileName: "[project]/app/components/etu_soutenance/soumettre.tsx",
                                     lineNumber: 285,
-                                    columnNumber: 13
+                                    columnNumber: 15
                                 }, this)
                             ]
                         }, void 0, true, {
                             fileName: "[project]/app/components/etu_soutenance/soumettre.tsx",
                             lineNumber: 253,
-                            columnNumber: 11
+                            columnNumber: 13
                         }, this)
                     ]
                 }, void 0, true, {
                     fileName: "[project]/app/components/etu_soutenance/soumettre.tsx",
                     lineNumber: 249,
-                    columnNumber: 9
+                    columnNumber: 11
                 }, this),
                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$card$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["CardFooter"], {
                     className: "bg-gray-50 dark:bg-gray-700 p-4 flex flex-col sm:flex-row justify-between text-xs text-gray-500 dark:text-gray-400 gap-2",
@@ -790,7 +792,7 @@ function SoumettrePage() {
                         }, void 0, true, {
                             fileName: "[project]/app/components/etu_soutenance/soumettre.tsx",
                             lineNumber: 301,
-                            columnNumber: 11
+                            columnNumber: 13
                         }, this),
                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("span", {
                             children: [
@@ -800,24 +802,24 @@ function SoumettrePage() {
                         }, void 0, true, {
                             fileName: "[project]/app/components/etu_soutenance/soumettre.tsx",
                             lineNumber: 302,
-                            columnNumber: 11
+                            columnNumber: 13
                         }, this)
                     ]
                 }, void 0, true, {
                     fileName: "[project]/app/components/etu_soutenance/soumettre.tsx",
                     lineNumber: 300,
-                    columnNumber: 9
+                    columnNumber: 11
                 }, this)
             ]
         }, void 0, true, {
             fileName: "[project]/app/components/etu_soutenance/soumettre.tsx",
             lineNumber: 241,
-            columnNumber: 7
+            columnNumber: 9
         }, this)
     }, void 0, false, {
         fileName: "[project]/app/components/etu_soutenance/soumettre.tsx",
         lineNumber: 240,
-        columnNumber: 5
+        columnNumber: 7
     }, this);
 }
 _s(SoumettrePage, "MGIxPbg17ZJIU3caxBsL21EQSS4=", false, function() {
@@ -835,13 +837,13 @@ function SubmissionAlert({ type, title, message }) {
             }, void 0, false, {
                 fileName: "[project]/app/components/etu_soutenance/soumettre.tsx",
                 lineNumber: 320,
-                columnNumber: 29
+                columnNumber: 31
             }, this) : /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$lucide$2d$react$2f$dist$2f$esm$2f$icons$2f$circle$2d$alert$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__$3c$export__default__as__AlertCircle$3e$__["AlertCircle"], {
                 className: "h-5 w-5"
             }, void 0, false, {
                 fileName: "[project]/app/components/etu_soutenance/soumettre.tsx",
                 lineNumber: 320,
-                columnNumber: 68
+                columnNumber: 70
             }, this),
             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$alert$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["AlertTitle"], {
                 className: "text-lg font-semibold",
@@ -849,20 +851,20 @@ function SubmissionAlert({ type, title, message }) {
             }, void 0, false, {
                 fileName: "[project]/app/components/etu_soutenance/soumettre.tsx",
                 lineNumber: 321,
-                columnNumber: 7
+                columnNumber: 9
             }, this),
             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$alert$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["AlertDescription"], {
                 children: message
             }, void 0, false, {
                 fileName: "[project]/app/components/etu_soutenance/soumettre.tsx",
                 lineNumber: 322,
-                columnNumber: 7
+                columnNumber: 9
             }, this)
         ]
     }, void 0, true, {
         fileName: "[project]/app/components/etu_soutenance/soumettre.tsx",
         lineNumber: 317,
-        columnNumber: 5
+        columnNumber: 7
     }, this);
 }
 _c1 = SubmissionAlert;
@@ -881,14 +883,14 @@ function SubmittedDocumentsTab({ isLoading, fetchError, submittedDocuments, fetc
                             }, void 0, false, {
                                 fileName: "[project]/app/components/etu_soutenance/soumettre.tsx",
                                 lineNumber: 358,
-                                columnNumber: 11
+                                columnNumber: 13
                             }, this),
                             "Documents Soumis"
                         ]
                     }, void 0, true, {
                         fileName: "[project]/app/components/etu_soutenance/soumettre.tsx",
                         lineNumber: 357,
-                        columnNumber: 9
+                        columnNumber: 11
                     }, this),
                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$button$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["Button"], {
                         variant: "outline",
@@ -902,20 +904,20 @@ function SubmittedDocumentsTab({ isLoading, fetchError, submittedDocuments, fetc
                             }, void 0, false, {
                                 fileName: "[project]/app/components/etu_soutenance/soumettre.tsx",
                                 lineNumber: 368,
-                                columnNumber: 11
+                                columnNumber: 13
                             }, this),
                             "Actualiser"
                         ]
                     }, void 0, true, {
                         fileName: "[project]/app/components/etu_soutenance/soumettre.tsx",
                         lineNumber: 361,
-                        columnNumber: 9
+                        columnNumber: 11
                     }, this)
                 ]
             }, void 0, true, {
                 fileName: "[project]/app/components/etu_soutenance/soumettre.tsx",
                 lineNumber: 356,
-                columnNumber: 7
+                columnNumber: 9
             }, this),
             isLoading ? /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
                 className: "flex items-center justify-center py-12 bg-gray-50 dark:bg-gray-700 rounded-lg",
@@ -925,7 +927,7 @@ function SubmittedDocumentsTab({ isLoading, fetchError, submittedDocuments, fetc
                     }, void 0, false, {
                         fileName: "[project]/app/components/etu_soutenance/soumettre.tsx",
                         lineNumber: 375,
-                        columnNumber: 11
+                        columnNumber: 13
                     }, this),
                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("span", {
                         className: "text-gray-600 dark:text-gray-300",
@@ -933,13 +935,13 @@ function SubmittedDocumentsTab({ isLoading, fetchError, submittedDocuments, fetc
                     }, void 0, false, {
                         fileName: "[project]/app/components/etu_soutenance/soumettre.tsx",
                         lineNumber: 376,
-                        columnNumber: 11
+                        columnNumber: 13
                     }, this)
                 ]
             }, void 0, true, {
                 fileName: "[project]/app/components/etu_soutenance/soumettre.tsx",
                 lineNumber: 374,
-                columnNumber: 9
+                columnNumber: 11
             }, this) : fetchError ? /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$alert$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["Alert"], {
                 variant: "destructive",
                 className: "bg-red-50 text-red-800 border-red-200 rounded-lg",
@@ -949,20 +951,20 @@ function SubmittedDocumentsTab({ isLoading, fetchError, submittedDocuments, fetc
                     }, void 0, false, {
                         fileName: "[project]/app/components/etu_soutenance/soumettre.tsx",
                         lineNumber: 380,
-                        columnNumber: 11
+                        columnNumber: 13
                     }, this),
                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$alert$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["AlertDescription"], {
                         children: fetchError
                     }, void 0, false, {
                         fileName: "[project]/app/components/etu_soutenance/soumettre.tsx",
                         lineNumber: 381,
-                        columnNumber: 11
+                        columnNumber: 13
                     }, this)
                 ]
             }, void 0, true, {
                 fileName: "[project]/app/components/etu_soutenance/soumettre.tsx",
                 lineNumber: 379,
-                columnNumber: 9
+                columnNumber: 11
             }, this) : submittedDocuments.length > 0 ? /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
                 className: "grid gap-6",
                 children: submittedDocuments.map((doc, index)=>/*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(DocumentCard, {
@@ -976,12 +978,12 @@ function SubmittedDocumentsTab({ isLoading, fetchError, submittedDocuments, fetc
                     }, `${doc.id}-${doc.type}-${index}`, false, {
                         fileName: "[project]/app/components/etu_soutenance/soumettre.tsx",
                         lineNumber: 386,
-                        columnNumber: 13
+                        columnNumber: 15
                     }, this))
             }, void 0, false, {
                 fileName: "[project]/app/components/etu_soutenance/soumettre.tsx",
                 lineNumber: 384,
-                columnNumber: 9
+                columnNumber: 11
             }, this) : /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
                 className: "text-center py-12 bg-gray-50 dark:bg-gray-700 rounded-lg",
                 children: [
@@ -990,7 +992,7 @@ function SubmittedDocumentsTab({ isLoading, fetchError, submittedDocuments, fetc
                     }, void 0, false, {
                         fileName: "[project]/app/components/etu_soutenance/soumettre.tsx",
                         lineNumber: 400,
-                        columnNumber: 11
+                        columnNumber: 13
                     }, this),
                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("p", {
                         className: "text-gray-600 dark:text-gray-300 mb-4",
@@ -998,7 +1000,7 @@ function SubmittedDocumentsTab({ isLoading, fetchError, submittedDocuments, fetc
                     }, void 0, false, {
                         fileName: "[project]/app/components/etu_soutenance/soumettre.tsx",
                         lineNumber: 401,
-                        columnNumber: 11
+                        columnNumber: 13
                     }, this),
                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$button$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["Button"], {
                         variant: "outline",
@@ -1008,19 +1010,19 @@ function SubmittedDocumentsTab({ isLoading, fetchError, submittedDocuments, fetc
                     }, void 0, false, {
                         fileName: "[project]/app/components/etu_soutenance/soumettre.tsx",
                         lineNumber: 402,
-                        columnNumber: 11
+                        columnNumber: 13
                     }, this)
                 ]
             }, void 0, true, {
                 fileName: "[project]/app/components/etu_soutenance/soumettre.tsx",
                 lineNumber: 399,
-                columnNumber: 9
+                columnNumber: 11
             }, this)
         ]
     }, void 0, true, {
         fileName: "[project]/app/components/etu_soutenance/soumettre.tsx",
         lineNumber: 355,
-        columnNumber: 5
+        columnNumber: 7
     }, this);
 }
 _c2 = SubmittedDocumentsTab;
@@ -1041,12 +1043,12 @@ function DocumentCard({ document: doc, handleDelete, livrableIcons, livrableName
                                 }, void 0, false, {
                                     fileName: "[project]/app/components/etu_soutenance/soumettre.tsx",
                                     lineNumber: 439,
-                                    columnNumber: 68
+                                    columnNumber: 70
                                 }, this)
                             }, void 0, false, {
                                 fileName: "[project]/app/components/etu_soutenance/soumettre.tsx",
                                 lineNumber: 438,
-                                columnNumber: 11
+                                columnNumber: 13
                             }, this),
                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
                                 children: [
@@ -1056,28 +1058,51 @@ function DocumentCard({ document: doc, handleDelete, livrableIcons, livrableName
                                     }, void 0, false, {
                                         fileName: "[project]/app/components/etu_soutenance/soumettre.tsx",
                                         lineNumber: 442,
-                                        columnNumber: 13
+                                        columnNumber: 15
                                     }, this),
-                                    /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$badge$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["Badge"], {
-                                        variant: "secondary",
-                                        className: "mt-1 bg-[#5b8cb5]/10 text-[#5b8cb5] border-[#5b8cb5]/20",
-                                        children: "Soumis"
-                                    }, void 0, false, {
+                                    /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
+                                        className: "flex items-center gap-2 mt-1",
+                                        children: [
+                                            /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$badge$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["Badge"], {
+                                                variant: "secondary",
+                                                className: "bg-[#5b8cb5]/10 text-[#5b8cb5] border-[#5b8cb5]/20",
+                                                children: [
+                                                    doc.nomGroupe,
+                                                    " (",
+                                                    doc.nbEtudiants,
+                                                    " étudiants)"
+                                                ]
+                                            }, void 0, true, {
+                                                fileName: "[project]/app/components/etu_soutenance/soumettre.tsx",
+                                                lineNumber: 444,
+                                                columnNumber: 17
+                                            }, this),
+                                            /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$badge$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["Badge"], {
+                                                variant: "secondary",
+                                                className: "bg-[#5b8cb5]/10 text-[#5b8cb5] border-[#5b8cb5]/20",
+                                                children: "Soumis"
+                                            }, void 0, false, {
+                                                fileName: "[project]/app/components/etu_soutenance/soumettre.tsx",
+                                                lineNumber: 447,
+                                                columnNumber: 17
+                                            }, this)
+                                        ]
+                                    }, void 0, true, {
                                         fileName: "[project]/app/components/etu_soutenance/soumettre.tsx",
                                         lineNumber: 443,
-                                        columnNumber: 13
+                                        columnNumber: 15
                                     }, this)
                                 ]
                             }, void 0, true, {
                                 fileName: "[project]/app/components/etu_soutenance/soumettre.tsx",
                                 lineNumber: 441,
-                                columnNumber: 11
+                                columnNumber: 13
                             }, this)
                         ]
                     }, void 0, true, {
                         fileName: "[project]/app/components/etu_soutenance/soumettre.tsx",
                         lineNumber: 437,
-                        columnNumber: 9
+                        columnNumber: 11
                     }, this),
                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
                         className: "flex flex-wrap gap-2 w-full md:w-auto",
@@ -1095,20 +1120,20 @@ function DocumentCard({ document: doc, handleDelete, livrableIcons, livrableName
                                             className: "h-4 w-4 mr-1"
                                         }, void 0, false, {
                                             fileName: "[project]/app/components/etu_soutenance/soumettre.tsx",
-                                            lineNumber: 451,
-                                            columnNumber: 15
+                                            lineNumber: 456,
+                                            columnNumber: 17
                                         }, this),
                                         "Télécharger"
                                     ]
                                 }, void 0, true, {
                                     fileName: "[project]/app/components/etu_soutenance/soumettre.tsx",
-                                    lineNumber: 450,
-                                    columnNumber: 13
+                                    lineNumber: 455,
+                                    columnNumber: 15
                                 }, this)
                             }, void 0, false, {
                                 fileName: "[project]/app/components/etu_soutenance/soumettre.tsx",
-                                lineNumber: 449,
-                                columnNumber: 11
+                                lineNumber: 454,
+                                columnNumber: 13
                             }, this),
                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$button$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["Button"], {
                                 variant: "ghost",
@@ -1120,27 +1145,27 @@ function DocumentCard({ document: doc, handleDelete, livrableIcons, livrableName
                                         className: "h-4 w-4 mr-1"
                                     }, void 0, false, {
                                         fileName: "[project]/app/components/etu_soutenance/soumettre.tsx",
-                                        lineNumber: 461,
-                                        columnNumber: 13
+                                        lineNumber: 466,
+                                        columnNumber: 15
                                     }, this),
                                     "Supprimer"
                                 ]
                             }, void 0, true, {
                                 fileName: "[project]/app/components/etu_soutenance/soumettre.tsx",
-                                lineNumber: 455,
-                                columnNumber: 11
+                                lineNumber: 460,
+                                columnNumber: 13
                             }, this)
                         ]
                     }, void 0, true, {
                         fileName: "[project]/app/components/etu_soutenance/soumettre.tsx",
-                        lineNumber: 448,
-                        columnNumber: 9
+                        lineNumber: 453,
+                        columnNumber: 11
                     }, this)
                 ]
             }, void 0, true, {
                 fileName: "[project]/app/components/etu_soutenance/soumettre.tsx",
                 lineNumber: 436,
-                columnNumber: 7
+                columnNumber: 9
             }, this),
             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$card$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["CardContent"], {
                 className: "p-4",
@@ -1156,8 +1181,8 @@ function DocumentCard({ document: doc, handleDelete, livrableIcons, livrableName
                                 getStatusColor: getStatusColor
                             }, void 0, false, {
                                 fileName: "[project]/app/components/etu_soutenance/soumettre.tsx",
-                                lineNumber: 470,
-                                columnNumber: 15
+                                lineNumber: 475,
+                                columnNumber: 17
                             }, this) : /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
                                 className: "flex items-center gap-2 text-sm text-gray-500 dark:text-gray-400",
                                 children: [
@@ -1165,26 +1190,26 @@ function DocumentCard({ document: doc, handleDelete, livrableIcons, livrableName
                                         className: "h-4 w-4"
                                     }, void 0, false, {
                                         fileName: "[project]/app/components/etu_soutenance/soumettre.tsx",
-                                        lineNumber: 479,
-                                        columnNumber: 17
+                                        lineNumber: 484,
+                                        columnNumber: 19
                                     }, this),
                                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("span", {
                                         children: "Tuteur: Pas encore validé"
                                     }, void 0, false, {
                                         fileName: "[project]/app/components/etu_soutenance/soumettre.tsx",
-                                        lineNumber: 480,
-                                        columnNumber: 17
+                                        lineNumber: 485,
+                                        columnNumber: 19
                                     }, this)
                                 ]
                             }, void 0, true, {
                                 fileName: "[project]/app/components/etu_soutenance/soumettre.tsx",
-                                lineNumber: 478,
-                                columnNumber: 15
+                                lineNumber: 483,
+                                columnNumber: 17
                             }, this)
                         }, void 0, false, {
                             fileName: "[project]/app/components/etu_soutenance/soumettre.tsx",
-                            lineNumber: 468,
-                            columnNumber: 11
+                            lineNumber: 473,
+                            columnNumber: 13
                         }, this),
                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
                             children: doc.profValidation ? /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(ValidationStatus, {
@@ -1195,8 +1220,8 @@ function DocumentCard({ document: doc, handleDelete, livrableIcons, livrableName
                                 getStatusColor: getStatusColor
                             }, void 0, false, {
                                 fileName: "[project]/app/components/etu_soutenance/soumettre.tsx",
-                                lineNumber: 486,
-                                columnNumber: 15
+                                lineNumber: 491,
+                                columnNumber: 17
                             }, this) : /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
                                 className: "flex items-center gap-2 text-sm text-gray-500 dark:text-gray-400",
                                 children: [
@@ -1204,43 +1229,43 @@ function DocumentCard({ document: doc, handleDelete, livrableIcons, livrableName
                                         className: "h-4 w-4"
                                     }, void 0, false, {
                                         fileName: "[project]/app/components/etu_soutenance/soumettre.tsx",
-                                        lineNumber: 495,
-                                        columnNumber: 17
+                                        lineNumber: 500,
+                                        columnNumber: 19
                                     }, this),
                                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("span", {
                                         children: "Professeur: Pas encore validé"
                                     }, void 0, false, {
                                         fileName: "[project]/app/components/etu_soutenance/soumettre.tsx",
-                                        lineNumber: 496,
-                                        columnNumber: 17
+                                        lineNumber: 501,
+                                        columnNumber: 19
                                     }, this)
                                 ]
                             }, void 0, true, {
                                 fileName: "[project]/app/components/etu_soutenance/soumettre.tsx",
-                                lineNumber: 494,
-                                columnNumber: 15
+                                lineNumber: 499,
+                                columnNumber: 17
                             }, this)
                         }, void 0, false, {
                             fileName: "[project]/app/components/etu_soutenance/soumettre.tsx",
-                            lineNumber: 484,
-                            columnNumber: 11
+                            lineNumber: 489,
+                            columnNumber: 13
                         }, this)
                     ]
                 }, void 0, true, {
                     fileName: "[project]/app/components/etu_soutenance/soumettre.tsx",
-                    lineNumber: 467,
-                    columnNumber: 9
+                    lineNumber: 472,
+                    columnNumber: 11
                 }, this)
             }, void 0, false, {
                 fileName: "[project]/app/components/etu_soutenance/soumettre.tsx",
-                lineNumber: 466,
-                columnNumber: 7
+                lineNumber: 471,
+                columnNumber: 9
             }, this)
         ]
     }, void 0, true, {
         fileName: "[project]/app/components/etu_soutenance/soumettre.tsx",
         lineNumber: 435,
-        columnNumber: 5
+        columnNumber: 7
     }, this);
 }
 _c3 = DocumentCard;
@@ -1260,14 +1285,14 @@ function ValidationStatus({ type, validation, getStatusIcon, getStatusText, getS
                                 children: type
                             }, void 0, false, {
                                 fileName: "[project]/app/components/etu_soutenance/soumettre.tsx",
-                                lineNumber: 519,
-                                columnNumber: 11
+                                lineNumber: 524,
+                                columnNumber: 13
                             }, this)
                         ]
                     }, void 0, true, {
                         fileName: "[project]/app/components/etu_soutenance/soumettre.tsx",
-                        lineNumber: 517,
-                        columnNumber: 9
+                        lineNumber: 522,
+                        columnNumber: 11
                     }, this),
                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$badge$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["Badge"], {
                         variant: "outline",
@@ -1275,14 +1300,14 @@ function ValidationStatus({ type, validation, getStatusIcon, getStatusText, getS
                         children: getStatusText(validation.validationStatus)
                     }, void 0, false, {
                         fileName: "[project]/app/components/etu_soutenance/soumettre.tsx",
-                        lineNumber: 521,
-                        columnNumber: 9
+                        lineNumber: 526,
+                        columnNumber: 11
                     }, this)
                 ]
             }, void 0, true, {
                 fileName: "[project]/app/components/etu_soutenance/soumettre.tsx",
-                lineNumber: 516,
-                columnNumber: 7
+                lineNumber: 521,
+                columnNumber: 9
             }, this),
             validation.comment && /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("p", {
                 className: "mt-2 text-sm text-gray-600 dark:text-gray-300 italic",
@@ -1293,14 +1318,14 @@ function ValidationStatus({ type, validation, getStatusIcon, getStatusText, getS
                 ]
             }, void 0, true, {
                 fileName: "[project]/app/components/etu_soutenance/soumettre.tsx",
-                lineNumber: 526,
-                columnNumber: 9
+                lineNumber: 531,
+                columnNumber: 11
             }, this)
         ]
     }, void 0, true, {
         fileName: "[project]/app/components/etu_soutenance/soumettre.tsx",
-        lineNumber: 515,
-        columnNumber: 5
+        lineNumber: 520,
+        columnNumber: 7
     }, this);
 }
 _c4 = ValidationStatus;
@@ -1315,15 +1340,15 @@ function UploadDocumentsTab({ handleSubmit, handleFileChange, pdfFile, setPdfFil
                         className: "h-6 w-6 text-[#b17a56]"
                     }, void 0, false, {
                         fileName: "[project]/app/components/etu_soutenance/soumettre.tsx",
-                        lineNumber: 556,
-                        columnNumber: 9
+                        lineNumber: 561,
+                        columnNumber: 11
                     }, this),
                     "Nouvelle Soumission"
                 ]
             }, void 0, true, {
                 fileName: "[project]/app/components/etu_soutenance/soumettre.tsx",
-                lineNumber: 555,
-                columnNumber: 7
+                lineNumber: 560,
+                columnNumber: 9
             }, this),
             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("form", {
                 onSubmit: handleSubmit,
@@ -1339,8 +1364,8 @@ function UploadDocumentsTab({ handleSubmit, handleFileChange, pdfFile, setPdfFil
                                     className: "h-5 w-5"
                                 }, void 0, false, {
                                     fileName: "[project]/app/components/etu_soutenance/soumettre.tsx",
-                                    lineNumber: 565,
-                                    columnNumber: 21
+                                    lineNumber: 570,
+                                    columnNumber: 23
                                 }, this),
                                 state: pdfFile,
                                 setState: setPdfFile,
@@ -1353,8 +1378,8 @@ function UploadDocumentsTab({ handleSubmit, handleFileChange, pdfFile, setPdfFil
                                     className: "h-5 w-5"
                                 }, void 0, false, {
                                     fileName: "[project]/app/components/etu_soutenance/soumettre.tsx",
-                                    lineNumber: 573,
-                                    columnNumber: 21
+                                    lineNumber: 578,
+                                    columnNumber: 23
                                 }, this),
                                 state: presentationFile,
                                 setState: setPresentationFile,
@@ -1371,13 +1396,13 @@ function UploadDocumentsTab({ handleSubmit, handleFileChange, pdfFile, setPdfFil
                                 uploadProgress: uploadProgress
                             }, item.id, false, {
                                 fileName: "[project]/app/components/etu_soutenance/soumettre.tsx",
-                                lineNumber: 579,
-                                columnNumber: 13
+                                lineNumber: 584,
+                                columnNumber: 15
                             }, this))
                     }, void 0, false, {
                         fileName: "[project]/app/components/etu_soutenance/soumettre.tsx",
-                        lineNumber: 560,
-                        columnNumber: 9
+                        lineNumber: 565,
+                        columnNumber: 11
                     }, this),
                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$button$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["Button"], {
                         type: "submit",
@@ -1389,8 +1414,8 @@ function UploadDocumentsTab({ handleSubmit, handleFileChange, pdfFile, setPdfFil
                                     className: "h-5 w-5 animate-spin mr-2"
                                 }, void 0, false, {
                                     fileName: "[project]/app/components/etu_soutenance/soumettre.tsx",
-                                    lineNumber: 599,
-                                    columnNumber: 15
+                                    lineNumber: 604,
+                                    columnNumber: 17
                                 }, this),
                                 "Soumission en cours..."
                             ]
@@ -1400,28 +1425,28 @@ function UploadDocumentsTab({ handleSubmit, handleFileChange, pdfFile, setPdfFil
                                     className: "h-5 w-5 mr-2"
                                 }, void 0, false, {
                                     fileName: "[project]/app/components/etu_soutenance/soumettre.tsx",
-                                    lineNumber: 604,
-                                    columnNumber: 15
+                                    lineNumber: 609,
+                                    columnNumber: 17
                                 }, this),
                                 "Soumettre les Documents"
                             ]
                         }, void 0, true)
                     }, void 0, false, {
                         fileName: "[project]/app/components/etu_soutenance/soumettre.tsx",
-                        lineNumber: 592,
-                        columnNumber: 9
+                        lineNumber: 597,
+                        columnNumber: 11
                     }, this)
                 ]
             }, void 0, true, {
                 fileName: "[project]/app/components/etu_soutenance/soumettre.tsx",
-                lineNumber: 559,
-                columnNumber: 7
+                lineNumber: 564,
+                columnNumber: 9
             }, this)
         ]
     }, void 0, true, {
         fileName: "[project]/app/components/etu_soutenance/soumettre.tsx",
-        lineNumber: 554,
-        columnNumber: 5
+        lineNumber: 559,
+        columnNumber: 7
     }, this);
 }
 _c5 = UploadDocumentsTab;
@@ -1440,13 +1465,13 @@ function FileUploadCard({ id, label, icon, state, setState, accept, handleFileCh
                     ]
                 }, void 0, true, {
                     fileName: "[project]/app/components/etu_soutenance/soumettre.tsx",
-                    lineNumber: 638,
-                    columnNumber: 9
+                    lineNumber: 643,
+                    columnNumber: 11
                 }, this)
             }, void 0, false, {
                 fileName: "[project]/app/components/etu_soutenance/soumettre.tsx",
-                lineNumber: 637,
-                columnNumber: 7
+                lineNumber: 642,
+                columnNumber: 9
             }, this),
             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$card$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["CardContent"], {
                 className: "p-4",
@@ -1462,8 +1487,8 @@ function FileUploadCard({ id, label, icon, state, setState, accept, handleFileCh
                             required: true
                         }, void 0, false, {
                             fileName: "[project]/app/components/etu_soutenance/soumettre.tsx",
-                            lineNumber: 645,
-                            columnNumber: 11
+                            lineNumber: 650,
+                            columnNumber: 13
                         }, this),
                         state && /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["Fragment"], {
                             children: [
@@ -1472,43 +1497,43 @@ function FileUploadCard({ id, label, icon, state, setState, accept, handleFileCh
                                     children: state.name.length > 20 ? `${state.name.substring(0, 20)}...` : state.name
                                 }, void 0, false, {
                                     fileName: "[project]/app/components/etu_soutenance/soumettre.tsx",
-                                    lineNumber: 655,
-                                    columnNumber: 15
+                                    lineNumber: 660,
+                                    columnNumber: 17
                                 }, this),
                                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$badge$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["Badge"], {
                                     className: "mt-2 bg-[#5b8cb5]/10 text-[#5b8cb5] border-[#5b8cb5]/20 md:hidden w-full justify-center",
                                     children: state.name.length > 30 ? `${state.name.substring(0, 30)}...` : state.name
                                 }, void 0, false, {
                                     fileName: "[project]/app/components/etu_soutenance/soumettre.tsx",
-                                    lineNumber: 658,
-                                    columnNumber: 15
+                                    lineNumber: 663,
+                                    columnNumber: 17
                                 }, this),
                                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$progress$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["Progress"], {
                                     value: uploadProgress,
                                     className: "mt-2 h-1 bg-gray-200 dark:bg-gray-600"
                                 }, void 0, false, {
                                     fileName: "[project]/app/components/etu_soutenance/soumettre.tsx",
-                                    lineNumber: 661,
-                                    columnNumber: 15
+                                    lineNumber: 666,
+                                    columnNumber: 17
                                 }, this)
                             ]
                         }, void 0, true)
                     ]
                 }, void 0, true, {
                     fileName: "[project]/app/components/etu_soutenance/soumettre.tsx",
-                    lineNumber: 644,
-                    columnNumber: 9
+                    lineNumber: 649,
+                    columnNumber: 11
                 }, this)
             }, void 0, false, {
                 fileName: "[project]/app/components/etu_soutenance/soumettre.tsx",
-                lineNumber: 643,
-                columnNumber: 7
+                lineNumber: 648,
+                columnNumber: 9
             }, this)
         ]
     }, void 0, true, {
         fileName: "[project]/app/components/etu_soutenance/soumettre.tsx",
-        lineNumber: 636,
-        columnNumber: 5
+        lineNumber: 641,
+        columnNumber: 7
     }, this);
 //hhh
 }

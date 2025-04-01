@@ -134,7 +134,7 @@ export default function SoutenancesPage() {
   const router = useRouter();
 
 // Replace with dynamic logic to get the current tuteur's ID (e.g., from auth)
-const idTuteur = 10;
+const idTuteur = "T001";
 
 useEffect(() => {
   const fetchSoutenances = async () => {

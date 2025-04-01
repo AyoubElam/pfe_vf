@@ -1,221 +1,192 @@
-"use client"
+"use client";
 
-import type React from "react"
-import { useState, useEffect, useCallback, useMemo } from "react"
-import { useSearchParams } from "next/navigation"
-import { Card, CardHeader, CardContent, CardTitle, CardDescription, CardFooter } from "@/components/ui/card"
-import { Button } from "@/components/ui/button"
+import { useState, useEffect, useCallback, useMemo } from "react";
+import { useSearchParams } from "next/navigation";
+import { Card, CardHeader, CardContent, CardTitle, CardDescription, CardFooter } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
 import {
-  Loader,
-  FileText,
-  FileIcon as FilePresentation,
-  Download,
-  RefreshCw,
-  Eye,
-  AlertCircle,
-  Upload,
-  MessageSquare,
-  Edit,
-  Trash2,
-  CheckCircle,
-  XCircle,
-  Clock,
-  Users,
-  Filter,
-} from "lucide-react"
-import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert"
-import { Badge } from "@/components/ui/badge"
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
-import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogFooter,
-  DialogHeader,
-  DialogTitle,
-} from "@/components/ui/dialog"
-import { Label } from "@/components/ui/label"
-import { Textarea } from "@/components/ui/textarea"
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
-import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu"
+  Loader, FileText, FileIcon as FilePresentation, Download, RefreshCw, Eye, AlertCircle, Upload,
+  MessageSquare, Edit, Trash2, CheckCircle, XCircle, Clock, Users, Filter
+} from "lucide-react";
+import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
+import { Badge } from "@/components/ui/badge";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import { Label } from "@/components/ui/label";
+import { Textarea } from "@/components/ui/textarea";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
 
 interface SubmittedDocument {
-  idPFE: number
-  id: number
-  fichier: string
-  nomGroupe: string
-  authorName: string
-  type: "PDF" | "Presentation"
-  validationStatus?: "validated" | "rejected" | "pending"
-  comment?: string
+  idPFE: number;
+  id: number;
+  fichier: string;
+  nomGroupe: string;
+  authorName: string;
+  type: "PDF" | "Presentation";
+  nbEtudiants: number;
+  validationStatus?: "validated" | "rejected" | "pending";
+  comment?: string;
+  idLivrable?: number;
 }
 
 export default function TuteurGroupDocumentsPage() {
-  const searchParams = useSearchParams()
-  const idTuteur = useMemo(() => searchParams.get("idTuteur") || "10", [searchParams])
+  const searchParams = useSearchParams();
+  const idTuteur = useMemo(() => searchParams.get("idTuteur") || "T001", [searchParams]);
 
-  const [submittedDocuments, setSubmittedDocuments] = useState<SubmittedDocument[]>([])
-  const [isLoading, setIsLoading] = useState(true)
-  const [fetchError, setFetchError] = useState<string | null>(null)
-  const [showValidationForm, setShowValidationForm] = useState(false)
-  const [currentDoc, setCurrentDoc] = useState<SubmittedDocument | null>(null)
-  const [validationStatus, setValidationStatus] = useState<"validated" | "rejected" | "pending">("pending")
-  const [comment, setComment] = useState("")
-  const [activeFilter, setActiveFilter] = useState<string | null>(null)
-  const [activeTab, setActiveTab] = useState("all")
+  const [submittedDocuments, setSubmittedDocuments] = useState<SubmittedDocument[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
+  const [fetchError, setFetchError] = useState<string | null>(null);
+  const [showValidationForm, setShowValidationForm] = useState(false);
+  const [currentDoc, setCurrentDoc] = useState<SubmittedDocument | null>(null);
+  const [validationStatus, setValidationStatus] = useState<"validated" | "rejected" | "pending">("pending");
+  const [comment, setComment] = useState("");
+  const [activeFilter, setActiveFilter] = useState<string | null>(null);
+  const [activeTab, setActiveTab] = useState("all");
 
   const livrableNames: Record<string, string> = {
     PDF: "Document PDF",
     Presentation: "Présentation",
-  }
+  };
 
   const livrableIcons: Record<string, React.ReactNode> = {
     PDF: <FileText className="h-5 w-5" />,
     Presentation: <FilePresentation className="h-5 w-5" />,
-  }
+  };
 
   const fetchDocuments = useCallback(async () => {
-    setIsLoading(true)
-    setFetchError(null)
+    setIsLoading(true);
+    setFetchError(null);
     try {
-      const response = await fetch(`http://localhost:5000/api/tut_soumettre/group-documents?idTuteur=${idTuteur}`)
-      if (response.ok) {
-        const data = await response.json()
-        setSubmittedDocuments(data)
-      } else {
-        setFetchError("Impossible de récupérer les documents du groupe")
-      }
+      const response = await fetch(`http://localhost:5000/api/tut_soumettre/group-documents?idTuteur=${idTuteur}`);
+      if (!response.ok) throw new Error("Impossible de récupérer les documents du groupe");
+      const data = await response.json();
+      console.log("Fetched documents:", JSON.stringify(data, null, 2)); // Debug log
+      setSubmittedDocuments(data);
     } catch (error) {
-      setFetchError("Erreur lors de la récupération des documents")
-      console.error("Fetch error:", error)
+      setFetchError("Erreur lors de la récupération des documents");
+      console.error("Fetch error:", error);
     } finally {
-      setIsLoading(false)
+      setIsLoading(false);
     }
-  }, [idTuteur])
+  }, [idTuteur]);
 
   const openValidationForm = (doc: SubmittedDocument) => {
-    setCurrentDoc(doc)
-    setValidationStatus(doc.validationStatus || "pending")
-    setComment(doc.comment || "")
-    setShowValidationForm(true)
-  }
+    setCurrentDoc(doc);
+    setValidationStatus(doc.validationStatus || "pending");
+    setComment(doc.comment || "");
+    setShowValidationForm(true);
+  };
 
   const closeValidationForm = () => {
-    setShowValidationForm(false)
-    setCurrentDoc(null)
-  }
+    setShowValidationForm(false);
+    setCurrentDoc(null);
+  };
 
   const submitValidation = async () => {
-    if (!currentDoc) return;
-  
+    const payload = {
+      idPFE: currentDoc?.idPFE,
+      pfeLivrableId: currentDoc?.id,
+      idTuteur,
+      validationStatus,
+      comment: comment || "",
+    };
+
+    console.log("Submitting validation with payload:", payload);
+
+    if (!payload.idPFE || !payload.pfeLivrableId || !payload.idTuteur || !payload.validationStatus) {
+      console.error("Missing fields in payload:", payload);
+      alert("Please ensure all required fields are filled.");
+      return;
+    }
+
     try {
-      const response = await fetch("http://localhost:5000/api/validate_document", {
+      const res = await fetch("http://localhost:5000/api/validate_document", {
         method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          idPFE: currentDoc.idPFE,
-          idLivrable: currentDoc.id,
-          idTuteur: String(idTuteur), // Ensure it’s a string
-          validationStatus,
-          comment,
-        }),
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(payload),
       });
-  
-      if (response.ok) {
+      if (res.ok) {
         fetchDocuments();
         closeValidationForm();
       } else {
-        console.error("Failed to submit validation:", await response.json());
+        const errorData = await res.json();
+        console.log("Validation error:", errorData);
+        alert(`Validation failed: ${errorData.error}`);
       }
     } catch (error) {
-      console.error("Error submitting validation:", error);
+      console.error("Network error:", error);
+      alert("Network error occurred: " + error.message);
     }
   };
 
   const deleteValidation = async () => {
-    if (!currentDoc) return
+    if (!currentDoc) return;
 
     try {
       const response = await fetch(
-        `http://localhost:5000/api/validate_document?idPFE=${currentDoc.idPFE}&idLivrable=${currentDoc.id}&idTuteur=${idTuteur}`,
+        `http://localhost:5000/api/validate_document?idPFE=${currentDoc.idPFE}&pfeLivrableId=${currentDoc.id}&idTuteur=${idTuteur}`,
         {
           method: "DELETE",
-          headers: {
-            "Content-Type": "application/json",
-          },
-        },
-      )
+          headers: { "Content-Type": "application/json" },
+        }
+      );
 
       if (response.ok) {
-        fetchDocuments()
-        closeValidationForm()
+        fetchDocuments();
+        closeValidationForm();
       } else {
-        console.error("Failed to delete validation:", await response.json())
+        const errorData = await response.json();
+        setFetchError(`Échec de la suppression de la validation : ${errorData.error || "Erreur inconnue"}`);
       }
     } catch (error) {
-      console.error("Error deleting validation:", error)
+      console.error("Erreur lors de la suppression de la validation :", error);
+      setFetchError("Erreur de connexion au serveur lors de la suppression de la validation");
     }
-  }
+  };
 
   useEffect(() => {
-    fetchDocuments()
-  }, [fetchDocuments])
+    fetchDocuments();
+  }, [fetchDocuments]);
 
   const getStatusIcon = (status?: string) => {
     switch (status) {
-      case "validated":
-        return <CheckCircle className="h-4 w-4 text-green-500" />
-      case "rejected":
-        return <XCircle className="h-4 w-4 text-red-500" />
-      default:
-        return <Clock className="h-4 w-4 text-amber-500" />
+      case "validated": return <CheckCircle className="h-4 w-4 text-green-500" />;
+      case "rejected": return <XCircle className="h-4 w-4 text-red-500" />;
+      default: return <Clock className="h-4 w-4 text-amber-500" />;
     }
-  }
+  };
 
   const getStatusText = (status?: string) => {
     switch (status) {
-      case "validated":
-        return "Validé"
-      case "rejected":
-        return "Rejeté"
-      default:
-        return "En attente"
+      case "validated": return "Validé";
+      case "rejected": return "Rejeté";
+      default: return "En attente";
     }
-  }
+  };
 
   const getStatusColor = (status?: string) => {
     switch (status) {
-      case "validated":
-        return "bg-green-50 text-green-700 border-green-200 dark:bg-green-900/20 dark:text-green-400 dark:border-green-800"
-      case "rejected":
-        return "bg-red-50 text-red-700 border-red-200 dark:bg-red-900/20 dark:text-red-400 dark:border-red-800"
-      default:
-        return "bg-amber-50 text-amber-700 border-amber-200 dark:bg-amber-900/20 dark:text-amber-400 dark:border-amber-800"
+      case "validated": return "bg-green-50 text-green-700 border-green-200 dark:bg-green-900/20 dark:text-green-400 dark:border-green-800";
+      case "rejected": return "bg-red-50 text-red-700 border-red-200 dark:bg-red-900/20 dark:text-red-400 dark:border-red-800";
+      default: return "bg-amber-50 text-amber-700 border-amber-200 dark:bg-amber-900/20 dark:text-amber-400 dark:border-amber-800";
     }
-  }
+  };
 
   const filteredDocuments = useMemo(() => {
-    let filtered = [...submittedDocuments]
-    if (activeTab === "validated") {
-      filtered = filtered.filter((doc) => doc.validationStatus === "validated")
-    } else if (activeTab === "rejected") {
-      filtered = filtered.filter((doc) => doc.validationStatus === "rejected")
-    } else if (activeTab === "pending") {
-      filtered = filtered.filter((doc) => !doc.validationStatus || doc.validationStatus === "pending")
-    }
-    if (activeFilter) {
-      filtered = filtered.filter((doc) => doc.nomGroupe === activeFilter)
-    }
-    return filtered
-  }, [submittedDocuments, activeFilter, activeTab])
+    let filtered = [...submittedDocuments];
+    if (activeTab === "validated") filtered = filtered.filter((doc) => doc.validationStatus === "validated");
+    else if (activeTab === "rejected") filtered = filtered.filter((doc) => doc.validationStatus === "rejected");
+    else if (activeTab === "pending") filtered = filtered.filter((doc) => !doc.validationStatus || doc.validationStatus === "pending");
+    if (activeFilter) filtered = filtered.filter((doc) => doc.nomGroupe === activeFilter);
+    return filtered;
+  }, [submittedDocuments, activeFilter, activeTab]);
 
   const uniqueGroups = useMemo(() => {
-    const groups = new Set<string>()
-    submittedDocuments.forEach((doc) => groups.add(doc.nomGroupe))
-    return Array.from(groups)
-  }, [submittedDocuments])
+    const groups = new Set<string>();
+    submittedDocuments.forEach((doc) => groups.add(doc.nomGroupe));
+    return Array.from(groups);
+  }, [submittedDocuments]);
 
   return (
     <div className="container mx-auto py-8 px-4">
@@ -230,6 +201,13 @@ export default function TuteurGroupDocumentsPage() {
         </CardHeader>
 
         <CardContent className="p-0">
+          {fetchError && (
+            <Alert variant="destructive" className="m-6">
+              <AlertCircle className="h-4 w-4" />
+              <AlertTitle>Erreur</AlertTitle>
+              <AlertDescription>{fetchError}</AlertDescription>
+            </Alert>
+          )}
           <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
             <div className="px-6 pt-6 flex items-center justify-between">
               <TabsList>
@@ -275,9 +253,7 @@ export default function TuteurGroupDocumentsPage() {
                 <h2 className="text-lg font-semibold flex items-center gap-2">
                   <FileText className="h-5 w-5 text-primary" />
                   Documents {activeTab !== "all" ? `(${getStatusText(activeTab)})` : ""}
-                  {activeFilter && (
-                    <Badge variant="outline" className="ml-2">Groupe: {activeFilter}</Badge>
-                  )}
+                  {activeFilter && <Badge variant="outline" className="ml-2">Groupe: {activeFilter}</Badge>}
                 </h2>
                 <Badge variant="outline" className="px-2 py-1">
                   <Users className="h-3.5 w-3.5 mr-1.5" />
@@ -290,20 +266,11 @@ export default function TuteurGroupDocumentsPage() {
                   <Loader className="h-5 w-5 animate-spin mr-2 text-primary" />
                   <p className="text-muted-foreground">Chargement des documents...</p>
                 </div>
-              ) : fetchError ? (
-                <Alert variant="destructive" className="bg-destructive/10 text-destructive border-destructive/20">
-                  <AlertCircle className="h-4 w-4" />
-                  <AlertTitle>Erreur</AlertTitle>
-                  <AlertDescription>{fetchError}</AlertDescription>
-                  <Button variant="link" onClick={fetchDocuments} className="text-destructive mt-2">
-                    Réessayer
-                  </Button>
-                </Alert>
               ) : filteredDocuments.length > 0 ? (
                 <div className="space-y-4">
-                  {filteredDocuments.map((doc) => (
+                  {filteredDocuments.map((doc, index) => (
                     <Card
-                      key={`${doc.idPFE}-${doc.id}`}
+                      key={`${doc.idPFE}-${doc.id}-${doc.type}-${index}`} // Enhanced key
                       className="overflow-hidden border border-border/40 hover:shadow-md transition-all duration-300 hover:border-primary/20"
                     >
                       <div className="flex items-center justify-between p-4 bg-muted/20 border-b border-border/30">
@@ -314,10 +281,8 @@ export default function TuteurGroupDocumentsPage() {
                           <div>
                             <div className="font-medium">{livrableNames[doc.type]}</div>
                             <div className="flex items-center gap-2 mt-1">
-                              <Badge variant="secondary" className="text-xs">{doc.nomGroupe}</Badge>
-                              {doc.authorName && (
-                                <Badge variant="outline" className="text-xs">{doc.authorName}</Badge>
-                              )}
+                              <Badge variant="secondary" className="text-xs">{doc.nomGroupe} ({doc.nbEtudiants} étudiants)</Badge>
+                              {doc.authorName && <Badge variant="outline" className="text-xs">{doc.authorName}</Badge>}
                               <Badge
                                 className={`text-xs ${doc.validationStatus ? getStatusColor(doc.validationStatus) : "bg-muted"}`}
                               >
@@ -342,12 +307,7 @@ export default function TuteurGroupDocumentsPage() {
                           <Button
                             variant="outline"
                             size="sm"
-                            onClick={() =>
-                              window.open(
-                                `${process.env.NEXT_PUBLIC_API_URL || "http://localhost:5000"}${doc.fichier}`,
-                                "_blank",
-                              )
-                            }
+                            onClick={() => window.open(`${process.env.NEXT_PUBLIC_API_URL || "http://localhost:5000"}${doc.fichier}`, "_blank")}
                             className="h-8 text-xs"
                           >
                             <Eye className="h-3.5 w-3.5 mr-1.5" />
@@ -386,10 +346,7 @@ export default function TuteurGroupDocumentsPage() {
                   {(activeFilter || activeTab !== "all") && (
                     <Button
                       variant="link"
-                      onClick={() => {
-                        setActiveFilter(null)
-                        setActiveTab("all")
-                      }}
+                      onClick={() => { setActiveFilter(null); setActiveTab("all"); }}
                       className="mt-2 text-primary"
                     >
                       Voir tous les documents
@@ -413,10 +370,10 @@ export default function TuteurGroupDocumentsPage() {
             <DialogTitle>{currentDoc?.validationStatus ? "Modifier la validation" : "Valider le document"}</DialogTitle>
             <DialogDescription>
               {currentDoc && (
-                <div className="flex items-center gap-2 mt-2">
+                <span className="flex items-center gap-2 mt-2">
                   <Badge variant="outline">{livrableNames[currentDoc.type]}</Badge>
                   <Badge variant="secondary">{currentDoc.nomGroupe}</Badge>
-                </div>
+                </span>
               )}
             </DialogDescription>
           </DialogHeader>
@@ -433,22 +390,22 @@ export default function TuteurGroupDocumentsPage() {
                 </SelectTrigger>
                 <SelectContent>
                   <SelectItem value="pending">
-                    <div className="flex items-center gap-2">
+                    <span className="flex items-center gap-2">
                       <Clock className="h-4 w-4 text-amber-500" />
                       En attente
-                    </div>
+                    </span>
                   </SelectItem>
                   <SelectItem value="validated">
-                    <div className="flex items-center gap-2">
+                    <span className="flex items-center gap-2">
                       <CheckCircle className="h-4 w-4 text-green-500" />
                       Validé
-                    </div>
+                    </span>
                   </SelectItem>
                   <SelectItem value="rejected">
-                    <div className="flex items-center gap-2">
+                    <span className="flex items-center gap-2">
                       <XCircle className="h-4 w-4 text-red-500" />
                       Rejeté
-                    </div>
+                    </span>
                   </SelectItem>
                 </SelectContent>
               </Select>
@@ -492,5 +449,5 @@ export default function TuteurGroupDocumentsPage() {
         </DialogContent>
       </Dialog>
     </div>
-  )
+  );
 }

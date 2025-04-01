@@ -3,12 +3,7 @@
 "use client";
 
 import { Button } from "@/components/ui/button";
-import {
-  Card,
-  CardContent,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
@@ -26,32 +21,22 @@ import {
   Presentation,
   Award,
 } from "lucide-react";
-import React, { useEffect, useState } from "react";
-import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from "@/components/ui/table";
-import {
-  Alert,
-  AlertDescription,
-  AlertTitle,
-} from "@/components/ui/alert";
+import type React from "react";
+import { useEffect, useState } from "react";
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
+import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 
 interface StudentGroup {
   idGroupe: number;
   nomGroupe: string;
-  idEtudiant: number;
+  idEtudiant: string; // VARCHAR
   etudiant: string;
   idSoutenance: number;
-  noteRapport?: number;
-  notePresentation?: number;
-  noteDiscussion?: number;
-  noteSavoirFaireSavoirEtre?: number;
-  noteTotale?: number;
+  noteRapport?: number | null;
+  notePresentation?: number | null;
+  noteDiscussion?: number | null;
+  noteSavoirFaireSavoirEtre?: number | null;
+  noteTotale?: number | null;
   remarque?: string;
 }
 
@@ -61,10 +46,8 @@ const EvaluationPage: React.FC = () => {
   const [error, setError] = useState<string | null>(null);
   const [updating, setUpdating] = useState<number | null>(null);
   const [successMessage, setSuccessMessage] = useState<string | null>(null);
-  const [validationErrors, setValidationErrors] = useState<
-    Record<string, string>
-  >({});
-  const idEncadrant = 1; // For example purposes
+  const [validationErrors, setValidationErrors] = useState<Record<string, string>>({});
+  const idEncadrant = "1"; // VARCHAR ID
 
   // Group students by group
   const studentGroups = students.reduce(
@@ -80,57 +63,52 @@ const EvaluationPage: React.FC = () => {
       groups[groupId].students.push(student);
       return groups;
     },
-    {} as Record<
-      number,
-      { id: number; name: string; students: StudentGroup[] }
-    >
+    {} as Record<number, { id: number; name: string; students: StudentGroup[] }>,
   );
 
-  useEffect(() => {
-    async function fetchStudents() {
-      try {
-        const res = await fetch(
-          `http://localhost:5000/api/groups-students/${idEncadrant}`
-        );
-        if (!res.ok) {
-          const errorData = await res.json();
-          throw new Error(
-            errorData.error || "Erreur lors du chargement des données"
-          );
-        }
-        const data: StudentGroup[] = await res.json();
-
-        if (data.some((student) => !student.idSoutenance)) {
-          throw new Error(
-            "Some students are missing idSoutenance from the backend"
-          );
-        }
-
-        const studentsWithTotal = data.map((student) => ({
-          ...student,
-          noteTotale: calculateTotal(student),
-        }));
-
-        setStudents(studentsWithTotal);
-      } catch (error: any) {
-        setError(error.message);
-      } finally {
-        setLoading(false);
+  const fetchStudents = async () => {
+    try {
+      setLoading(true);
+      setError(null);
+      const res = await fetch(`http://localhost:5000/api/groups-students/${idEncadrant}`);
+      if (!res.ok) {
+        const errorData = await res.json();
+        throw new Error(errorData.error || "Error loading data");
       }
+      const data: StudentGroup[] = await res.json();
+      if (data.length === 0) {
+        setError("No groups found for this encadrant");
+        setLoading(false);
+        return;
+      }
+      if (data.some((student) => !student.idSoutenance)) {
+        throw new Error("Some students are missing idSoutenance from the backend");
+      }
+      const studentsWithTotal = data.map((student) => ({
+        ...student,
+        noteTotale: calculateTotal(student),
+      }));
+      setStudents(studentsWithTotal);
+    } catch (error: any) {
+      console.error("Error fetching students:", error);
+      setError(error.message);
+    } finally {
+      setLoading(false);
     }
-    fetchStudents();
-  }, [idEncadrant]);
+  };
 
-  const calculateTotal = (student: StudentGroup): number | undefined => {
+  useEffect(() => {
+    fetchStudents();
+  }, []);
+
+  const calculateTotal = (student: StudentGroup): number | null => {
     const grades = [
       student.noteRapport,
       student.notePresentation,
       student.noteDiscussion,
       student.noteSavoirFaireSavoirEtre,
-    ].filter((grade): grade is number => grade !== undefined && !isNaN(grade));
-    if (grades.length === 0) return undefined;
-    const sum = grades.reduce((acc, grade) => acc + grade, 0);
-    return Number((sum / grades.length).toFixed(2));
+    ].filter((grade): grade is number => grade !== undefined && grade !== null && !isNaN(grade));
+    return grades.length > 0 ? Number((grades.reduce((acc, grade) => acc + grade, 0) / grades.length).toFixed(2)) : null;
   };
 
   const validateGrade = (value: string, index: number, field: string): boolean => {
@@ -139,7 +117,7 @@ const EvaluationPage: React.FC = () => {
     if (value && (isNaN(numValue) || numValue < 0 || numValue > 20)) {
       setValidationErrors((prev) => ({
         ...prev,
-        [errorKey]: "La note doit être entre 0 et 20",
+        [errorKey]: "Grade must be between 0 and 20",
       }));
       return false;
     } else {
@@ -152,11 +130,7 @@ const EvaluationPage: React.FC = () => {
     }
   };
 
-  const handleInputChange = (
-    index: number,
-    field: keyof StudentGroup,
-    value: string
-  ) => {
+  const handleInputChange = (index: number, field: keyof StudentGroup, value: string) => {
     const gradeFields: (keyof StudentGroup)[] = [
       "noteRapport",
       "notePresentation",
@@ -167,9 +141,8 @@ const EvaluationPage: React.FC = () => {
       if (!validateGrade(value, index, field)) return;
     }
     const updatedStudents = [...students];
-    const parsedValue =
-      field === "remarque" ? value : value === "" ? undefined : Number(value);
-    updatedStudents[index][field] = parsedValue as any; // Type assertion still needed due to union types
+    const parsedValue = field === "remarque" ? value : value === "" ? null : Number(value);
+    updatedStudents[index][field] = parsedValue as any;
     if (gradeFields.includes(field)) {
       updatedStudents[index].noteTotale = calculateTotal(updatedStudents[index]);
     }
@@ -191,7 +164,6 @@ const EvaluationPage: React.FC = () => {
         notePresentation: student.notePresentation,
         noteDiscussion: student.noteDiscussion,
         noteSavoirFaireSavoirEtre: student.noteSavoirFaireSavoirEtre,
-        noteTotale: calculateTotal(student),
         remarque: student.remarque,
       };
       const response = await fetch("http://localhost:5000/api/evaluations", {
@@ -201,21 +173,12 @@ const EvaluationPage: React.FC = () => {
       });
       if (!response.ok) {
         const errorData = await response.json();
-        throw new Error(errorData.error || "Erreur lors de la sauvegarde");
+        throw new Error(errorData.error || "Error saving evaluation");
       }
       const result = await response.json();
-      setSuccessMessage(result.message || "Évaluation sauvegardée avec succès!");
+      setSuccessMessage(result.message || "Evaluation saved successfully!");
       window.scrollTo({ top: 0, behavior: "smooth" });
-      const refreshedRes = await fetch(
-        `http://localhost:5000/api/groups-students/${idEncadrant}`
-      );
-      const refreshedData: StudentGroup[] = await refreshedRes.json();
-      setStudents(
-        refreshedData.map((student) => ({
-          ...student,
-          noteTotale: calculateTotal(student),
-        }))
-      );
+      await fetchStudents();
     } catch (error: any) {
       setError(error.message);
       window.scrollTo({ top: 0, behavior: "smooth" });
@@ -239,7 +202,6 @@ const EvaluationPage: React.FC = () => {
         notePresentation: student.notePresentation,
         noteDiscussion: student.noteDiscussion,
         noteSavoirFaireSavoirEtre: student.noteSavoirFaireSavoirEtre,
-        noteTotale: calculateTotal(student),
         remarque: student.remarque,
       };
       const response = await fetch("http://localhost:5000/api/evaluations", {
@@ -249,21 +211,12 @@ const EvaluationPage: React.FC = () => {
       });
       if (!response.ok) {
         const errorData = await response.json();
-        throw new Error(errorData.error || "Erreur lors de la mise à jour");
+        throw new Error(errorData.error || "Error updating evaluation");
       }
       const result = await response.json();
-      setSuccessMessage(result.message || "Évaluation mise à jour avec succès!");
+      setSuccessMessage(result.message || "Evaluation updated successfully!");
       window.scrollTo({ top: 0, behavior: "smooth" });
-      const refreshedRes = await fetch(
-        `http://localhost:5000/api/groups-students/${idEncadrant}`
-      );
-      const refreshedData: StudentGroup[] = await refreshedRes.json();
-      setStudents(
-        refreshedData.map((student) => ({
-          ...student,
-          noteTotale: calculateTotal(student),
-        }))
-      );
+      await fetchStudents();
     } catch (error: any) {
       setError(error.message);
       window.scrollTo({ top: 0, behavior: "smooth" });
@@ -274,13 +227,10 @@ const EvaluationPage: React.FC = () => {
 
   const handleGeneratePDF = async () => {
     try {
-      const response = await fetch(
-        `http://localhost:5000/api/generate-pdf/${idEncadrant}`,
-        { method: "GET" }
-      );
+      const response = await fetch(`http://localhost:5000/api/generate-pdf/${idEncadrant}`, { method: "GET" });
       if (!response.ok) {
         const errorData = await response.json();
-        throw new Error(errorData.error || "Erreur lors de la génération du PDF");
+        throw new Error(errorData.error || "Error generating PDF");
       }
       const blob = await response.blob();
       const url = window.URL.createObjectURL(blob);
@@ -291,7 +241,7 @@ const EvaluationPage: React.FC = () => {
       a.click();
       a.remove();
       window.URL.revokeObjectURL(url);
-      setSuccessMessage("PDF généré avec succès!");
+      setSuccessMessage("PDF generated successfully!");
       window.scrollTo({ top: 0, behavior: "smooth" });
     } catch (error: any) {
       setError(error.message);
@@ -312,21 +262,14 @@ const EvaluationPage: React.FC = () => {
         <h1 className="text-4xl font-bold bg-gradient-to-r from-[#b17a56] to-[#5b8cb5] bg-clip-text text-transparent">
           Évaluation des Étudiants
         </h1>
-        <p className="text-muted-foreground mt-2">
-          Gestion des notes et évaluations des soutenances
-        </p>
+        <p className="text-muted-foreground mt-2">Gestion des notes et évaluations des soutenances</p>
       </div>
 
       {successMessage && (
-        <Alert
-          variant="default"
-          className="mb-6 bg-green-50 border-green-200 text-green-800"
-        >
+        <Alert variant="default" className="mb-6 bg-green-50 border-green-200 text-green-800">
           <CheckCircle className="h-5 w-5 text-green-600" />
           <AlertTitle className="text-green-800 font-medium">Succès</AlertTitle>
-          <AlertDescription className="text-green-700">
-            {successMessage}
-          </AlertDescription>
+          <AlertDescription className="text-green-700">{successMessage}</AlertDescription>
         </Alert>
       )}
 
@@ -362,15 +305,12 @@ const EvaluationPage: React.FC = () => {
               <Users className="h-16 w-16 text-muted-foreground mb-4" />
               <h3 className="text-xl font-semibold mb-2">Aucun étudiant trouvé</h3>
               <p className="text-muted-foreground max-w-md">
-                Il n'y a actuellement aucun étudiant à évaluer. Veuillez vérifier
-                votre affectation ou contacter l'administration.
+                Il n'y a actuellement aucun étudiant à évaluer. Veuillez vérifier votre affectation ou contacter
+                l'administration.
               </p>
             </div>
           ) : (
-            <Tabs
-              defaultValue={Object.keys(studentGroups)[0]}
-              className="w-full"
-            >
+            <Tabs defaultValue={Object.keys(studentGroups)[0].toString()} className="w-full">
               <TabsList className="mb-6 flex flex-wrap bg-[#EFEFEE] p-1 border rounded-lg">
                 {Object.values(studentGroups).map((group) => (
                   <TabsTrigger
@@ -381,10 +321,7 @@ const EvaluationPage: React.FC = () => {
                     <div className="flex items-center gap-2">
                       <Users className="h-4 w-4" />
                       {group.name}
-                      <Badge
-                        variant="secondary"
-                        className="ml-1 bg-[#5b8cb5]/20 text-[#5b8cb5]"
-                      >
+                      <Badge variant="secondary" className="ml-1 bg-[#5b8cb5]/20 text-[#5b8cb5]">
                         {group.students.length}
                       </Badge>
                     </div>
@@ -393,16 +330,10 @@ const EvaluationPage: React.FC = () => {
               </TabsList>
 
               {Object.values(studentGroups).map((group) => (
-                <TabsContent
-                  key={group.id}
-                  value={group.id.toString()}
-                  className="border rounded-lg p-4 bg-[#EFEFEE]"
-                >
+                <TabsContent key={group.id} value={group.id.toString()} className="border rounded-lg p-4 bg-[#EFEFEE]">
                   <div className="flex items-center gap-2 mb-4">
                     <Users className="h-5 w-5 text-[#b17a56]" />
-                    <h3 className="text-lg font-semibold">
-                      Groupe: {group.name}
-                    </h3>
+                    <h3 className="text-lg font-semibold">Groupe: {group.name}</h3>
                   </div>
 
                   <div className="overflow-x-auto rounded-lg border">
@@ -441,9 +372,7 @@ const EvaluationPage: React.FC = () => {
                             </div>
                           </TableHead>
                           <TableHead className="font-semibold">Remarque</TableHead>
-                          <TableHead className="text-center font-semibold">
-                            Actions
-                          </TableHead>
+                          <TableHead className="text-center font-semibold">Actions</TableHead>
                         </TableRow>
                       </TableHeader>
                       <TableBody>
@@ -452,14 +381,12 @@ const EvaluationPage: React.FC = () => {
                             (s) =>
                               s.idSoutenance === student.idSoutenance &&
                               s.idGroupe === student.idGroupe &&
-                              s.idEtudiant === student.idEtudiant
+                              s.idEtudiant === student.idEtudiant,
                           );
                           return (
                             <TableRow
                               key={`${student.idSoutenance}-${student.idGroupe}-${student.idEtudiant}`}
-                              className={
-                                idx % 2 === 0 ? "bg-[#EFEFEE]" : "bg-[#EFEFEE]/50"
-                              }
+                              className={idx % 2 === 0 ? "bg-[#EFEFEE]" : "bg-[#EFEFEE]/50"}
                             >
                               <TableCell className="font-medium">
                                 <div className="flex items-center gap-2">
@@ -474,30 +401,16 @@ const EvaluationPage: React.FC = () => {
                                   max="20"
                                   step="0.01"
                                   value={student.noteRapport ?? ""}
-                                  onChange={(e) =>
-                                    handleInputChange(
-                                      studentIndex,
-                                      "noteRapport",
-                                      e.target.value
-                                    )
-                                  }
+                                  onChange={(e) => handleInputChange(studentIndex, "noteRapport", e.target.value)}
                                   className={`text-center bg-[#EFEFEE] ${
-                                    validationErrors[
-                                      `${studentIndex}-noteRapport`
-                                    ]
+                                    validationErrors[`${studentIndex}-noteRapport`]
                                       ? "border-red-500"
                                       : "border-gray-300"
                                   }`}
                                 />
-                                {validationErrors[
-                                  `${studentIndex}-noteRapport`
-                                ] && (
+                                {validationErrors[`${studentIndex}-noteRapport`] && (
                                   <span className="text-red-500 text-xs">
-                                    {
-                                      validationErrors[
-                                        `${studentIndex}-noteRapport`
-                                      ]
-                                    }
+                                    {validationErrors[`${studentIndex}-noteRapport`]}
                                   </span>
                                 )}
                               </TableCell>
@@ -508,30 +421,16 @@ const EvaluationPage: React.FC = () => {
                                   max="20"
                                   step="0.01"
                                   value={student.notePresentation ?? ""}
-                                  onChange={(e) =>
-                                    handleInputChange(
-                                      studentIndex,
-                                      "notePresentation",
-                                      e.target.value
-                                    )
-                                  }
+                                  onChange={(e) => handleInputChange(studentIndex, "notePresentation", e.target.value)}
                                   className={`text-center bg-[#EFEFEE] ${
-                                    validationErrors[
-                                      `${studentIndex}-notePresentation`
-                                    ]
+                                    validationErrors[`${studentIndex}-notePresentation`]
                                       ? "border-red-500"
                                       : "border-gray-300"
                                   }`}
                                 />
-                                {validationErrors[
-                                  `${studentIndex}-notePresentation`
-                                ] && (
+                                {validationErrors[`${studentIndex}-notePresentation`] && (
                                   <span className="text-red-500 text-xs">
-                                    {
-                                      validationErrors[
-                                        `${studentIndex}-notePresentation`
-                                      ]
-                                    }
+                                    {validationErrors[`${studentIndex}-notePresentation`]}
                                   </span>
                                 )}
                               </TableCell>
@@ -542,30 +441,16 @@ const EvaluationPage: React.FC = () => {
                                   max="20"
                                   step="0.01"
                                   value={student.noteDiscussion ?? ""}
-                                  onChange={(e) =>
-                                    handleInputChange(
-                                      studentIndex,
-                                      "noteDiscussion",
-                                      e.target.value
-                                    )
-                                  }
+                                  onChange={(e) => handleInputChange(studentIndex, "noteDiscussion", e.target.value)}
                                   className={`text-center bg-[#EFEFEE] ${
-                                    validationErrors[
-                                      `${studentIndex}-noteDiscussion`
-                                    ]
+                                    validationErrors[`${studentIndex}-noteDiscussion`]
                                       ? "border-red-500"
                                       : "border-gray-300"
                                   }`}
                                 />
-                                {validationErrors[
-                                  `${studentIndex}-noteDiscussion`
-                                ] && (
+                                {validationErrors[`${studentIndex}-noteDiscussion`] && (
                                   <span className="text-red-500 text-xs">
-                                    {
-                                      validationErrors[
-                                        `${studentIndex}-noteDiscussion`
-                                      ]
-                                    }
+                                    {validationErrors[`${studentIndex}-noteDiscussion`]}
                                   </span>
                                 )}
                               </TableCell>
@@ -577,29 +462,17 @@ const EvaluationPage: React.FC = () => {
                                   step="0.01"
                                   value={student.noteSavoirFaireSavoirEtre ?? ""}
                                   onChange={(e) =>
-                                    handleInputChange(
-                                      studentIndex,
-                                      "noteSavoirFaireSavoirEtre",
-                                      e.target.value
-                                    )
+                                    handleInputChange(studentIndex, "noteSavoirFaireSavoirEtre", e.target.value)
                                   }
                                   className={`text-center bg-[#EFEFEE] ${
-                                    validationErrors[
-                                      `${studentIndex}-noteSavoirFaireSavoirEtre`
-                                    ]
+                                    validationErrors[`${studentIndex}-noteSavoirFaireSavoirEtre`]
                                       ? "border-red-500"
                                       : "border-gray-300"
                                   }`}
                                 />
-                                {validationErrors[
-                                  `${studentIndex}-noteSavoirFaireSavoirEtre`
-                                ] && (
+                                {validationErrors[`${studentIndex}-noteSavoirFaireSavoirEtre`] && (
                                   <span className="text-red-500 text-xs">
-                                    {
-                                      validationErrors[
-                                        `${studentIndex}-noteSavoirFaireSavoirEtre`
-                                      ]
-                                    }
+                                    {validationErrors[`${studentIndex}-noteSavoirFaireSavoirEtre`]}
                                   </span>
                                 )}
                               </TableCell>
@@ -607,16 +480,14 @@ const EvaluationPage: React.FC = () => {
                                 <Badge
                                   variant="outline"
                                   className={`px-3 py-1 ${
-                                    student.noteTotale !== undefined &&
-                                    !isNaN(student.noteTotale)
+                                    student.noteTotale !== undefined && student.noteTotale !== null
                                       ? student.noteTotale >= 10
                                         ? "bg-green-100 text-green-800 border-green-200"
                                         : "bg-red-100 text-red-800 border-red-200"
                                       : "bg-gray-100 text-gray-800 border-gray-200"
                                   }`}
                                 >
-                                  {student.noteTotale !== undefined &&
-                                  !isNaN(student.noteTotale)
+                                  {student.noteTotale !== undefined && student.noteTotale !== null
                                     ? student.noteTotale.toFixed(2)
                                     : "-"}
                                 </Badge>
@@ -624,13 +495,7 @@ const EvaluationPage: React.FC = () => {
                               <TableCell>
                                 <Textarea
                                   value={student.remarque ?? ""}
-                                  onChange={(e) =>
-                                    handleInputChange(
-                                      studentIndex,
-                                      "remarque",
-                                      e.target.value
-                                    )
-                                  }
+                                  onChange={(e) => handleInputChange(studentIndex, "remarque", e.target.value)}
                                   className="w-full p-2 border border-gray-300 rounded-md bg-[#EFEFEE]"
                                   rows={2}
                                   placeholder="Commentaires sur la performance..."
@@ -640,10 +505,7 @@ const EvaluationPage: React.FC = () => {
                                 <div className="flex flex-col gap-2">
                                   <Button
                                     onClick={() => handleSave(studentIndex)}
-                                    disabled={
-                                      updating === studentIndex ||
-                                      Object.keys(validationErrors).length > 0
-                                    }
+                                    disabled={updating === studentIndex || Object.keys(validationErrors).length > 0}
                                     className="w-full bg-[#b17a56] hover:bg-[#b17a56]/90 text-[#EFEFEE]"
                                     size="sm"
                                   >
@@ -654,17 +516,13 @@ const EvaluationPage: React.FC = () => {
                                       </div>
                                     ) : (
                                       <>
-                                        <Save className="h-4 w-4 mr-1" />{" "}
-                                        Sauvegarder
+                                        <Save className="h-4 w-4 mr-1" /> Sauvegarder
                                       </>
                                     )}
                                   </Button>
                                   <Button
                                     onClick={() => handleUpdate(studentIndex)}
-                                    disabled={
-                                      updating === studentIndex ||
-                                      Object.keys(validationErrors).length > 0
-                                    }
+                                    disabled={updating === studentIndex || Object.keys(validationErrors).length > 0}
                                     className="w-full bg-[#5b8cb5] hover:bg-[#5b8cb5]/90 text-[#EFEFEE]"
                                     size="sm"
                                   >
@@ -675,8 +533,7 @@ const EvaluationPage: React.FC = () => {
                                       </div>
                                     ) : (
                                       <>
-                                        <RefreshCw className="h-4 w-4 mr-1" />{" "}
-                                        Mettre à jour
+                                        <RefreshCw className="h-4 w-4 mr-1" /> Mettre à jour
                                       </>
                                     )}
                                   </Button>

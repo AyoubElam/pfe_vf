@@ -1,93 +1,65 @@
-/* eslint-disable @typescript-eslint/no-unused-vars */
 import express from "express";
 const router = express.Router();
 import db from "../../../config/db.js";
 
 // POST /api/validate_document - Add or modify a validation and comment
-// POST /api/validate_document - Add or modify a validation and comment
-router.post('/', (req, res) => {
-  const { idPFE, idLivrable, idTuteur, idEncadrant, validationStatus, comment } = req.body;
+// validate_document.js
+router.post("/", (req, res) => {
+  const { idPFE, pfeLivrableId, idTuteur, validationStatus, comment } = req.body;
+  console.log("Received validation request:", req.body);
 
-  if (!idPFE || !idLivrable || (!idTuteur && !idEncadrant) || !validationStatus) {
-    return res.status(400).json({ error: 'Missing required fields' });
+  if (!idPFE || !pfeLivrableId || !idTuteur || !validationStatus) {
+    console.log("Missing fields:", { idPFE, pfeLivrableId, idTuteur, validationStatus });
+    return res.status(400).json({ error: "Missing required fields" });
   }
 
-  const validatorId = idTuteur || idEncadrant;
-  const validatorType = idTuteur ? 'idTuteur' : 'idEncadrant';
-
-  const query = `
-    INSERT INTO validation_comment (idPFE, idLivrable, ${validatorType}, validationStatus, comment)
+  const validateQuery = `
+    INSERT INTO validation_comment (idPFE, pfeLivrableId, idTuteur, validationStatus, comment)
     VALUES (?, ?, ?, ?, ?)
-    ON DUPLICATE KEY UPDATE 
-      validationStatus = VALUES(validationStatus), 
+    ON DUPLICATE KEY UPDATE
+      validationStatus = VALUES(validationStatus),
       comment = VALUES(comment)
   `;
 
-  db.query(query, [idPFE, idLivrable, validatorId, validationStatus, comment || null], (err, result) => {
+  db.query(validateQuery, [idPFE, pfeLivrableId, idTuteur, validationStatus, comment || null], (err, result) => {
     if (err) {
-      console.error('Error inserting or updating validation:', err);
-      return res.status(500).json({ error: 'Server error', details: err.message });
+      console.error("Validation insert/update error:", err);
+      return res.status(500).json({ error: `Server error: ${err.message}` });
     }
-    return res.json({ 
-      message: result.affectedRows > 1 ? 'Validation updated successfully' : 'Validation created successfully' 
+    console.log("Query result:", result);
+    res.json({
+      message: result.affectedRows > 0 
+        ? (result.insertId ? "Validation created successfully" : "Validation updated successfully") 
+        : "No changes made",
     });
   });
 });
 
 // DELETE /api/validate_document - Delete a validation and comment
-router.delete('/', (req, res) => {
-  const { idPFE, idLivrable, idTuteur, idEncadrant } = req.query;
+// validate_document.js
+router.delete("/", (req, res) => {
+  const { idPFE, pfeLivrableId, idTuteur } = req.query;
 
-  if (!idPFE || !idLivrable || (!idTuteur && !idEncadrant)) {
-    return res.status(400).json({ error: 'Missing required fields' });
+  if (!idPFE || !pfeLivrableId || !idTuteur) {
+    return res.status(400).json({ error: "Missing required fields" });
   }
 
-  const validatorType = idTuteur ? 'idTuteur' : 'idEncadrant';
-  const validatorId = idTuteur || idEncadrant;
-
-  const query = `
-    DELETE FROM validation_comment 
-    WHERE idP]");
-FE = ? AND idLivrable = ? AND ${validatorType} = ?
+  const deleteQuery = `
+    DELETE FROM validation_comment
+    WHERE idPFE = ? AND pfeLivrableId = ? AND idTuteur = ?
   `;
 
-  db.query(query, [idPFE, idLivrable, validatorId], (err, result) => {
+  db.query(deleteQuery, [idPFE, pfeLivrableId, idTuteur], (err, result) => {
     if (err) {
-      console.error('Error deleting validation:', err);
-      return res.status(500).json({ error: 'Server error' });
+      console.error("Error deleting validation:", err);
+      return res.status(500).json({ error: "Server error", details: err.message });
     }
+
     if (result.affectedRows === 0) {
-      return res.status(404).json({ message: 'Validation not found' });
+      return res.status(404).json({ message: "Validation not found" });
     }
-    return res.json({ message: 'Validation deleted successfully' });
-  });
-});
 
-// DELETE /api/validate_document - Delete a validation and comment
-router.delete('/', (req, res) => {
-  const { idPFE, idLivrable, idTuteur, idEncadrant } = req.query;
-
-  if (!idPFE || !idLivrable || (!idTuteur && !idEncadrant)) {
-    return res.status(400).json({ error: 'Missing required fields' });
-  }
-
-  const validatorType = idTuteur ? 'idTuteur' : 'idEncadrant';
-  const validatorId = idTuteur || idEncadrant;
-
-  const query = `
-    DELETE FROM validation_comment 
-    WHERE idPFE = ? AND idLivrable = ? AND ${validatorType} = ?
-  `;
-
-  db.query(query, [idPFE, idLivrable, validatorId], (err, result) => {
-    if (err) {
-      console.error('Error deleting validation:', err);
-      return res.status(500).json({ error: 'Server error' });
-    }
-    if (result.affectedRows === 0) {
-      return res.status(404).json({ message: 'Validation not found' });
-    }
-    return res.json({ message: 'Validation deleted successfully' });
+    return res.json({ message: "Validation deleted successfully" });
   });
 });
 

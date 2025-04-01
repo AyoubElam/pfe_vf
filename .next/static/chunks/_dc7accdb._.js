@@ -509,7 +509,7 @@ var { g: global, __dirname, k: __turbopack_refresh__, m: module, e: exports } = 
 {
 const e = new Error(`Could not parse module '[project]/app/components/prof/evaluation.tsx'
 
-Unexpected token `div`. Expected jsx identifier`);
+Expected ';', '}' or <eof>`);
 e.code = 'MODULE_UNPARSEABLE';
 throw e;}}),
 "[project]/node_modules/@radix-ui/react-tabs/dist/index.mjs [app-client] (ecmascript)": ((__turbopack_context__) => {

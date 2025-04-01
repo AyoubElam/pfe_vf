@@ -786,7 +786,6 @@ var _s = __turbopack_context__.k.signature();
 ;
 ;
 ;
-// Constants
 const API_BASE_URL = "http://localhost:5000";
 function EncadrantGroupDocumentsPage() {
     _s();
@@ -796,7 +795,6 @@ function EncadrantGroupDocumentsPage() {
     }["EncadrantGroupDocumentsPage.useMemo[idEncadrant]"], [
         searchParams
     ]);
-    // State
     const [submittedDocuments, setSubmittedDocuments] = (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$index$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["useState"])([]);
     const [isLoading, setIsLoading] = (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$index$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["useState"])(true);
     const [fetchError, setFetchError] = (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$index$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["useState"])(null);
@@ -806,7 +804,6 @@ function EncadrantGroupDocumentsPage() {
     const [comment, setComment] = (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$index$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["useState"])("");
     const [activeFilter, setActiveFilter] = (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$index$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["useState"])(null);
     const [activeTab, setActiveTab] = (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$index$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["useState"])("all");
-    // Constants
     const livrableNames = {
         PDF: "Document PDF",
         Presentation: "Présentation"
@@ -827,20 +824,19 @@ function EncadrantGroupDocumentsPage() {
             columnNumber: 19
         }, this)
     };
-    // Fetch documents from API
     const fetchDocuments = (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$index$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["useCallback"])({
         "EncadrantGroupDocumentsPage.useCallback[fetchDocuments]": async ()=>{
             setIsLoading(true);
             setFetchError(null);
             try {
                 const response = await fetch(`${API_BASE_URL}/api/prof-documents?idEncadrant=${idEncadrant}`);
-                if (response.ok) {
-                    const data = await response.json();
-                    setSubmittedDocuments(data);
-                } else {
+                if (!response.ok) {
                     const errorData = await response.json();
-                    setFetchError(errorData.error || "Impossible de récupérer les documents des groupes");
+                    throw new Error(errorData.error || "Impossible de récupérer les documents des groupes");
                 }
+                const data = await response.json();
+                console.log("Fetched documents:", JSON.stringify(data, null, 2));
+                setSubmittedDocuments(data);
             } catch (error) {
                 setFetchError(`Erreur lors de la récupération des documents: ${error.message}`);
                 console.error("Fetch error:", error);
@@ -851,7 +847,6 @@ function EncadrantGroupDocumentsPage() {
     }["EncadrantGroupDocumentsPage.useCallback[fetchDocuments]"], [
         idEncadrant
     ]);
-    // Validation form handlers
     const openValidationForm = (doc)=>{
         setCurrentDoc(doc);
         setValidationStatus(doc.validationStatus || "pending");
@@ -864,44 +859,52 @@ function EncadrantGroupDocumentsPage() {
     };
     const submitValidation = async ()=>{
         if (!currentDoc) return;
+        const payload = {
+            idPFE: currentDoc.idPFE,
+            pfeLivrableId: currentDoc.id,
+            idEncadrant,
+            validationStatus,
+            comment
+        };
+        console.log("Submitting validation with payload:", JSON.stringify(payload, null, 2));
         try {
-            const response = await fetch(`${API_BASE_URL}/api/validate_document`, {
+            const response = await fetch(`${API_BASE_URL}/api/prof-documents/validate`, {
                 method: "POST",
                 headers: {
                     "Content-Type": "application/json"
                 },
-                body: JSON.stringify({
-                    idPFE: currentDoc.idPFE,
-                    idLivrable: currentDoc.id,
-                    idEncadrant,
-                    validationStatus,
-                    comment
-                })
+                body: JSON.stringify(payload)
             });
+            const responseData = await response.json();
+            console.log("Server response:", responseData);
             if (response.ok) {
                 fetchDocuments();
                 closeValidationForm();
             } else {
-                console.error("Failed to submit validation:", await response.json());
+                alert(`Validation failed: ${responseData.error || "Unknown error"}`);
             }
         } catch (error) {
             console.error("Error submitting validation:", error);
+            alert("Network error occurred: " + error.message);
         }
     };
     const deleteValidation = async ()=>{
         if (!currentDoc) return;
         try {
-            const response = await fetch(`${API_BASE_URL}/api/validate_document?idPFE=${currentDoc.idPFE}&idLivrable=${currentDoc.id}&idEncadrant=${idEncadrant}`, {
+            const response = await fetch(`${API_BASE_URL}/api/prof-documents/validate?idPFE=${currentDoc.idPFE}&pfeLivrableId=${currentDoc.id}&idEncadrant=${idEncadrant}`, {
                 method: "DELETE"
             });
+            const responseData = await response.json();
+            console.log("Delete response:", responseData);
             if (response.ok) {
                 fetchDocuments();
                 closeValidationForm();
             } else {
-                console.error("Failed to delete validation:", await response.json());
+                setFetchError(`Failed to delete validation: ${responseData.error || "Unknown error"}`);
             }
         } catch (error) {
             console.error("Error deleting validation:", error);
+            setFetchError("Network error occurred: " + error.message);
         }
     };
     (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$index$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["useEffect"])({
@@ -911,7 +914,6 @@ function EncadrantGroupDocumentsPage() {
     }["EncadrantGroupDocumentsPage.useEffect"], [
         fetchDocuments
     ]);
-    // Helper functions
     const getStatusIcon = (status)=>{
         switch(status){
             case "validated":
@@ -919,7 +921,7 @@ function EncadrantGroupDocumentsPage() {
                     className: "h-4 w-4 text-green-500"
                 }, void 0, false, {
                     fileName: "[project]/app/components/prof/prof_soumettre.tsx",
-                    lineNumber: 176,
+                    lineNumber: 177,
                     columnNumber: 16
                 }, this);
             case "rejected":
@@ -927,7 +929,7 @@ function EncadrantGroupDocumentsPage() {
                     className: "h-4 w-4 text-red-500"
                 }, void 0, false, {
                     fileName: "[project]/app/components/prof/prof_soumettre.tsx",
-                    lineNumber: 178,
+                    lineNumber: 179,
                     columnNumber: 16
                 }, this);
             default:
@@ -935,7 +937,7 @@ function EncadrantGroupDocumentsPage() {
                     className: "h-4 w-4 text-amber-500"
                 }, void 0, false, {
                     fileName: "[project]/app/components/prof/prof_soumettre.tsx",
-                    lineNumber: 180,
+                    lineNumber: 181,
                     columnNumber: 16
                 }, this);
         }
@@ -960,30 +962,23 @@ function EncadrantGroupDocumentsPage() {
                 return "bg-amber-50 text-amber-700 border-amber-200 dark:bg-amber-900/20 dark:text-amber-400 dark:border-amber-800";
         }
     };
-    // Filtered documents
     const filteredDocuments = (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$index$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["useMemo"])({
         "EncadrantGroupDocumentsPage.useMemo[filteredDocuments]": ()=>{
             let filtered = [
                 ...submittedDocuments
             ];
-            if (activeTab === "validated") {
-                filtered = filtered.filter({
-                    "EncadrantGroupDocumentsPage.useMemo[filteredDocuments]": (doc)=>doc.validationStatus === "validated"
-                }["EncadrantGroupDocumentsPage.useMemo[filteredDocuments]"]);
-            } else if (activeTab === "rejected") {
-                filtered = filtered.filter({
-                    "EncadrantGroupDocumentsPage.useMemo[filteredDocuments]": (doc)=>doc.validationStatus === "rejected"
-                }["EncadrantGroupDocumentsPage.useMemo[filteredDocuments]"]);
-            } else if (activeTab === "pending") {
-                filtered = filtered.filter({
-                    "EncadrantGroupDocumentsPage.useMemo[filteredDocuments]": (doc)=>!doc.validationStatus || doc.validationStatus === "pending"
-                }["EncadrantGroupDocumentsPage.useMemo[filteredDocuments]"]);
-            }
-            if (activeFilter) {
-                filtered = filtered.filter({
-                    "EncadrantGroupDocumentsPage.useMemo[filteredDocuments]": (doc)=>doc.nomGroupe === activeFilter
-                }["EncadrantGroupDocumentsPage.useMemo[filteredDocuments]"]);
-            }
+            if (activeTab === "validated") filtered = filtered.filter({
+                "EncadrantGroupDocumentsPage.useMemo[filteredDocuments]": (doc)=>doc.validationStatus === "validated"
+            }["EncadrantGroupDocumentsPage.useMemo[filteredDocuments]"]);
+            else if (activeTab === "rejected") filtered = filtered.filter({
+                "EncadrantGroupDocumentsPage.useMemo[filteredDocuments]": (doc)=>doc.validationStatus === "rejected"
+            }["EncadrantGroupDocumentsPage.useMemo[filteredDocuments]"]);
+            else if (activeTab === "pending") filtered = filtered.filter({
+                "EncadrantGroupDocumentsPage.useMemo[filteredDocuments]": (doc)=>!doc.validationStatus || doc.validationStatus === "pending"
+            }["EncadrantGroupDocumentsPage.useMemo[filteredDocuments]"]);
+            if (activeFilter) filtered = filtered.filter({
+                "EncadrantGroupDocumentsPage.useMemo[filteredDocuments]": (doc)=>doc.nomGroupe === activeFilter
+            }["EncadrantGroupDocumentsPage.useMemo[filteredDocuments]"]);
             return filtered;
         }
     }["EncadrantGroupDocumentsPage.useMemo[filteredDocuments]"], [
@@ -991,7 +986,6 @@ function EncadrantGroupDocumentsPage() {
         activeFilter,
         activeTab
     ]);
-    // Unique groups for filtering
     const uniqueGroups = (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$index$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["useMemo"])({
         "EncadrantGroupDocumentsPage.useMemo[uniqueGroups]": ()=>{
             const groups = new Set();
@@ -1017,552 +1011,570 @@ function EncadrantGroupDocumentsPage() {
                                 children: "Documents des Groupes Encadrés"
                             }, void 0, false, {
                                 fileName: "[project]/app/components/prof/prof_soumettre.tsx",
-                                lineNumber: 233,
+                                lineNumber: 227,
                                 columnNumber: 11
                             }, this),
                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$card$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["CardDescription"], {
                                 className: "text-muted-foreground",
-                                children: "Consultez et validez les documents soumis par les groupes que vous encadrez"
+                                children: "Consultez et validez les documents soumis par vos groupes supervisés"
                             }, void 0, false, {
                                 fileName: "[project]/app/components/prof/prof_soumettre.tsx",
-                                lineNumber: 236,
+                                lineNumber: 230,
                                 columnNumber: 11
                             }, this)
                         ]
                     }, void 0, true, {
                         fileName: "[project]/app/components/prof/prof_soumettre.tsx",
-                        lineNumber: 232,
+                        lineNumber: 226,
                         columnNumber: 9
                     }, this),
                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$card$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["CardContent"], {
                         className: "p-0",
-                        children: /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$tabs$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["Tabs"], {
-                            value: activeTab,
-                            onValueChange: setActiveTab,
-                            className: "w-full",
-                            children: [
-                                /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
-                                    className: "px-4 md:px-6 pt-6 flex flex-col md:flex-row items-start md:items-center justify-between gap-4",
-                                    children: [
-                                        /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$tabs$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["TabsList"], {
-                                            className: "w-full md:w-auto",
-                                            children: [
-                                                /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$tabs$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["TabsTrigger"], {
-                                                    value: "all",
-                                                    className: "text-sm",
-                                                    children: "Tous"
-                                                }, void 0, false, {
-                                                    fileName: "[project]/app/components/prof/prof_soumettre.tsx",
-                                                    lineNumber: 245,
-                                                    columnNumber: 17
-                                                }, this),
-                                                /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$tabs$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["TabsTrigger"], {
-                                                    value: "pending",
-                                                    className: "text-sm",
-                                                    children: "En attente"
-                                                }, void 0, false, {
-                                                    fileName: "[project]/app/components/prof/prof_soumettre.tsx",
-                                                    lineNumber: 248,
-                                                    columnNumber: 17
-                                                }, this),
-                                                /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$tabs$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["TabsTrigger"], {
-                                                    value: "validated",
-                                                    className: "text-sm",
-                                                    children: "Validés"
-                                                }, void 0, false, {
-                                                    fileName: "[project]/app/components/prof/prof_soumettre.tsx",
-                                                    lineNumber: 251,
-                                                    columnNumber: 17
-                                                }, this),
-                                                /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$tabs$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["TabsTrigger"], {
-                                                    value: "rejected",
-                                                    className: "text-sm",
-                                                    children: "Rejetés"
-                                                }, void 0, false, {
-                                                    fileName: "[project]/app/components/prof/prof_soumettre.tsx",
-                                                    lineNumber: 254,
-                                                    columnNumber: 17
-                                                }, this)
-                                            ]
-                                        }, void 0, true, {
-                                            fileName: "[project]/app/components/prof/prof_soumettre.tsx",
-                                            lineNumber: 244,
-                                            columnNumber: 15
-                                        }, this),
-                                        /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
-                                            className: "flex items-center gap-2 w-full md:w-auto",
-                                            children: [
-                                                /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$dropdown$2d$menu$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["DropdownMenu"], {
-                                                    children: [
-                                                        /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$dropdown$2d$menu$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["DropdownMenuTrigger"], {
-                                                            asChild: true,
-                                                            children: /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$button$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["Button"], {
-                                                                variant: "outline",
-                                                                size: "sm",
-                                                                className: "h-8 w-full md:w-auto",
+                        children: [
+                            fetchError && /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$alert$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["Alert"], {
+                                variant: "destructive",
+                                className: "m-6",
+                                children: [
+                                    /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$lucide$2d$react$2f$dist$2f$esm$2f$icons$2f$circle$2d$alert$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__$3c$export__default__as__AlertCircle$3e$__["AlertCircle"], {
+                                        className: "h-4 w-4"
+                                    }, void 0, false, {
+                                        fileName: "[project]/app/components/prof/prof_soumettre.tsx",
+                                        lineNumber: 238,
+                                        columnNumber: 15
+                                    }, this),
+                                    /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$alert$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["AlertTitle"], {
+                                        children: "Erreur"
+                                    }, void 0, false, {
+                                        fileName: "[project]/app/components/prof/prof_soumettre.tsx",
+                                        lineNumber: 239,
+                                        columnNumber: 15
+                                    }, this),
+                                    /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$alert$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["AlertDescription"], {
+                                        children: fetchError
+                                    }, void 0, false, {
+                                        fileName: "[project]/app/components/prof/prof_soumettre.tsx",
+                                        lineNumber: 240,
+                                        columnNumber: 15
+                                    }, this)
+                                ]
+                            }, void 0, true, {
+                                fileName: "[project]/app/components/prof/prof_soumettre.tsx",
+                                lineNumber: 237,
+                                columnNumber: 13
+                            }, this),
+                            /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$tabs$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["Tabs"], {
+                                value: activeTab,
+                                onValueChange: setActiveTab,
+                                className: "w-full",
+                                children: [
+                                    /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
+                                        className: "px-4 md:px-6 pt-6 flex flex-col md:flex-row items-start md:items-center justify-between gap-4",
+                                        children: [
+                                            /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$tabs$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["TabsList"], {
+                                                className: "w-full md:w-auto",
+                                                children: [
+                                                    /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$tabs$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["TabsTrigger"], {
+                                                        value: "all",
+                                                        className: "text-sm",
+                                                        children: "Tous"
+                                                    }, void 0, false, {
+                                                        fileName: "[project]/app/components/prof/prof_soumettre.tsx",
+                                                        lineNumber: 246,
+                                                        columnNumber: 17
+                                                    }, this),
+                                                    /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$tabs$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["TabsTrigger"], {
+                                                        value: "pending",
+                                                        className: "text-sm",
+                                                        children: "En attente"
+                                                    }, void 0, false, {
+                                                        fileName: "[project]/app/components/prof/prof_soumettre.tsx",
+                                                        lineNumber: 249,
+                                                        columnNumber: 17
+                                                    }, this),
+                                                    /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$tabs$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["TabsTrigger"], {
+                                                        value: "validated",
+                                                        className: "text-sm",
+                                                        children: "Validés"
+                                                    }, void 0, false, {
+                                                        fileName: "[project]/app/components/prof/prof_soumettre.tsx",
+                                                        lineNumber: 252,
+                                                        columnNumber: 17
+                                                    }, this),
+                                                    /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$tabs$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["TabsTrigger"], {
+                                                        value: "rejected",
+                                                        className: "text-sm",
+                                                        children: "Rejetés"
+                                                    }, void 0, false, {
+                                                        fileName: "[project]/app/components/prof/prof_soumettre.tsx",
+                                                        lineNumber: 255,
+                                                        columnNumber: 17
+                                                    }, this)
+                                                ]
+                                            }, void 0, true, {
+                                                fileName: "[project]/app/components/prof/prof_soumettre.tsx",
+                                                lineNumber: 245,
+                                                columnNumber: 15
+                                            }, this),
+                                            /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
+                                                className: "flex items-center gap-2 w-full md:w-auto",
+                                                children: [
+                                                    /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$dropdown$2d$menu$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["DropdownMenu"], {
+                                                        children: [
+                                                            /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$dropdown$2d$menu$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["DropdownMenuTrigger"], {
+                                                                asChild: true,
+                                                                children: /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$button$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["Button"], {
+                                                                    variant: "outline",
+                                                                    size: "sm",
+                                                                    className: "h-8 w-full md:w-auto",
+                                                                    children: [
+                                                                        /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$lucide$2d$react$2f$dist$2f$esm$2f$icons$2f$filter$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__$3c$export__default__as__Filter$3e$__["Filter"], {
+                                                                            className: "h-3.5 w-3.5 mr-1.5"
+                                                                        }, void 0, false, {
+                                                                            fileName: "[project]/app/components/prof/prof_soumettre.tsx",
+                                                                            lineNumber: 263,
+                                                                            columnNumber: 23
+                                                                        }, this),
+                                                                        activeFilter ? `Groupe: ${activeFilter}` : "Filtrer par groupe"
+                                                                    ]
+                                                                }, void 0, true, {
+                                                                    fileName: "[project]/app/components/prof/prof_soumettre.tsx",
+                                                                    lineNumber: 262,
+                                                                    columnNumber: 21
+                                                                }, this)
+                                                            }, void 0, false, {
+                                                                fileName: "[project]/app/components/prof/prof_soumettre.tsx",
+                                                                lineNumber: 261,
+                                                                columnNumber: 19
+                                                            }, this),
+                                                            /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$dropdown$2d$menu$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["DropdownMenuContent"], {
+                                                                align: "end",
                                                                 children: [
-                                                                    /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$lucide$2d$react$2f$dist$2f$esm$2f$icons$2f$filter$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__$3c$export__default__as__Filter$3e$__["Filter"], {
-                                                                        className: "h-3.5 w-3.5 mr-1.5"
+                                                                    activeFilter && /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$dropdown$2d$menu$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["DropdownMenuItem"], {
+                                                                        onClick: ()=>setActiveFilter(null),
+                                                                        children: "Tous les groupes"
                                                                     }, void 0, false, {
                                                                         fileName: "[project]/app/components/prof/prof_soumettre.tsx",
-                                                                        lineNumber: 262,
+                                                                        lineNumber: 269,
                                                                         columnNumber: 23
                                                                     }, this),
-                                                                    activeFilter ? `Groupe: ${activeFilter}` : "Filtrer par groupe"
+                                                                    uniqueGroups.map((group)=>/*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$dropdown$2d$menu$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["DropdownMenuItem"], {
+                                                                            onClick: ()=>setActiveFilter(group),
+                                                                            children: group
+                                                                        }, group, false, {
+                                                                            fileName: "[project]/app/components/prof/prof_soumettre.tsx",
+                                                                            lineNumber: 272,
+                                                                            columnNumber: 23
+                                                                        }, this))
                                                                 ]
                                                             }, void 0, true, {
                                                                 fileName: "[project]/app/components/prof/prof_soumettre.tsx",
-                                                                lineNumber: 261,
+                                                                lineNumber: 267,
+                                                                columnNumber: 19
+                                                            }, this)
+                                                        ]
+                                                    }, void 0, true, {
+                                                        fileName: "[project]/app/components/prof/prof_soumettre.tsx",
+                                                        lineNumber: 260,
+                                                        columnNumber: 17
+                                                    }, this),
+                                                    /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$button$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["Button"], {
+                                                        variant: "outline",
+                                                        size: "sm",
+                                                        onClick: fetchDocuments,
+                                                        disabled: isLoading,
+                                                        className: "h-8 hover:bg-primary/5 hover:text-primary",
+                                                        children: [
+                                                            /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$lucide$2d$react$2f$dist$2f$esm$2f$icons$2f$refresh$2d$cw$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__$3c$export__default__as__RefreshCw$3e$__["RefreshCw"], {
+                                                                className: `h-3.5 w-3.5 mr-1.5 ${isLoading ? "animate-spin" : ""}`
+                                                            }, void 0, false, {
+                                                                fileName: "[project]/app/components/prof/prof_soumettre.tsx",
+                                                                lineNumber: 285,
+                                                                columnNumber: 19
+                                                            }, this),
+                                                            "Actualiser"
+                                                        ]
+                                                    }, void 0, true, {
+                                                        fileName: "[project]/app/components/prof/prof_soumettre.tsx",
+                                                        lineNumber: 278,
+                                                        columnNumber: 17
+                                                    }, this)
+                                                ]
+                                            }, void 0, true, {
+                                                fileName: "[project]/app/components/prof/prof_soumettre.tsx",
+                                                lineNumber: 259,
+                                                columnNumber: 15
+                                            }, this)
+                                        ]
+                                    }, void 0, true, {
+                                        fileName: "[project]/app/components/prof/prof_soumettre.tsx",
+                                        lineNumber: 244,
+                                        columnNumber: 13
+                                    }, this),
+                                    /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$tabs$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["TabsContent"], {
+                                        value: activeTab,
+                                        className: "p-4 md:p-6 space-y-6",
+                                        children: [
+                                            /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
+                                                className: "flex flex-col md:flex-row md:items-center justify-between mb-4 gap-2",
+                                                children: [
+                                                    /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("h2", {
+                                                        className: "text-lg font-semibold flex items-center gap-2",
+                                                        children: [
+                                                            /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$lucide$2d$react$2f$dist$2f$esm$2f$icons$2f$file$2d$text$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__$3c$export__default__as__FileText$3e$__["FileText"], {
+                                                                className: "h-5 w-5 text-primary"
+                                                            }, void 0, false, {
+                                                                fileName: "[project]/app/components/prof/prof_soumettre.tsx",
+                                                                lineNumber: 294,
+                                                                columnNumber: 19
+                                                            }, this),
+                                                            "Documents ",
+                                                            activeTab !== "all" ? `(${getStatusText(activeTab)})` : "",
+                                                            activeFilter && /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$badge$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["Badge"], {
+                                                                variant: "outline",
+                                                                className: "ml-2",
+                                                                children: [
+                                                                    "Groupe: ",
+                                                                    activeFilter
+                                                                ]
+                                                            }, void 0, true, {
+                                                                fileName: "[project]/app/components/prof/prof_soumettre.tsx",
+                                                                lineNumber: 297,
                                                                 columnNumber: 21
                                                             }, this)
-                                                        }, void 0, false, {
-                                                            fileName: "[project]/app/components/prof/prof_soumettre.tsx",
-                                                            lineNumber: 260,
-                                                            columnNumber: 19
-                                                        }, this),
-                                                        /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$dropdown$2d$menu$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["DropdownMenuContent"], {
-                                                            align: "end",
-                                                            children: [
-                                                                activeFilter && /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$dropdown$2d$menu$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["DropdownMenuItem"], {
-                                                                    onClick: ()=>setActiveFilter(null),
-                                                                    children: "Tous les groupes"
-                                                                }, void 0, false, {
-                                                                    fileName: "[project]/app/components/prof/prof_soumettre.tsx",
-                                                                    lineNumber: 268,
-                                                                    columnNumber: 23
-                                                                }, this),
-                                                                uniqueGroups.map((group)=>/*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$dropdown$2d$menu$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["DropdownMenuItem"], {
-                                                                        onClick: ()=>setActiveFilter(group),
-                                                                        children: group
-                                                                    }, group, false, {
-                                                                        fileName: "[project]/app/components/prof/prof_soumettre.tsx",
-                                                                        lineNumber: 271,
-                                                                        columnNumber: 23
-                                                                    }, this))
-                                                            ]
-                                                        }, void 0, true, {
-                                                            fileName: "[project]/app/components/prof/prof_soumettre.tsx",
-                                                            lineNumber: 266,
-                                                            columnNumber: 19
-                                                        }, this)
-                                                    ]
-                                                }, void 0, true, {
-                                                    fileName: "[project]/app/components/prof/prof_soumettre.tsx",
-                                                    lineNumber: 259,
-                                                    columnNumber: 17
-                                                }, this),
-                                                /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$button$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["Button"], {
-                                                    variant: "outline",
-                                                    size: "sm",
-                                                    onClick: fetchDocuments,
-                                                    disabled: isLoading,
-                                                    className: "h-8 hover:bg-primary/5 hover:text-primary",
-                                                    children: [
-                                                        /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$lucide$2d$react$2f$dist$2f$esm$2f$icons$2f$refresh$2d$cw$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__$3c$export__default__as__RefreshCw$3e$__["RefreshCw"], {
-                                                            className: `h-3.5 w-3.5 mr-1.5 ${isLoading ? "animate-spin" : ""}`
-                                                        }, void 0, false, {
-                                                            fileName: "[project]/app/components/prof/prof_soumettre.tsx",
-                                                            lineNumber: 284,
-                                                            columnNumber: 19
-                                                        }, this),
-                                                        "Actualiser"
-                                                    ]
-                                                }, void 0, true, {
-                                                    fileName: "[project]/app/components/prof/prof_soumettre.tsx",
-                                                    lineNumber: 277,
-                                                    columnNumber: 17
-                                                }, this)
-                                            ]
-                                        }, void 0, true, {
-                                            fileName: "[project]/app/components/prof/prof_soumettre.tsx",
-                                            lineNumber: 258,
-                                            columnNumber: 15
-                                        }, this)
-                                    ]
-                                }, void 0, true, {
-                                    fileName: "[project]/app/components/prof/prof_soumettre.tsx",
-                                    lineNumber: 243,
-                                    columnNumber: 13
-                                }, this),
-                                /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$tabs$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["TabsContent"], {
-                                    value: activeTab,
-                                    className: "p-4 md:p-6 space-y-6",
-                                    children: [
-                                        /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
-                                            className: "flex flex-col md:flex-row md:items-center justify-between mb-4 gap-2",
-                                            children: [
-                                                /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("h2", {
-                                                    className: "text-lg font-semibold flex items-center gap-2",
-                                                    children: [
-                                                        /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$lucide$2d$react$2f$dist$2f$esm$2f$icons$2f$file$2d$text$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__$3c$export__default__as__FileText$3e$__["FileText"], {
-                                                            className: "h-5 w-5 text-primary"
-                                                        }, void 0, false, {
-                                                            fileName: "[project]/app/components/prof/prof_soumettre.tsx",
-                                                            lineNumber: 293,
-                                                            columnNumber: 19
-                                                        }, this),
-                                                        "Documents ",
-                                                        activeTab !== "all" ? `(${getStatusText(activeTab)})` : "",
-                                                        activeFilter && /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$badge$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["Badge"], {
-                                                            variant: "outline",
-                                                            className: "ml-2",
-                                                            children: [
-                                                                "Groupe: ",
-                                                                activeFilter
-                                                            ]
-                                                        }, void 0, true, {
-                                                            fileName: "[project]/app/components/prof/prof_soumettre.tsx",
-                                                            lineNumber: 296,
-                                                            columnNumber: 21
-                                                        }, this)
-                                                    ]
-                                                }, void 0, true, {
-                                                    fileName: "[project]/app/components/prof/prof_soumettre.tsx",
-                                                    lineNumber: 292,
-                                                    columnNumber: 17
-                                                }, this),
-                                                /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$badge$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["Badge"], {
-                                                    variant: "outline",
-                                                    className: "px-2 py-1 w-fit",
-                                                    children: [
-                                                        /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$lucide$2d$react$2f$dist$2f$esm$2f$icons$2f$users$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__$3c$export__default__as__Users$3e$__["Users"], {
-                                                            className: "h-3.5 w-3.5 mr-1.5"
-                                                        }, void 0, false, {
-                                                            fileName: "[project]/app/components/prof/prof_soumettre.tsx",
-                                                            lineNumber: 302,
-                                                            columnNumber: 19
-                                                        }, this),
-                                                        filteredDocuments.length,
-                                                        " document",
-                                                        filteredDocuments.length !== 1 ? "s" : ""
-                                                    ]
-                                                }, void 0, true, {
-                                                    fileName: "[project]/app/components/prof/prof_soumettre.tsx",
-                                                    lineNumber: 301,
-                                                    columnNumber: 17
-                                                }, this)
-                                            ]
-                                        }, void 0, true, {
-                                            fileName: "[project]/app/components/prof/prof_soumettre.tsx",
-                                            lineNumber: 291,
-                                            columnNumber: 15
-                                        }, this),
-                                        isLoading ? /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
-                                            className: "flex items-center justify-center p-8 bg-muted/10 rounded-xl border border-border/40",
-                                            children: [
-                                                /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$lucide$2d$react$2f$dist$2f$esm$2f$icons$2f$loader$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__$3c$export__default__as__Loader$3e$__["Loader"], {
-                                                    className: "h-5 w-5 animate-spin mr-2 text-primary"
-                                                }, void 0, false, {
-                                                    fileName: "[project]/app/components/prof/prof_soumettre.tsx",
-                                                    lineNumber: 309,
-                                                    columnNumber: 19
-                                                }, this),
-                                                /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("p", {
-                                                    className: "text-muted-foreground",
-                                                    children: "Chargement des documents..."
-                                                }, void 0, false, {
-                                                    fileName: "[project]/app/components/prof/prof_soumettre.tsx",
-                                                    lineNumber: 310,
-                                                    columnNumber: 19
-                                                }, this)
-                                            ]
-                                        }, void 0, true, {
-                                            fileName: "[project]/app/components/prof/prof_soumettre.tsx",
-                                            lineNumber: 308,
-                                            columnNumber: 17
-                                        }, this) : fetchError ? /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$alert$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["Alert"], {
-                                            variant: "destructive",
-                                            className: "bg-destructive/10 text-destructive border-destructive/20",
-                                            children: [
-                                                /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$lucide$2d$react$2f$dist$2f$esm$2f$icons$2f$circle$2d$alert$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__$3c$export__default__as__AlertCircle$3e$__["AlertCircle"], {
-                                                    className: "h-4 w-4"
-                                                }, void 0, false, {
-                                                    fileName: "[project]/app/components/prof/prof_soumettre.tsx",
-                                                    lineNumber: 314,
-                                                    columnNumber: 19
-                                                }, this),
-                                                /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$alert$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["AlertTitle"], {
-                                                    children: "Erreur"
-                                                }, void 0, false, {
-                                                    fileName: "[project]/app/components/prof/prof_soumettre.tsx",
-                                                    lineNumber: 315,
-                                                    columnNumber: 19
-                                                }, this),
-                                                /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$alert$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["AlertDescription"], {
-                                                    children: fetchError
-                                                }, void 0, false, {
-                                                    fileName: "[project]/app/components/prof/prof_soumettre.tsx",
-                                                    lineNumber: 316,
-                                                    columnNumber: 19
-                                                }, this),
-                                                /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$button$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["Button"], {
-                                                    variant: "link",
-                                                    onClick: fetchDocuments,
-                                                    className: "text-destructive mt-2",
-                                                    children: "Réessayer"
-                                                }, void 0, false, {
-                                                    fileName: "[project]/app/components/prof/prof_soumettre.tsx",
-                                                    lineNumber: 317,
-                                                    columnNumber: 19
-                                                }, this)
-                                            ]
-                                        }, void 0, true, {
-                                            fileName: "[project]/app/components/prof/prof_soumettre.tsx",
-                                            lineNumber: 313,
-                                            columnNumber: 17
-                                        }, this) : filteredDocuments.length > 0 ? /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
-                                            className: "space-y-4",
-                                            children: filteredDocuments.map((doc)=>/*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$card$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["Card"], {
-                                                    className: "overflow-hidden border border-border/40 hover:shadow-md transition-all duration-300 hover:border-primary/20",
-                                                    children: [
-                                                        /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
-                                                            className: "flex flex-col md:flex-row md:items-center justify-between p-4 bg-muted/20 border-b border-border/30 gap-4",
-                                                            children: [
-                                                                /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
-                                                                    className: "flex items-center gap-3",
-                                                                    children: [
-                                                                        /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
-                                                                            className: "bg-primary/10 p-2.5 rounded-full",
-                                                                            children: livrableIcons[doc.type] ?? /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$lucide$2d$react$2f$dist$2f$esm$2f$icons$2f$file$2d$text$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__$3c$export__default__as__FileText$3e$__["FileText"], {
-                                                                                className: "h-5 w-5"
-                                                                            }, void 0, false, {
-                                                                                fileName: "[project]/app/components/prof/prof_soumettre.tsx",
-                                                                                lineNumber: 331,
-                                                                                columnNumber: 57
-                                                                            }, this)
-                                                                        }, void 0, false, {
-                                                                            fileName: "[project]/app/components/prof/prof_soumettre.tsx",
-                                                                            lineNumber: 330,
-                                                                            columnNumber: 27
-                                                                        }, this),
-                                                                        /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
-                                                                            children: [
-                                                                                /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
-                                                                                    className: "font-medium",
-                                                                                    children: livrableNames[doc.type]
+                                                        ]
+                                                    }, void 0, true, {
+                                                        fileName: "[project]/app/components/prof/prof_soumettre.tsx",
+                                                        lineNumber: 293,
+                                                        columnNumber: 17
+                                                    }, this),
+                                                    /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$badge$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["Badge"], {
+                                                        variant: "outline",
+                                                        className: "px-2 py-1 w-fit",
+                                                        children: [
+                                                            /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$lucide$2d$react$2f$dist$2f$esm$2f$icons$2f$users$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__$3c$export__default__as__Users$3e$__["Users"], {
+                                                                className: "h-3.5 w-3.5 mr-1.5"
+                                                            }, void 0, false, {
+                                                                fileName: "[project]/app/components/prof/prof_soumettre.tsx",
+                                                                lineNumber: 303,
+                                                                columnNumber: 19
+                                                            }, this),
+                                                            filteredDocuments.length,
+                                                            " document",
+                                                            filteredDocuments.length !== 1 ? "s" : ""
+                                                        ]
+                                                    }, void 0, true, {
+                                                        fileName: "[project]/app/components/prof/prof_soumettre.tsx",
+                                                        lineNumber: 302,
+                                                        columnNumber: 17
+                                                    }, this)
+                                                ]
+                                            }, void 0, true, {
+                                                fileName: "[project]/app/components/prof/prof_soumettre.tsx",
+                                                lineNumber: 292,
+                                                columnNumber: 15
+                                            }, this),
+                                            isLoading ? /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
+                                                className: "flex items-center justify-center p-8 bg-muted/10 rounded-xl border border-border/40",
+                                                children: [
+                                                    /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$lucide$2d$react$2f$dist$2f$esm$2f$icons$2f$loader$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__$3c$export__default__as__Loader$3e$__["Loader"], {
+                                                        className: "h-5 w-5 animate-spin mr-2 text-primary"
+                                                    }, void 0, false, {
+                                                        fileName: "[project]/app/components/prof/prof_soumettre.tsx",
+                                                        lineNumber: 310,
+                                                        columnNumber: 19
+                                                    }, this),
+                                                    /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("p", {
+                                                        className: "text-muted-foreground",
+                                                        children: "Chargement des documents..."
+                                                    }, void 0, false, {
+                                                        fileName: "[project]/app/components/prof/prof_soumettre.tsx",
+                                                        lineNumber: 311,
+                                                        columnNumber: 19
+                                                    }, this)
+                                                ]
+                                            }, void 0, true, {
+                                                fileName: "[project]/app/components/prof/prof_soumettre.tsx",
+                                                lineNumber: 309,
+                                                columnNumber: 17
+                                            }, this) : filteredDocuments.length > 0 ? /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
+                                                className: "space-y-4",
+                                                children: filteredDocuments.map((doc)=>/*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$card$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["Card"], {
+                                                        className: "overflow-hidden border border-border/40 hover:shadow-md transition-all duration-300 hover:border-primary/20",
+                                                        children: [
+                                                            /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
+                                                                className: "flex flex-col md:flex-row md:items-center justify-between p-4 bg-muted/20 border-b border-border/30 gap-4",
+                                                                children: [
+                                                                    /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
+                                                                        className: "flex items-center gap-3",
+                                                                        children: [
+                                                                            /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
+                                                                                className: "bg-primary/10 p-2.5 rounded-full",
+                                                                                children: livrableIcons[doc.type] ?? /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$lucide$2d$react$2f$dist$2f$esm$2f$icons$2f$file$2d$text$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__$3c$export__default__as__FileText$3e$__["FileText"], {
+                                                                                    className: "h-5 w-5"
                                                                                 }, void 0, false, {
                                                                                     fileName: "[project]/app/components/prof/prof_soumettre.tsx",
-                                                                                    lineNumber: 334,
-                                                                                    columnNumber: 29
-                                                                                }, this),
-                                                                                /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
-                                                                                    className: "flex flex-wrap items-center gap-2 mt-1",
-                                                                                    children: [
-                                                                                        /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$badge$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["Badge"], {
-                                                                                            variant: "secondary",
-                                                                                            className: "text-xs",
-                                                                                            children: doc.nomGroupe
-                                                                                        }, void 0, false, {
-                                                                                            fileName: "[project]/app/components/prof/prof_soumettre.tsx",
-                                                                                            lineNumber: 336,
-                                                                                            columnNumber: 31
-                                                                                        }, this),
-                                                                                        /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$badge$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["Badge"], {
-                                                                                            className: `text-xs ${doc.validationStatus ? getStatusColor(doc.validationStatus) : "bg-muted"}`,
-                                                                                            children: /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("span", {
-                                                                                                className: "flex items-center gap-1",
+                                                                                    lineNumber: 323,
+                                                                                    columnNumber: 57
+                                                                                }, this)
+                                                                            }, void 0, false, {
+                                                                                fileName: "[project]/app/components/prof/prof_soumettre.tsx",
+                                                                                lineNumber: 322,
+                                                                                columnNumber: 27
+                                                                            }, this),
+                                                                            /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
+                                                                                children: [
+                                                                                    /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
+                                                                                        className: "font-medium",
+                                                                                        children: livrableNames[doc.type]
+                                                                                    }, void 0, false, {
+                                                                                        fileName: "[project]/app/components/prof/prof_soumettre.tsx",
+                                                                                        lineNumber: 326,
+                                                                                        columnNumber: 29
+                                                                                    }, this),
+                                                                                    doc.subjectTitle && /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
+                                                                                        className: "text-sm text-muted-foreground",
+                                                                                        children: [
+                                                                                            "Sujet : ",
+                                                                                            doc.subjectTitle
+                                                                                        ]
+                                                                                    }, void 0, true, {
+                                                                                        fileName: "[project]/app/components/prof/prof_soumettre.tsx",
+                                                                                        lineNumber: 328,
+                                                                                        columnNumber: 31
+                                                                                    }, this),
+                                                                                    /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
+                                                                                        className: "flex flex-wrap items-center gap-2 mt-1",
+                                                                                        children: [
+                                                                                            /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$badge$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["Badge"], {
+                                                                                                variant: "secondary",
+                                                                                                className: "text-xs",
                                                                                                 children: [
-                                                                                                    getStatusIcon(doc.validationStatus),
-                                                                                                    getStatusText(doc.validationStatus)
+                                                                                                    doc.nomGroupe,
+                                                                                                    " (",
+                                                                                                    doc.nbEtudiants,
+                                                                                                    " étudiants)"
                                                                                                 ]
                                                                                             }, void 0, true, {
                                                                                                 fileName: "[project]/app/components/prof/prof_soumettre.tsx",
-                                                                                                lineNumber: 342,
+                                                                                                lineNumber: 331,
+                                                                                                columnNumber: 31
+                                                                                            }, this),
+                                                                                            doc.authorName && /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$badge$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["Badge"], {
+                                                                                                variant: "outline",
+                                                                                                className: "text-xs",
+                                                                                                children: doc.authorName
+                                                                                            }, void 0, false, {
+                                                                                                fileName: "[project]/app/components/prof/prof_soumettre.tsx",
+                                                                                                lineNumber: 335,
                                                                                                 columnNumber: 33
+                                                                                            }, this),
+                                                                                            /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$badge$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["Badge"], {
+                                                                                                className: `text-xs ${doc.validationStatus ? getStatusColor(doc.validationStatus) : "bg-muted"}`,
+                                                                                                children: /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("span", {
+                                                                                                    className: "flex items-center gap-1",
+                                                                                                    children: [
+                                                                                                        getStatusIcon(doc.validationStatus),
+                                                                                                        getStatusText(doc.validationStatus)
+                                                                                                    ]
+                                                                                                }, void 0, true, {
+                                                                                                    fileName: "[project]/app/components/prof/prof_soumettre.tsx",
+                                                                                                    lineNumber: 344,
+                                                                                                    columnNumber: 33
+                                                                                                }, this)
+                                                                                            }, void 0, false, {
+                                                                                                fileName: "[project]/app/components/prof/prof_soumettre.tsx",
+                                                                                                lineNumber: 339,
+                                                                                                columnNumber: 31
                                                                                             }, this)
-                                                                                        }, void 0, false, {
-                                                                                            fileName: "[project]/app/components/prof/prof_soumettre.tsx",
-                                                                                            lineNumber: 339,
-                                                                                            columnNumber: 31
-                                                                                        }, this)
-                                                                                    ]
-                                                                                }, void 0, true, {
-                                                                                    fileName: "[project]/app/components/prof/prof_soumettre.tsx",
-                                                                                    lineNumber: 335,
-                                                                                    columnNumber: 29
-                                                                                }, this)
-                                                                            ]
-                                                                        }, void 0, true, {
-                                                                            fileName: "[project]/app/components/prof/prof_soumettre.tsx",
-                                                                            lineNumber: 333,
-                                                                            columnNumber: 27
-                                                                        }, this)
-                                                                    ]
-                                                                }, void 0, true, {
-                                                                    fileName: "[project]/app/components/prof/prof_soumettre.tsx",
-                                                                    lineNumber: 329,
-                                                                    columnNumber: 25
-                                                                }, this),
-                                                                /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
-                                                                    className: "flex flex-wrap gap-2",
-                                                                    children: [
-                                                                        /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$button$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["Button"], {
-                                                                            variant: "outline",
-                                                                            size: "sm",
-                                                                            asChild: true,
-                                                                            className: "h-8 text-xs",
-                                                                            children: /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("a", {
-                                                                                href: `${API_BASE_URL}${doc.fichier}`,
-                                                                                download: doc.fichier.split("/").pop(),
-                                                                                children: [
-                                                                                    /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$lucide$2d$react$2f$dist$2f$esm$2f$icons$2f$download$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__$3c$export__default__as__Download$3e$__["Download"], {
-                                                                                        className: "h-3.5 w-3.5 mr-1.5"
-                                                                                    }, void 0, false, {
+                                                                                        ]
+                                                                                    }, void 0, true, {
                                                                                         fileName: "[project]/app/components/prof/prof_soumettre.tsx",
-                                                                                        lineNumber: 353,
-                                                                                        columnNumber: 31
-                                                                                    }, this),
-                                                                                    "Télécharger"
+                                                                                        lineNumber: 330,
+                                                                                        columnNumber: 29
+                                                                                    }, this)
                                                                                 ]
                                                                             }, void 0, true, {
                                                                                 fileName: "[project]/app/components/prof/prof_soumettre.tsx",
-                                                                                lineNumber: 352,
-                                                                                columnNumber: 29
+                                                                                lineNumber: 325,
+                                                                                columnNumber: 27
                                                                             }, this)
-                                                                        }, void 0, false, {
-                                                                            fileName: "[project]/app/components/prof/prof_soumettre.tsx",
-                                                                            lineNumber: 351,
-                                                                            columnNumber: 27
-                                                                        }, this),
-                                                                        /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$button$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["Button"], {
-                                                                            variant: "outline",
-                                                                            size: "sm",
-                                                                            onClick: ()=>window.open(`${API_BASE_URL}${doc.fichier}`, "_blank"),
-                                                                            className: "h-8 text-xs",
-                                                                            children: [
-                                                                                /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$lucide$2d$react$2f$dist$2f$esm$2f$icons$2f$eye$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__$3c$export__default__as__Eye$3e$__["Eye"], {
-                                                                                    className: "h-3.5 w-3.5 mr-1.5"
-                                                                                }, void 0, false, {
+                                                                        ]
+                                                                    }, void 0, true, {
+                                                                        fileName: "[project]/app/components/prof/prof_soumettre.tsx",
+                                                                        lineNumber: 321,
+                                                                        columnNumber: 25
+                                                                    }, this),
+                                                                    /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
+                                                                        className: "flex flex-wrap gap-2",
+                                                                        children: [
+                                                                            /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$button$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["Button"], {
+                                                                                variant: "outline",
+                                                                                size: "sm",
+                                                                                asChild: true,
+                                                                                className: "h-8 text-xs",
+                                                                                children: /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("a", {
+                                                                                    href: `${API_BASE_URL}${doc.fichier}`,
+                                                                                    download: doc.fichier.split("/").pop(),
+                                                                                    children: [
+                                                                                        /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$lucide$2d$react$2f$dist$2f$esm$2f$icons$2f$download$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__$3c$export__default__as__Download$3e$__["Download"], {
+                                                                                            className: "h-3.5 w-3.5 mr-1.5"
+                                                                                        }, void 0, false, {
+                                                                                            fileName: "[project]/app/components/prof/prof_soumettre.tsx",
+                                                                                            lineNumber: 355,
+                                                                                            columnNumber: 31
+                                                                                        }, this),
+                                                                                        "Télécharger"
+                                                                                    ]
+                                                                                }, void 0, true, {
                                                                                     fileName: "[project]/app/components/prof/prof_soumettre.tsx",
-                                                                                    lineNumber: 363,
+                                                                                    lineNumber: 354,
                                                                                     columnNumber: 29
-                                                                                }, this),
-                                                                                "Prévisualiser"
-                                                                            ]
-                                                                        }, void 0, true, {
-                                                                            fileName: "[project]/app/components/prof/prof_soumettre.tsx",
-                                                                            lineNumber: 357,
-                                                                            columnNumber: 27
-                                                                        }, this),
-                                                                        /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$button$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["Button"], {
-                                                                            variant: "default",
-                                                                            size: "sm",
-                                                                            onClick: ()=>openValidationForm(doc),
-                                                                            className: "h-8 text-xs",
-                                                                            children: [
-                                                                                /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$lucide$2d$react$2f$dist$2f$esm$2f$icons$2f$message$2d$square$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__$3c$export__default__as__MessageSquare$3e$__["MessageSquare"], {
-                                                                                    className: "h-3.5 w-3.5 mr-1.5"
-                                                                                }, void 0, false, {
-                                                                                    fileName: "[project]/app/components/prof/prof_soumettre.tsx",
-                                                                                    lineNumber: 372,
-                                                                                    columnNumber: 29
-                                                                                }, this),
-                                                                                doc.validationStatus ? "Modifier" : "Valider"
-                                                                            ]
-                                                                        }, void 0, true, {
-                                                                            fileName: "[project]/app/components/prof/prof_soumettre.tsx",
-                                                                            lineNumber: 366,
-                                                                            columnNumber: 27
-                                                                        }, this)
-                                                                    ]
-                                                                }, void 0, true, {
-                                                                    fileName: "[project]/app/components/prof/prof_soumettre.tsx",
-                                                                    lineNumber: 350,
-                                                                    columnNumber: 25
-                                                                }, this)
-                                                            ]
-                                                        }, void 0, true, {
-                                                            fileName: "[project]/app/components/prof/prof_soumettre.tsx",
-                                                            lineNumber: 328,
-                                                            columnNumber: 23
-                                                        }, this),
-                                                        doc.comment && /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
-                                                            className: "p-4 text-sm",
-                                                            children: [
-                                                                /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
-                                                                    className: "font-medium mb-1 text-muted-foreground",
-                                                                    children: "Commentaire:"
-                                                                }, void 0, false, {
-                                                                    fileName: "[project]/app/components/prof/prof_soumettre.tsx",
-                                                                    lineNumber: 379,
-                                                                    columnNumber: 27
-                                                                }, this),
-                                                                /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
-                                                                    className: "bg-muted/20 p-3 rounded-md border border-border/30",
-                                                                    children: doc.comment
-                                                                }, void 0, false, {
-                                                                    fileName: "[project]/app/components/prof/prof_soumettre.tsx",
-                                                                    lineNumber: 380,
-                                                                    columnNumber: 27
-                                                                }, this)
-                                                            ]
-                                                        }, void 0, true, {
-                                                            fileName: "[project]/app/components/prof/prof_soumettre.tsx",
-                                                            lineNumber: 378,
-                                                            columnNumber: 25
-                                                        }, this)
-                                                    ]
-                                                }, `${doc.idPFE}-${doc.id}`, true, {
-                                                    fileName: "[project]/app/components/prof/prof_soumettre.tsx",
-                                                    lineNumber: 324,
-                                                    columnNumber: 21
-                                                }, this))
-                                        }, void 0, false, {
-                                            fileName: "[project]/app/components/prof/prof_soumettre.tsx",
-                                            lineNumber: 322,
-                                            columnNumber: 17
-                                        }, this) : /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
-                                            className: "flex flex-col items-center justify-center p-8 bg-muted/10 rounded-xl border border-border/40",
-                                            children: [
-                                                /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$lucide$2d$react$2f$dist$2f$esm$2f$icons$2f$upload$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__$3c$export__default__as__Upload$3e$__["Upload"], {
-                                                    className: "h-8 w-8 text-muted-foreground mb-2"
-                                                }, void 0, false, {
-                                                    fileName: "[project]/app/components/prof/prof_soumettre.tsx",
-                                                    lineNumber: 388,
-                                                    columnNumber: 19
-                                                }, this),
-                                                /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("p", {
-                                                    className: "text-muted-foreground text-center",
-                                                    children: activeFilter ? `Aucun document ${activeTab !== "all" ? getStatusText(activeTab).toLowerCase() : ""} pour le groupe ${activeFilter}.` : activeTab !== "all" ? `Aucun document ${getStatusText(activeTab).toLowerCase()}.` : "Aucun document soumis par vos groupes pour le moment."
-                                                }, void 0, false, {
-                                                    fileName: "[project]/app/components/prof/prof_soumettre.tsx",
-                                                    lineNumber: 389,
-                                                    columnNumber: 19
-                                                }, this),
-                                                (activeFilter || activeTab !== "all") && /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$button$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["Button"], {
-                                                    variant: "link",
-                                                    onClick: ()=>{
-                                                        setActiveFilter(null);
-                                                        setActiveTab("all");
-                                                    },
-                                                    className: "mt-2 text-primary",
-                                                    children: "Voir tous les documents"
-                                                }, void 0, false, {
-                                                    fileName: "[project]/app/components/prof/prof_soumettre.tsx",
-                                                    lineNumber: 397,
-                                                    columnNumber: 21
-                                                }, this)
-                                            ]
-                                        }, void 0, true, {
-                                            fileName: "[project]/app/components/prof/prof_soumettre.tsx",
-                                            lineNumber: 387,
-                                            columnNumber: 17
-                                        }, this)
-                                    ]
-                                }, void 0, true, {
-                                    fileName: "[project]/app/components/prof/prof_soumettre.tsx",
-                                    lineNumber: 290,
-                                    columnNumber: 13
-                                }, this)
-                            ]
-                        }, void 0, true, {
-                            fileName: "[project]/app/components/prof/prof_soumettre.tsx",
-                            lineNumber: 242,
-                            columnNumber: 11
-                        }, this)
-                    }, void 0, false, {
+                                                                                }, this)
+                                                                            }, void 0, false, {
+                                                                                fileName: "[project]/app/components/prof/prof_soumettre.tsx",
+                                                                                lineNumber: 353,
+                                                                                columnNumber: 27
+                                                                            }, this),
+                                                                            /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$button$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["Button"], {
+                                                                                variant: "outline",
+                                                                                size: "sm",
+                                                                                onClick: ()=>window.open(`${API_BASE_URL}${doc.fichier}`, "_blank"),
+                                                                                className: "h-8 text-xs",
+                                                                                children: [
+                                                                                    /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$lucide$2d$react$2f$dist$2f$esm$2f$icons$2f$eye$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__$3c$export__default__as__Eye$3e$__["Eye"], {
+                                                                                        className: "h-3.5 w-3.5 mr-1.5"
+                                                                                    }, void 0, false, {
+                                                                                        fileName: "[project]/app/components/prof/prof_soumettre.tsx",
+                                                                                        lineNumber: 365,
+                                                                                        columnNumber: 29
+                                                                                    }, this),
+                                                                                    "Prévisualiser"
+                                                                                ]
+                                                                            }, void 0, true, {
+                                                                                fileName: "[project]/app/components/prof/prof_soumettre.tsx",
+                                                                                lineNumber: 359,
+                                                                                columnNumber: 27
+                                                                            }, this),
+                                                                            /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$button$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["Button"], {
+                                                                                variant: "default",
+                                                                                size: "sm",
+                                                                                onClick: ()=>openValidationForm(doc),
+                                                                                className: "h-8 text-xs",
+                                                                                children: [
+                                                                                    /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$lucide$2d$react$2f$dist$2f$esm$2f$icons$2f$message$2d$square$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__$3c$export__default__as__MessageSquare$3e$__["MessageSquare"], {
+                                                                                        className: "h-3.5 w-3.5 mr-1.5"
+                                                                                    }, void 0, false, {
+                                                                                        fileName: "[project]/app/components/prof/prof_soumettre.tsx",
+                                                                                        lineNumber: 374,
+                                                                                        columnNumber: 29
+                                                                                    }, this),
+                                                                                    doc.validationStatus ? "Modifier" : "Valider"
+                                                                                ]
+                                                                            }, void 0, true, {
+                                                                                fileName: "[project]/app/components/prof/prof_soumettre.tsx",
+                                                                                lineNumber: 368,
+                                                                                columnNumber: 27
+                                                                            }, this)
+                                                                        ]
+                                                                    }, void 0, true, {
+                                                                        fileName: "[project]/app/components/prof/prof_soumettre.tsx",
+                                                                        lineNumber: 352,
+                                                                        columnNumber: 25
+                                                                    }, this)
+                                                                ]
+                                                            }, void 0, true, {
+                                                                fileName: "[project]/app/components/prof/prof_soumettre.tsx",
+                                                                lineNumber: 320,
+                                                                columnNumber: 23
+                                                            }, this),
+                                                            doc.comment && /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
+                                                                className: "p-4 text-sm",
+                                                                children: [
+                                                                    /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
+                                                                        className: "font-medium mb-1 text-muted-foreground",
+                                                                        children: "Commentaire:"
+                                                                    }, void 0, false, {
+                                                                        fileName: "[project]/app/components/prof/prof_soumettre.tsx",
+                                                                        lineNumber: 381,
+                                                                        columnNumber: 27
+                                                                    }, this),
+                                                                    /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
+                                                                        className: "bg-muted/20 p-3 rounded-md border border-border/30",
+                                                                        children: doc.comment
+                                                                    }, void 0, false, {
+                                                                        fileName: "[project]/app/components/prof/prof_soumettre.tsx",
+                                                                        lineNumber: 382,
+                                                                        columnNumber: 27
+                                                                    }, this)
+                                                                ]
+                                                            }, void 0, true, {
+                                                                fileName: "[project]/app/components/prof/prof_soumettre.tsx",
+                                                                lineNumber: 380,
+                                                                columnNumber: 25
+                                                            }, this)
+                                                        ]
+                                                    }, `${doc.idPFE}-${doc.id}`, true, {
+                                                        fileName: "[project]/app/components/prof/prof_soumettre.tsx",
+                                                        lineNumber: 316,
+                                                        columnNumber: 21
+                                                    }, this))
+                                            }, void 0, false, {
+                                                fileName: "[project]/app/components/prof/prof_soumettre.tsx",
+                                                lineNumber: 314,
+                                                columnNumber: 17
+                                            }, this) : /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
+                                                className: "flex flex-col items-center justify-center p-8 bg-muted/10 rounded-xl border border-border/40",
+                                                children: [
+                                                    /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$lucide$2d$react$2f$dist$2f$esm$2f$icons$2f$upload$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__$3c$export__default__as__Upload$3e$__["Upload"], {
+                                                        className: "h-8 w-8 text-muted-foreground mb-2"
+                                                    }, void 0, false, {
+                                                        fileName: "[project]/app/components/prof/prof_soumettre.tsx",
+                                                        lineNumber: 390,
+                                                        columnNumber: 19
+                                                    }, this),
+                                                    /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("p", {
+                                                        className: "text-muted-foreground text-center",
+                                                        children: activeFilter ? `Aucun document ${activeTab !== "all" ? getStatusText(activeTab).toLowerCase() : ""} pour le groupe ${activeFilter}.` : activeTab !== "all" ? `Aucun document ${getStatusText(activeTab).toLowerCase()}.` : "Aucun document soumis par vos groupes pour le moment."
+                                                    }, void 0, false, {
+                                                        fileName: "[project]/app/components/prof/prof_soumettre.tsx",
+                                                        lineNumber: 391,
+                                                        columnNumber: 19
+                                                    }, this),
+                                                    (activeFilter || activeTab !== "all") && /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$button$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["Button"], {
+                                                        variant: "link",
+                                                        onClick: ()=>{
+                                                            setActiveFilter(null);
+                                                            setActiveTab("all");
+                                                        },
+                                                        className: "mt-2 text-primary",
+                                                        children: "Voir tous les documents"
+                                                    }, void 0, false, {
+                                                        fileName: "[project]/app/components/prof/prof_soumettre.tsx",
+                                                        lineNumber: 399,
+                                                        columnNumber: 21
+                                                    }, this)
+                                                ]
+                                            }, void 0, true, {
+                                                fileName: "[project]/app/components/prof/prof_soumettre.tsx",
+                                                lineNumber: 389,
+                                                columnNumber: 17
+                                            }, this)
+                                        ]
+                                    }, void 0, true, {
+                                        fileName: "[project]/app/components/prof/prof_soumettre.tsx",
+                                        lineNumber: 291,
+                                        columnNumber: 13
+                                    }, this)
+                                ]
+                            }, void 0, true, {
+                                fileName: "[project]/app/components/prof/prof_soumettre.tsx",
+                                lineNumber: 243,
+                                columnNumber: 11
+                            }, this)
+                        ]
+                    }, void 0, true, {
                         fileName: "[project]/app/components/prof/prof_soumettre.tsx",
-                        lineNumber: 241,
+                        lineNumber: 235,
                         columnNumber: 9
                     }, this),
                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$card$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["CardFooter"], {
@@ -1576,7 +1588,7 @@ function EncadrantGroupDocumentsPage() {
                                 ]
                             }, void 0, true, {
                                 fileName: "[project]/app/components/prof/prof_soumettre.tsx",
-                                lineNumber: 415,
+                                lineNumber: 417,
                                 columnNumber: 11
                             }, this),
                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("p", {
@@ -1587,19 +1599,19 @@ function EncadrantGroupDocumentsPage() {
                                 ]
                             }, void 0, true, {
                                 fileName: "[project]/app/components/prof/prof_soumettre.tsx",
-                                lineNumber: 416,
+                                lineNumber: 418,
                                 columnNumber: 11
                             }, this)
                         ]
                     }, void 0, true, {
                         fileName: "[project]/app/components/prof/prof_soumettre.tsx",
-                        lineNumber: 414,
+                        lineNumber: 416,
                         columnNumber: 9
                     }, this)
                 ]
             }, void 0, true, {
                 fileName: "[project]/app/components/prof/prof_soumettre.tsx",
-                lineNumber: 231,
+                lineNumber: 225,
                 columnNumber: 7
             }, this),
             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$dialog$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["Dialog"], {
@@ -1614,7 +1626,7 @@ function EncadrantGroupDocumentsPage() {
                                     children: currentDoc?.validationStatus ? "Modifier la validation" : "Valider le document"
                                 }, void 0, false, {
                                     fileName: "[project]/app/components/prof/prof_soumettre.tsx",
-                                    lineNumber: 423,
+                                    lineNumber: 425,
                                     columnNumber: 13
                                 }, this),
                                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$dialog$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["DialogDescription"], {
@@ -1626,7 +1638,7 @@ function EncadrantGroupDocumentsPage() {
                                                 children: livrableNames[currentDoc.type]
                                             }, void 0, false, {
                                                 fileName: "[project]/app/components/prof/prof_soumettre.tsx",
-                                                lineNumber: 427,
+                                                lineNumber: 429,
                                                 columnNumber: 19
                                             }, this),
                                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$badge$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["Badge"], {
@@ -1634,24 +1646,24 @@ function EncadrantGroupDocumentsPage() {
                                                 children: currentDoc.nomGroupe
                                             }, void 0, false, {
                                                 fileName: "[project]/app/components/prof/prof_soumettre.tsx",
-                                                lineNumber: 428,
+                                                lineNumber: 430,
                                                 columnNumber: 19
                                             }, this)
                                         ]
                                     }, void 0, true, {
                                         fileName: "[project]/app/components/prof/prof_soumettre.tsx",
-                                        lineNumber: 426,
+                                        lineNumber: 428,
                                         columnNumber: 17
                                     }, this)
                                 }, void 0, false, {
                                     fileName: "[project]/app/components/prof/prof_soumettre.tsx",
-                                    lineNumber: 424,
+                                    lineNumber: 426,
                                     columnNumber: 13
                                 }, this)
                             ]
                         }, void 0, true, {
                             fileName: "[project]/app/components/prof/prof_soumettre.tsx",
-                            lineNumber: 422,
+                            lineNumber: 424,
                             columnNumber: 11
                         }, this),
                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -1665,7 +1677,7 @@ function EncadrantGroupDocumentsPage() {
                                             children: "Statut de validation"
                                         }, void 0, false, {
                                             fileName: "[project]/app/components/prof/prof_soumettre.tsx",
-                                            lineNumber: 436,
+                                            lineNumber: 438,
                                             columnNumber: 15
                                         }, this),
                                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$select$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["Select"], {
@@ -1677,12 +1689,12 @@ function EncadrantGroupDocumentsPage() {
                                                         placeholder: "Sélectionner un statut"
                                                     }, void 0, false, {
                                                         fileName: "[project]/app/components/prof/prof_soumettre.tsx",
-                                                        lineNumber: 442,
+                                                        lineNumber: 444,
                                                         columnNumber: 19
                                                     }, this)
                                                 }, void 0, false, {
                                                     fileName: "[project]/app/components/prof/prof_soumettre.tsx",
-                                                    lineNumber: 441,
+                                                    lineNumber: 443,
                                                     columnNumber: 17
                                                 }, this),
                                                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$select$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["SelectContent"], {
@@ -1696,19 +1708,19 @@ function EncadrantGroupDocumentsPage() {
                                                                         className: "h-4 w-4 text-amber-500"
                                                                     }, void 0, false, {
                                                                         fileName: "[project]/app/components/prof/prof_soumettre.tsx",
-                                                                        lineNumber: 447,
+                                                                        lineNumber: 449,
                                                                         columnNumber: 23
                                                                     }, this),
                                                                     "En attente"
                                                                 ]
                                                             }, void 0, true, {
                                                                 fileName: "[project]/app/components/prof/prof_soumettre.tsx",
-                                                                lineNumber: 446,
+                                                                lineNumber: 448,
                                                                 columnNumber: 21
                                                             }, this)
                                                         }, void 0, false, {
                                                             fileName: "[project]/app/components/prof/prof_soumettre.tsx",
-                                                            lineNumber: 445,
+                                                            lineNumber: 447,
                                                             columnNumber: 19
                                                         }, this),
                                                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$select$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["SelectItem"], {
@@ -1720,19 +1732,19 @@ function EncadrantGroupDocumentsPage() {
                                                                         className: "h-4 w-4 text-green-500"
                                                                     }, void 0, false, {
                                                                         fileName: "[project]/app/components/prof/prof_soumettre.tsx",
-                                                                        lineNumber: 453,
+                                                                        lineNumber: 455,
                                                                         columnNumber: 23
                                                                     }, this),
                                                                     "Validé"
                                                                 ]
                                                             }, void 0, true, {
                                                                 fileName: "[project]/app/components/prof/prof_soumettre.tsx",
-                                                                lineNumber: 452,
+                                                                lineNumber: 454,
                                                                 columnNumber: 21
                                                             }, this)
                                                         }, void 0, false, {
                                                             fileName: "[project]/app/components/prof/prof_soumettre.tsx",
-                                                            lineNumber: 451,
+                                                            lineNumber: 453,
                                                             columnNumber: 19
                                                         }, this),
                                                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$select$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["SelectItem"], {
@@ -1744,37 +1756,37 @@ function EncadrantGroupDocumentsPage() {
                                                                         className: "h-4 w-4 text-red-500"
                                                                     }, void 0, false, {
                                                                         fileName: "[project]/app/components/prof/prof_soumettre.tsx",
-                                                                        lineNumber: 459,
+                                                                        lineNumber: 461,
                                                                         columnNumber: 23
                                                                     }, this),
                                                                     "Rejeté"
                                                                 ]
                                                             }, void 0, true, {
                                                                 fileName: "[project]/app/components/prof/prof_soumettre.tsx",
-                                                                lineNumber: 458,
+                                                                lineNumber: 460,
                                                                 columnNumber: 21
                                                             }, this)
                                                         }, void 0, false, {
                                                             fileName: "[project]/app/components/prof/prof_soumettre.tsx",
-                                                            lineNumber: 457,
+                                                            lineNumber: 459,
                                                             columnNumber: 19
                                                         }, this)
                                                     ]
                                                 }, void 0, true, {
                                                     fileName: "[project]/app/components/prof/prof_soumettre.tsx",
-                                                    lineNumber: 444,
+                                                    lineNumber: 446,
                                                     columnNumber: 17
                                                 }, this)
                                             ]
                                         }, void 0, true, {
                                             fileName: "[project]/app/components/prof/prof_soumettre.tsx",
-                                            lineNumber: 437,
+                                            lineNumber: 439,
                                             columnNumber: 15
                                         }, this)
                                     ]
                                 }, void 0, true, {
                                     fileName: "[project]/app/components/prof/prof_soumettre.tsx",
-                                    lineNumber: 435,
+                                    lineNumber: 437,
                                     columnNumber: 13
                                 }, this),
                                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -1785,7 +1797,7 @@ function EncadrantGroupDocumentsPage() {
                                             children: "Commentaire"
                                         }, void 0, false, {
                                             fileName: "[project]/app/components/prof/prof_soumettre.tsx",
-                                            lineNumber: 467,
+                                            lineNumber: 469,
                                             columnNumber: 15
                                         }, this),
                                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$textarea$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["Textarea"], {
@@ -1797,19 +1809,19 @@ function EncadrantGroupDocumentsPage() {
                                             className: "resize-none"
                                         }, void 0, false, {
                                             fileName: "[project]/app/components/prof/prof_soumettre.tsx",
-                                            lineNumber: 468,
+                                            lineNumber: 470,
                                             columnNumber: 15
                                         }, this)
                                     ]
                                 }, void 0, true, {
                                     fileName: "[project]/app/components/prof/prof_soumettre.tsx",
-                                    lineNumber: 466,
+                                    lineNumber: 468,
                                     columnNumber: 13
                                 }, this)
                             ]
                         }, void 0, true, {
                             fileName: "[project]/app/components/prof/prof_soumettre.tsx",
-                            lineNumber: 434,
+                            lineNumber: 436,
                             columnNumber: 11
                         }, this),
                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$dialog$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["DialogFooter"], {
@@ -1825,19 +1837,19 @@ function EncadrantGroupDocumentsPage() {
                                                 className: "h-4 w-4 mr-2"
                                             }, void 0, false, {
                                                 fileName: "[project]/app/components/prof/prof_soumettre.tsx",
-                                                lineNumber: 483,
+                                                lineNumber: 485,
                                                 columnNumber: 19
                                             }, this),
                                             "Supprimer"
                                         ]
                                     }, void 0, true, {
                                         fileName: "[project]/app/components/prof/prof_soumettre.tsx",
-                                        lineNumber: 482,
+                                        lineNumber: 484,
                                         columnNumber: 17
                                     }, this)
                                 }, void 0, false, {
                                     fileName: "[project]/app/components/prof/prof_soumettre.tsx",
-                                    lineNumber: 480,
+                                    lineNumber: 482,
                                     columnNumber: 13
                                 }, this),
                                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -1850,7 +1862,7 @@ function EncadrantGroupDocumentsPage() {
                                             children: "Annuler"
                                         }, void 0, false, {
                                             fileName: "[project]/app/components/prof/prof_soumettre.tsx",
-                                            lineNumber: 489,
+                                            lineNumber: 491,
                                             columnNumber: 15
                                         }, this),
                                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$button$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["Button"], {
@@ -1862,7 +1874,7 @@ function EncadrantGroupDocumentsPage() {
                                                         className: "h-4 w-4 mr-2"
                                                     }, void 0, false, {
                                                         fileName: "[project]/app/components/prof/prof_soumettre.tsx",
-                                                        lineNumber: 495,
+                                                        lineNumber: 497,
                                                         columnNumber: 21
                                                     }, this),
                                                     "Modifier"
@@ -1870,36 +1882,36 @@ function EncadrantGroupDocumentsPage() {
                                             }, void 0, true) : "Soumettre"
                                         }, void 0, false, {
                                             fileName: "[project]/app/components/prof/prof_soumettre.tsx",
-                                            lineNumber: 492,
+                                            lineNumber: 494,
                                             columnNumber: 15
                                         }, this)
                                     ]
                                 }, void 0, true, {
                                     fileName: "[project]/app/components/prof/prof_soumettre.tsx",
-                                    lineNumber: 488,
+                                    lineNumber: 490,
                                     columnNumber: 13
                                 }, this)
                             ]
                         }, void 0, true, {
                             fileName: "[project]/app/components/prof/prof_soumettre.tsx",
-                            lineNumber: 479,
+                            lineNumber: 481,
                             columnNumber: 11
                         }, this)
                     ]
                 }, void 0, true, {
                     fileName: "[project]/app/components/prof/prof_soumettre.tsx",
-                    lineNumber: 421,
+                    lineNumber: 423,
                     columnNumber: 9
                 }, this)
             }, void 0, false, {
                 fileName: "[project]/app/components/prof/prof_soumettre.tsx",
-                lineNumber: 420,
+                lineNumber: 422,
                 columnNumber: 7
             }, this)
         ]
     }, void 0, true, {
         fileName: "[project]/app/components/prof/prof_soumettre.tsx",
-        lineNumber: 230,
+        lineNumber: 224,
         columnNumber: 5
     }, this);
 }

@@ -1,23 +1,10 @@
 import express from "express";
-import db from "../../../config/db.js"; // Adjust path to your db config
+import db from "../../../config/db.js";
 
 const router = express.Router();
 
-// Helper function to execute queries using Promises
-const queryPromise = (query, params) => {
-  return new Promise((resolve, reject) => {
-    db.query(query, params, (error, results) => {
-      if (error) {
-        console.error("Query error:", error);
-        reject(error);
-      } else {
-        resolve(results);
-      }
-    });
-  });
-};
-
-router.get('/', (req, res) => {
+// GET documents for professor
+router.get("/", (req, res) => {
   const { idEncadrant } = req.query;
 
   if (!idEncadrant) {
@@ -31,84 +18,107 @@ router.get('/', (req, res) => {
       pl.fichier,
       pl.type,
       g.nomGroupe,
+      COUNT(DISTINCT e.idEtudiant) AS nbEtudiants,
+      GROUP_CONCAT(DISTINCT CONCAT(e.nom, ' ', e.prenom) SEPARATOR ', ') AS studentNames,
+      s.titre AS subjectTitle,
       vc.validationStatus,
-      vc.comment
+      vc.comment,
+      pl.idLivrable
     FROM pfe_livrable pl
-    JOIN pfe_groupe pg ON pl.idPFE = pg.idPFE
-    JOIN groupe g ON pg.idGroupe = g.idGroupe
-    JOIN etudiantgroupe eg ON g.idGroupe = eg.idGroupe
-    JOIN etudiantsujet es ON eg.idEtudiant = es.idEtudiant
-    JOIN sujet s ON es.idSujet = s.idSujet
-    LEFT JOIN validation_comment vc ON pl.idPFE = vc.idPFE AND pl.id = vc.idLivrable AND vc.idEncadrant = ?
-    WHERE s.idEncadrant = ? AND pl.fichier IS NOT NULL
-    GROUP BY pl.id, pl.idPFE, pl.fichier, pl.type, g.nomGroupe, vc.validationStatus, vc.comment
+    JOIN groupe g ON pl.idGroupe = g.idGroupe
+    JOIN sujet s ON g.idSujet = s.idSujet
+    LEFT JOIN etudiant e ON g.idGroupe = e.idGroupe
+    LEFT JOIN validation_comment vc ON pl.id = vc.pfeLivrableId AND vc.idEncadrant = ?
+    WHERE s.idEncadrant = ?
+    GROUP BY pl.id, pl.idPFE, pl.fichier, pl.type, g.nomGroupe, s.titre, vc.validationStatus, vc.comment, pl.idLivrable;
   `;
+
+  console.log("Executing query:", query);
+  console.log("Parameters:", [idEncadrant, idEncadrant]);
 
   db.query(query, [idEncadrant, idEncadrant], (err, results) => {
     if (err) {
-      console.error('Error fetching documents:', err);
-      return res.status(500).json({ error: 'Server error', details: err.message });
+      console.error("Error fetching documents:", err);
+      return res.status(500).json({ error: "Server error", details: err.message });
     }
-    res.json(results.map(row => ({
+    
+    console.log("Query results:", results);
+    
+    const documents = results.map((row) => ({
       id: row.id,
       idPFE: row.idPFE,
       fichier: row.fichier,
       type: row.type,
       nomGroupe: row.nomGroupe,
-      validationStatus: row.validationStatus,
-      comment: row.comment
-    })));
+      nbEtudiants: row.nbEtudiants,
+      authorName: row.studentNames,
+      subjectTitle: row.subjectTitle,
+      validationStatus: row.validationStatus || "pending",
+      comment: row.comment,
+      idLivrable: row.idLivrable
+    }));
+    
+    res.json(documents);
   });
 });
 
-// Submit or update document validation
-router.post('/validate_document', async (req, res) => {
-  const { idPFE, idLivrable, idEncadrant, validationStatus, comment } = req.body;
+// POST route for professor to validate documents
+router.post("/validate", (req, res) => {
+  const { idPFE, pfeLivrableId, idEncadrant, validationStatus, comment } = req.body;
+  console.log("Received validation request:", req.body);
 
-  if (!idPFE || !idLivrable || !idEncadrant || !validationStatus) {
-    return res.status(400).json({ error: "idPFE, idLivrable, idEncadrant, and validationStatus are required" });
+  if (!idPFE || !pfeLivrableId || !idEncadrant || !validationStatus) {
+    console.log("Missing fields:", { idPFE, pfeLivrableId, idEncadrant, validationStatus });
+    return res.status(400).json({ error: "Missing required fields" });
   }
 
-  const upsertQuery = `
-    INSERT INTO validation_comment (idPFE, idLivrable, idEncadrant, validationStatus, comment)
+  const validateQuery = `
+    INSERT INTO validation_comment (idPFE, pfeLivrableId, idEncadrant, validationStatus, comment)
     VALUES (?, ?, ?, ?, ?)
     ON DUPLICATE KEY UPDATE
       validationStatus = VALUES(validationStatus),
       comment = VALUES(comment)
   `;
 
-  try {
-    await queryPromise(upsertQuery, [idPFE, idLivrable, idEncadrant, validationStatus, comment || null]);
-    res.status(201).json({ message: "Validation saved successfully" });
-  } catch (error) {
-    console.error('Error saving validation:', error);
-    res.status(500).json({ error: 'Server error', message: error.message });
-  }
+  db.query(validateQuery, [idPFE, pfeLivrableId, idEncadrant, validationStatus, comment || null], (err, result) => {
+    if (err) {
+      console.error("Validation insert/update error:", err);
+      return res.status(500).json({ error: `Server error: ${err.message}` });
+    }
+    console.log("Query result:", result);
+    res.json({
+      message: result.affectedRows > 0 
+        ? (result.insertId ? "Validation created successfully" : "Validation updated successfully") 
+        : "No changes made",
+    });
+  });
 });
 
-// Delete document validation
-router.delete('/validate_document', async (req, res) => {
-  const { idPFE, idLivrable, idEncadrant } = req.query;
+// DELETE route for professor to remove validation
+router.delete("/validate", (req, res) => {
+  const { idPFE, pfeLivrableId, idEncadrant } = req.query;
 
-  if (!idPFE || !idLivrable || !idEncadrant) {
-    return res.status(400).json({ error: "idPFE, idLivrable, and idEncadrant are required" });
+  if (!idPFE || !pfeLivrableId || !idEncadrant) {
+    return res.status(400).json({ error: "Missing required fields" });
   }
 
   const deleteQuery = `
-    DELETE FROM validation_comment 
-    WHERE idPFE = ? AND idLivrable = ? AND idEncadrant = ?
+    DELETE FROM validation_comment
+    WHERE idPFE = ? AND pfeLivrableId = ? AND idEncadrant = ?
   `;
 
-  try {
-    const result = await queryPromise(deleteQuery, [idPFE, idLivrable, idEncadrant]);
-    if (result.affectedRows === 0) {
-      return res.status(404).json({ error: "No validation found to delete" });
+  db.query(deleteQuery, [idPFE, pfeLivrableId, idEncadrant], (err, result) => {
+    if (err) {
+      console.error("Error deleting validation:", err);
+      return res.status(500).json({ error: "Server error", details: err.message });
     }
-    res.json({ message: "Validation deleted successfully" });
-  } catch (error) {
-    console.error('Error deleting validation:', error);
-    res.status(500).json({ error: 'Server error', message: error.message });
-  }
+
+    if (result.affectedRows === 0) {
+      return res.status(404).json({ message: "Validation not found" });
+    }
+
+    return res.json({ message: "Validation deleted successfully" });
+  });
 });
 
 export default router;

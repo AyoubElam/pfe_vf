@@ -553,7 +553,7 @@ const EvaluationPage = ()=>{
     const [updating, setUpdating] = (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$index$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["useState"])(null);
     const [successMessage, setSuccessMessage] = (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$index$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["useState"])(null);
     const [validationErrors, setValidationErrors] = (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$index$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["useState"])({});
-    const idEncadrant = 1; // For example purposes
+    const idEncadrant = "1"; // VARCHAR ID
     // Group students by group
     const studentGroups = students.reduce((groups, student)=>{
         const groupId = student.idGroupe;
@@ -567,49 +567,49 @@ const EvaluationPage = ()=>{
         groups[groupId].students.push(student);
         return groups;
     }, {});
+    const fetchStudents = async ()=>{
+        try {
+            setLoading(true);
+            setError(null);
+            const res = await fetch(`http://localhost:5000/api/groups-students/${idEncadrant}`);
+            if (!res.ok) {
+                const errorData = await res.json();
+                throw new Error(errorData.error || "Error loading data");
+            }
+            const data = await res.json();
+            if (data.length === 0) {
+                setError("No groups found for this encadrant");
+                setLoading(false);
+                return;
+            }
+            if (data.some((student)=>!student.idSoutenance)) {
+                throw new Error("Some students are missing idSoutenance from the backend");
+            }
+            const studentsWithTotal = data.map((student)=>({
+                    ...student,
+                    noteTotale: calculateTotal(student)
+                }));
+            setStudents(studentsWithTotal);
+        } catch (error) {
+            console.error("Error fetching students:", error);
+            setError(error.message);
+        } finally{
+            setLoading(false);
+        }
+    };
     (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$index$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["useEffect"])({
         "EvaluationPage.useEffect": ()=>{
-            async function fetchStudents() {
-                try {
-                    const res = await fetch(`http://localhost:5000/api/groups-students/${idEncadrant}`);
-                    if (!res.ok) {
-                        const errorData = await res.json();
-                        throw new Error(errorData.error || "Erreur lors du chargement des données");
-                    }
-                    const data = await res.json();
-                    if (data.some({
-                        "EvaluationPage.useEffect.fetchStudents": (student)=>!student.idSoutenance
-                    }["EvaluationPage.useEffect.fetchStudents"])) {
-                        throw new Error("Some students are missing idSoutenance from the backend");
-                    }
-                    const studentsWithTotal = data.map({
-                        "EvaluationPage.useEffect.fetchStudents.studentsWithTotal": (student)=>({
-                                ...student,
-                                noteTotale: calculateTotal(student)
-                            })
-                    }["EvaluationPage.useEffect.fetchStudents.studentsWithTotal"]);
-                    setStudents(studentsWithTotal);
-                } catch (error) {
-                    setError(error.message);
-                } finally{
-                    setLoading(false);
-                }
-            }
             fetchStudents();
         }
-    }["EvaluationPage.useEffect"], [
-        idEncadrant
-    ]);
+    }["EvaluationPage.useEffect"], []);
     const calculateTotal = (student)=>{
         const grades = [
             student.noteRapport,
             student.notePresentation,
             student.noteDiscussion,
             student.noteSavoirFaireSavoirEtre
-        ].filter((grade)=>grade !== undefined && !isNaN(grade));
-        if (grades.length === 0) return undefined;
-        const sum = grades.reduce((acc, grade)=>acc + grade, 0);
-        return Number((sum / grades.length).toFixed(2));
+        ].filter((grade)=>grade !== undefined && grade !== null && !isNaN(grade));
+        return grades.length > 0 ? Number((grades.reduce((acc, grade)=>acc + grade, 0) / grades.length).toFixed(2)) : null;
     };
     const validateGrade = (value, index, field)=>{
         const numValue = Number(value);
@@ -617,7 +617,7 @@ const EvaluationPage = ()=>{
         if (value && (isNaN(numValue) || numValue < 0 || numValue > 20)) {
             setValidationErrors((prev)=>({
                     ...prev,
-                    [errorKey]: "La note doit être entre 0 et 20"
+                    [errorKey]: "Grade must be between 0 and 20"
                 }));
             return false;
         } else {
@@ -644,8 +644,8 @@ const EvaluationPage = ()=>{
         const updatedStudents = [
             ...students
         ];
-        const parsedValue = field === "remarque" ? value : value === "" ? undefined : Number(value);
-        updatedStudents[index][field] = parsedValue; // Type assertion still needed due to union types
+        const parsedValue = field === "remarque" ? value : value === "" ? null : Number(value);
+        updatedStudents[index][field] = parsedValue;
         if (gradeFields.includes(field)) {
             updatedStudents[index].noteTotale = calculateTotal(updatedStudents[index]);
         }
@@ -666,7 +666,6 @@ const EvaluationPage = ()=>{
                 notePresentation: student.notePresentation,
                 noteDiscussion: student.noteDiscussion,
                 noteSavoirFaireSavoirEtre: student.noteSavoirFaireSavoirEtre,
-                noteTotale: calculateTotal(student),
                 remarque: student.remarque
             };
             const response = await fetch("http://localhost:5000/api/evaluations", {
@@ -681,20 +680,15 @@ const EvaluationPage = ()=>{
             });
             if (!response.ok) {
                 const errorData = await response.json();
-                throw new Error(errorData.error || "Erreur lors de la sauvegarde");
+                throw new Error(errorData.error || "Error saving evaluation");
             }
             const result = await response.json();
-            setSuccessMessage(result.message || "Évaluation sauvegardée avec succès!");
+            setSuccessMessage(result.message || "Evaluation saved successfully!");
             window.scrollTo({
                 top: 0,
                 behavior: "smooth"
             });
-            const refreshedRes = await fetch(`http://localhost:5000/api/groups-students/${idEncadrant}`);
-            const refreshedData = await refreshedRes.json();
-            setStudents(refreshedData.map((student)=>({
-                    ...student,
-                    noteTotale: calculateTotal(student)
-                })));
+            await fetchStudents();
         } catch (error) {
             setError(error.message);
             window.scrollTo({
@@ -720,7 +714,6 @@ const EvaluationPage = ()=>{
                 notePresentation: student.notePresentation,
                 noteDiscussion: student.noteDiscussion,
                 noteSavoirFaireSavoirEtre: student.noteSavoirFaireSavoirEtre,
-                noteTotale: calculateTotal(student),
                 remarque: student.remarque
             };
             const response = await fetch("http://localhost:5000/api/evaluations", {
@@ -735,20 +728,15 @@ const EvaluationPage = ()=>{
             });
             if (!response.ok) {
                 const errorData = await response.json();
-                throw new Error(errorData.error || "Erreur lors de la mise à jour");
+                throw new Error(errorData.error || "Error updating evaluation");
             }
             const result = await response.json();
-            setSuccessMessage(result.message || "Évaluation mise à jour avec succès!");
+            setSuccessMessage(result.message || "Evaluation updated successfully!");
             window.scrollTo({
                 top: 0,
                 behavior: "smooth"
             });
-            const refreshedRes = await fetch(`http://localhost:5000/api/groups-students/${idEncadrant}`);
-            const refreshedData = await refreshedRes.json();
-            setStudents(refreshedData.map((student)=>({
-                    ...student,
-                    noteTotale: calculateTotal(student)
-                })));
+            await fetchStudents();
         } catch (error) {
             setError(error.message);
             window.scrollTo({
@@ -766,7 +754,7 @@ const EvaluationPage = ()=>{
             });
             if (!response.ok) {
                 const errorData = await response.json();
-                throw new Error(errorData.error || "Erreur lors de la génération du PDF");
+                throw new Error(errorData.error || "Error generating PDF");
             }
             const blob = await response.blob();
             const url = window.URL.createObjectURL(blob);
@@ -777,7 +765,7 @@ const EvaluationPage = ()=>{
             a.click();
             a.remove();
             window.URL.revokeObjectURL(url);
-            setSuccessMessage("PDF généré avec succès!");
+            setSuccessMessage("PDF generated successfully!");
             window.scrollTo({
                 top: 0,
                 behavior: "smooth"
@@ -796,12 +784,12 @@ const EvaluationPage = ()=>{
             className: "animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-[#b17a56]"
         }, void 0, false, {
             fileName: "[project]/app/components/prof/evaluation.tsx",
-            lineNumber: 305,
+            lineNumber: 255,
             columnNumber: 9
         }, this)
     }, void 0, false, {
         fileName: "[project]/app/components/prof/evaluation.tsx",
-        lineNumber: 304,
+        lineNumber: 254,
         columnNumber: 7
     }, this);
     return /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -815,7 +803,7 @@ const EvaluationPage = ()=>{
                         children: "Évaluation des Étudiants"
                     }, void 0, false, {
                         fileName: "[project]/app/components/prof/evaluation.tsx",
-                        lineNumber: 312,
+                        lineNumber: 262,
                         columnNumber: 9
                     }, this),
                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("p", {
@@ -823,13 +811,13 @@ const EvaluationPage = ()=>{
                         children: "Gestion des notes et évaluations des soutenances"
                     }, void 0, false, {
                         fileName: "[project]/app/components/prof/evaluation.tsx",
-                        lineNumber: 315,
+                        lineNumber: 265,
                         columnNumber: 9
                     }, this)
                 ]
             }, void 0, true, {
                 fileName: "[project]/app/components/prof/evaluation.tsx",
-                lineNumber: 311,
+                lineNumber: 261,
                 columnNumber: 7
             }, this),
             successMessage && /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$alert$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["Alert"], {
@@ -840,7 +828,7 @@ const EvaluationPage = ()=>{
                         className: "h-5 w-5 text-green-600"
                     }, void 0, false, {
                         fileName: "[project]/app/components/prof/evaluation.tsx",
-                        lineNumber: 325,
+                        lineNumber: 270,
                         columnNumber: 11
                     }, this),
                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$alert$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["AlertTitle"], {
@@ -848,7 +836,7 @@ const EvaluationPage = ()=>{
                         children: "Succès"
                     }, void 0, false, {
                         fileName: "[project]/app/components/prof/evaluation.tsx",
-                        lineNumber: 326,
+                        lineNumber: 271,
                         columnNumber: 11
                     }, this),
                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$alert$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["AlertDescription"], {
@@ -856,13 +844,13 @@ const EvaluationPage = ()=>{
                         children: successMessage
                     }, void 0, false, {
                         fileName: "[project]/app/components/prof/evaluation.tsx",
-                        lineNumber: 327,
+                        lineNumber: 272,
                         columnNumber: 11
                     }, this)
                 ]
             }, void 0, true, {
                 fileName: "[project]/app/components/prof/evaluation.tsx",
-                lineNumber: 321,
+                lineNumber: 269,
                 columnNumber: 9
             }, this),
             error && /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$alert$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["Alert"], {
@@ -873,27 +861,27 @@ const EvaluationPage = ()=>{
                         className: "h-5 w-5"
                     }, void 0, false, {
                         fileName: "[project]/app/components/prof/evaluation.tsx",
-                        lineNumber: 335,
+                        lineNumber: 278,
                         columnNumber: 11
                     }, this),
                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$alert$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["AlertTitle"], {
                         children: "Erreur"
                     }, void 0, false, {
                         fileName: "[project]/app/components/prof/evaluation.tsx",
-                        lineNumber: 336,
+                        lineNumber: 279,
                         columnNumber: 11
                     }, this),
                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$alert$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["AlertDescription"], {
                         children: error
                     }, void 0, false, {
                         fileName: "[project]/app/components/prof/evaluation.tsx",
-                        lineNumber: 337,
+                        lineNumber: 280,
                         columnNumber: 11
                     }, this)
                 ]
             }, void 0, true, {
                 fileName: "[project]/app/components/prof/evaluation.tsx",
-                lineNumber: 334,
+                lineNumber: 277,
                 columnNumber: 9
             }, this),
             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$card$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["Card"], {
@@ -913,19 +901,19 @@ const EvaluationPage = ()=>{
                                                 className: "h-6 w-6"
                                             }, void 0, false, {
                                                 fileName: "[project]/app/components/prof/evaluation.tsx",
-                                                lineNumber: 346,
+                                                lineNumber: 289,
                                                 columnNumber: 17
                                             }, this),
                                             "Grille d'Évaluation"
                                         ]
                                     }, void 0, true, {
                                         fileName: "[project]/app/components/prof/evaluation.tsx",
-                                        lineNumber: 345,
+                                        lineNumber: 288,
                                         columnNumber: 15
                                     }, this)
                                 }, void 0, false, {
                                     fileName: "[project]/app/components/prof/evaluation.tsx",
-                                    lineNumber: 344,
+                                    lineNumber: 287,
                                     columnNumber: 13
                                 }, this),
                                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$button$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["Button"], {
@@ -936,25 +924,25 @@ const EvaluationPage = ()=>{
                                             className: "h-5 w-5"
                                         }, void 0, false, {
                                             fileName: "[project]/app/components/prof/evaluation.tsx",
-                                            lineNumber: 354,
+                                            lineNumber: 297,
                                             columnNumber: 15
                                         }, this),
                                         "Exporter en PDF"
                                     ]
                                 }, void 0, true, {
                                     fileName: "[project]/app/components/prof/evaluation.tsx",
-                                    lineNumber: 350,
+                                    lineNumber: 293,
                                     columnNumber: 13
                                 }, this)
                             ]
                         }, void 0, true, {
                             fileName: "[project]/app/components/prof/evaluation.tsx",
-                            lineNumber: 343,
+                            lineNumber: 286,
                             columnNumber: 11
                         }, this)
                     }, void 0, false, {
                         fileName: "[project]/app/components/prof/evaluation.tsx",
-                        lineNumber: 342,
+                        lineNumber: 285,
                         columnNumber: 9
                     }, this),
                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$card$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["CardContent"], {
@@ -966,7 +954,7 @@ const EvaluationPage = ()=>{
                                     className: "h-16 w-16 text-muted-foreground mb-4"
                                 }, void 0, false, {
                                     fileName: "[project]/app/components/prof/evaluation.tsx",
-                                    lineNumber: 362,
+                                    lineNumber: 305,
                                     columnNumber: 15
                                 }, this),
                                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("h3", {
@@ -974,7 +962,7 @@ const EvaluationPage = ()=>{
                                     children: "Aucun étudiant trouvé"
                                 }, void 0, false, {
                                     fileName: "[project]/app/components/prof/evaluation.tsx",
-                                    lineNumber: 363,
+                                    lineNumber: 306,
                                     columnNumber: 15
                                 }, this),
                                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("p", {
@@ -982,16 +970,16 @@ const EvaluationPage = ()=>{
                                     children: "Il n'y a actuellement aucun étudiant à évaluer. Veuillez vérifier votre affectation ou contacter l'administration."
                                 }, void 0, false, {
                                     fileName: "[project]/app/components/prof/evaluation.tsx",
-                                    lineNumber: 364,
+                                    lineNumber: 307,
                                     columnNumber: 15
                                 }, this)
                             ]
                         }, void 0, true, {
                             fileName: "[project]/app/components/prof/evaluation.tsx",
-                            lineNumber: 361,
+                            lineNumber: 304,
                             columnNumber: 13
                         }, this) : /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$tabs$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["Tabs"], {
-                            defaultValue: Object.keys(studentGroups)[0],
+                            defaultValue: Object.keys(studentGroups)[0].toString(),
                             className: "w-full",
                             children: [
                                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$tabs$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["TabsList"], {
@@ -1006,7 +994,7 @@ const EvaluationPage = ()=>{
                                                         className: "h-4 w-4"
                                                     }, void 0, false, {
                                                         fileName: "[project]/app/components/prof/evaluation.tsx",
-                                                        lineNumber: 382,
+                                                        lineNumber: 322,
                                                         columnNumber: 23
                                                     }, this),
                                                     group.name,
@@ -1016,23 +1004,23 @@ const EvaluationPage = ()=>{
                                                         children: group.students.length
                                                     }, void 0, false, {
                                                         fileName: "[project]/app/components/prof/evaluation.tsx",
-                                                        lineNumber: 384,
+                                                        lineNumber: 324,
                                                         columnNumber: 23
                                                     }, this)
                                                 ]
                                             }, void 0, true, {
                                                 fileName: "[project]/app/components/prof/evaluation.tsx",
-                                                lineNumber: 381,
+                                                lineNumber: 321,
                                                 columnNumber: 21
                                             }, this)
                                         }, group.id, false, {
                                             fileName: "[project]/app/components/prof/evaluation.tsx",
-                                            lineNumber: 376,
+                                            lineNumber: 316,
                                             columnNumber: 19
                                         }, this))
                                 }, void 0, false, {
                                     fileName: "[project]/app/components/prof/evaluation.tsx",
-                                    lineNumber: 374,
+                                    lineNumber: 314,
                                     columnNumber: 15
                                 }, this),
                                 Object.values(studentGroups).map((group)=>/*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$tabs$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["TabsContent"], {
@@ -1046,7 +1034,7 @@ const EvaluationPage = ()=>{
                                                         className: "h-5 w-5 text-[#b17a56]"
                                                     }, void 0, false, {
                                                         fileName: "[project]/app/components/prof/evaluation.tsx",
-                                                        lineNumber: 402,
+                                                        lineNumber: 335,
                                                         columnNumber: 21
                                                     }, this),
                                                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("h3", {
@@ -1057,13 +1045,13 @@ const EvaluationPage = ()=>{
                                                         ]
                                                     }, void 0, true, {
                                                         fileName: "[project]/app/components/prof/evaluation.tsx",
-                                                        lineNumber: 403,
+                                                        lineNumber: 336,
                                                         columnNumber: 21
                                                     }, this)
                                                 ]
                                             }, void 0, true, {
                                                 fileName: "[project]/app/components/prof/evaluation.tsx",
-                                                lineNumber: 401,
+                                                lineNumber: 334,
                                                 columnNumber: 19
                                             }, this),
                                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -1079,7 +1067,7 @@ const EvaluationPage = ()=>{
                                                                         children: "Étudiant"
                                                                     }, void 0, false, {
                                                                         fileName: "[project]/app/components/prof/evaluation.tsx",
-                                                                        lineNumber: 412,
+                                                                        lineNumber: 343,
                                                                         columnNumber: 27
                                                                     }, this),
                                                                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$table$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["TableHead"], {
@@ -1091,19 +1079,19 @@ const EvaluationPage = ()=>{
                                                                                     className: "h-4 w-4 text-[#b17a56]"
                                                                                 }, void 0, false, {
                                                                                     fileName: "[project]/app/components/prof/evaluation.tsx",
-                                                                                    lineNumber: 415,
+                                                                                    lineNumber: 346,
                                                                                     columnNumber: 31
                                                                                 }, this),
                                                                                 "Rapport (/20)"
                                                                             ]
                                                                         }, void 0, true, {
                                                                             fileName: "[project]/app/components/prof/evaluation.tsx",
-                                                                            lineNumber: 414,
+                                                                            lineNumber: 345,
                                                                             columnNumber: 29
                                                                         }, this)
                                                                     }, void 0, false, {
                                                                         fileName: "[project]/app/components/prof/evaluation.tsx",
-                                                                        lineNumber: 413,
+                                                                        lineNumber: 344,
                                                                         columnNumber: 27
                                                                     }, this),
                                                                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$table$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["TableHead"], {
@@ -1115,19 +1103,19 @@ const EvaluationPage = ()=>{
                                                                                     className: "h-4 w-4 text-[#b17a56]"
                                                                                 }, void 0, false, {
                                                                                     fileName: "[project]/app/components/prof/evaluation.tsx",
-                                                                                    lineNumber: 421,
+                                                                                    lineNumber: 352,
                                                                                     columnNumber: 31
                                                                                 }, this),
                                                                                 "Présentation (/20)"
                                                                             ]
                                                                         }, void 0, true, {
                                                                             fileName: "[project]/app/components/prof/evaluation.tsx",
-                                                                            lineNumber: 420,
+                                                                            lineNumber: 351,
                                                                             columnNumber: 29
                                                                         }, this)
                                                                     }, void 0, false, {
                                                                         fileName: "[project]/app/components/prof/evaluation.tsx",
-                                                                        lineNumber: 419,
+                                                                        lineNumber: 350,
                                                                         columnNumber: 27
                                                                     }, this),
                                                                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$table$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["TableHead"], {
@@ -1139,19 +1127,19 @@ const EvaluationPage = ()=>{
                                                                                     className: "h-4 w-4 text-[#b17a56]"
                                                                                 }, void 0, false, {
                                                                                     fileName: "[project]/app/components/prof/evaluation.tsx",
-                                                                                    lineNumber: 427,
+                                                                                    lineNumber: 358,
                                                                                     columnNumber: 31
                                                                                 }, this),
                                                                                 "Discussion (/20)"
                                                                             ]
                                                                         }, void 0, true, {
                                                                             fileName: "[project]/app/components/prof/evaluation.tsx",
-                                                                            lineNumber: 426,
+                                                                            lineNumber: 357,
                                                                             columnNumber: 29
                                                                         }, this)
                                                                     }, void 0, false, {
                                                                         fileName: "[project]/app/components/prof/evaluation.tsx",
-                                                                        lineNumber: 425,
+                                                                        lineNumber: 356,
                                                                         columnNumber: 27
                                                                     }, this),
                                                                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$table$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["TableHead"], {
@@ -1163,19 +1151,19 @@ const EvaluationPage = ()=>{
                                                                                     className: "h-4 w-4 text-[#b17a56]"
                                                                                 }, void 0, false, {
                                                                                     fileName: "[project]/app/components/prof/evaluation.tsx",
-                                                                                    lineNumber: 433,
+                                                                                    lineNumber: 364,
                                                                                     columnNumber: 31
                                                                                 }, this),
                                                                                 "Savoir-faire & Savoir-être (/20)"
                                                                             ]
                                                                         }, void 0, true, {
                                                                             fileName: "[project]/app/components/prof/evaluation.tsx",
-                                                                            lineNumber: 432,
+                                                                            lineNumber: 363,
                                                                             columnNumber: 29
                                                                         }, this)
                                                                     }, void 0, false, {
                                                                         fileName: "[project]/app/components/prof/evaluation.tsx",
-                                                                        lineNumber: 431,
+                                                                        lineNumber: 362,
                                                                         columnNumber: 27
                                                                     }, this),
                                                                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$table$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["TableHead"], {
@@ -1187,19 +1175,19 @@ const EvaluationPage = ()=>{
                                                                                     className: "h-4 w-4 text-[#b17a56]"
                                                                                 }, void 0, false, {
                                                                                     fileName: "[project]/app/components/prof/evaluation.tsx",
-                                                                                    lineNumber: 439,
+                                                                                    lineNumber: 370,
                                                                                     columnNumber: 31
                                                                                 }, this),
                                                                                 "Total (/20)"
                                                                             ]
                                                                         }, void 0, true, {
                                                                             fileName: "[project]/app/components/prof/evaluation.tsx",
-                                                                            lineNumber: 438,
+                                                                            lineNumber: 369,
                                                                             columnNumber: 29
                                                                         }, this)
                                                                     }, void 0, false, {
                                                                         fileName: "[project]/app/components/prof/evaluation.tsx",
-                                                                        lineNumber: 437,
+                                                                        lineNumber: 368,
                                                                         columnNumber: 27
                                                                     }, this),
                                                                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$table$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["TableHead"], {
@@ -1207,7 +1195,7 @@ const EvaluationPage = ()=>{
                                                                         children: "Remarque"
                                                                     }, void 0, false, {
                                                                         fileName: "[project]/app/components/prof/evaluation.tsx",
-                                                                        lineNumber: 443,
+                                                                        lineNumber: 374,
                                                                         columnNumber: 27
                                                                     }, this),
                                                                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$table$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["TableHead"], {
@@ -1215,18 +1203,18 @@ const EvaluationPage = ()=>{
                                                                         children: "Actions"
                                                                     }, void 0, false, {
                                                                         fileName: "[project]/app/components/prof/evaluation.tsx",
-                                                                        lineNumber: 444,
+                                                                        lineNumber: 375,
                                                                         columnNumber: 27
                                                                     }, this)
                                                                 ]
                                                             }, void 0, true, {
                                                                 fileName: "[project]/app/components/prof/evaluation.tsx",
-                                                                lineNumber: 411,
+                                                                lineNumber: 342,
                                                                 columnNumber: 25
                                                             }, this)
                                                         }, void 0, false, {
                                                             fileName: "[project]/app/components/prof/evaluation.tsx",
-                                                            lineNumber: 410,
+                                                            lineNumber: 341,
                                                             columnNumber: 23
                                                         }, this),
                                                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$table$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["TableBody"], {
@@ -1244,19 +1232,19 @@ const EvaluationPage = ()=>{
                                                                                         className: "h-4 w-4 text-[#5b8cb5]"
                                                                                     }, void 0, false, {
                                                                                         fileName: "[project]/app/components/prof/evaluation.tsx",
-                                                                                        lineNumber: 466,
+                                                                                        lineNumber: 393,
                                                                                         columnNumber: 35
                                                                                     }, this),
                                                                                     student.etudiant
                                                                                 ]
                                                                             }, void 0, true, {
                                                                                 fileName: "[project]/app/components/prof/evaluation.tsx",
-                                                                                lineNumber: 465,
+                                                                                lineNumber: 392,
                                                                                 columnNumber: 33
                                                                             }, this)
                                                                         }, void 0, false, {
                                                                             fileName: "[project]/app/components/prof/evaluation.tsx",
-                                                                            lineNumber: 464,
+                                                                            lineNumber: 391,
                                                                             columnNumber: 31
                                                                         }, this),
                                                                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$table$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["TableCell"], {
@@ -1271,7 +1259,7 @@ const EvaluationPage = ()=>{
                                                                                     className: `text-center bg-[#EFEFEE] ${validationErrors[`${studentIndex}-noteRapport`] ? "border-red-500" : "border-gray-300"}`
                                                                                 }, void 0, false, {
                                                                                     fileName: "[project]/app/components/prof/evaluation.tsx",
-                                                                                    lineNumber: 471,
+                                                                                    lineNumber: 398,
                                                                                     columnNumber: 33
                                                                                 }, this),
                                                                                 validationErrors[`${studentIndex}-noteRapport`] && /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("span", {
@@ -1279,13 +1267,13 @@ const EvaluationPage = ()=>{
                                                                                     children: validationErrors[`${studentIndex}-noteRapport`]
                                                                                 }, void 0, false, {
                                                                                     fileName: "[project]/app/components/prof/evaluation.tsx",
-                                                                                    lineNumber: 495,
+                                                                                    lineNumber: 412,
                                                                                     columnNumber: 35
                                                                                 }, this)
                                                                             ]
                                                                         }, void 0, true, {
                                                                             fileName: "[project]/app/components/prof/evaluation.tsx",
-                                                                            lineNumber: 470,
+                                                                            lineNumber: 397,
                                                                             columnNumber: 31
                                                                         }, this),
                                                                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$table$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["TableCell"], {
@@ -1300,7 +1288,7 @@ const EvaluationPage = ()=>{
                                                                                     className: `text-center bg-[#EFEFEE] ${validationErrors[`${studentIndex}-notePresentation`] ? "border-red-500" : "border-gray-300"}`
                                                                                 }, void 0, false, {
                                                                                     fileName: "[project]/app/components/prof/evaluation.tsx",
-                                                                                    lineNumber: 505,
+                                                                                    lineNumber: 418,
                                                                                     columnNumber: 33
                                                                                 }, this),
                                                                                 validationErrors[`${studentIndex}-notePresentation`] && /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("span", {
@@ -1308,13 +1296,13 @@ const EvaluationPage = ()=>{
                                                                                     children: validationErrors[`${studentIndex}-notePresentation`]
                                                                                 }, void 0, false, {
                                                                                     fileName: "[project]/app/components/prof/evaluation.tsx",
-                                                                                    lineNumber: 529,
+                                                                                    lineNumber: 432,
                                                                                     columnNumber: 35
                                                                                 }, this)
                                                                             ]
                                                                         }, void 0, true, {
                                                                             fileName: "[project]/app/components/prof/evaluation.tsx",
-                                                                            lineNumber: 504,
+                                                                            lineNumber: 417,
                                                                             columnNumber: 31
                                                                         }, this),
                                                                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$table$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["TableCell"], {
@@ -1329,7 +1317,7 @@ const EvaluationPage = ()=>{
                                                                                     className: `text-center bg-[#EFEFEE] ${validationErrors[`${studentIndex}-noteDiscussion`] ? "border-red-500" : "border-gray-300"}`
                                                                                 }, void 0, false, {
                                                                                     fileName: "[project]/app/components/prof/evaluation.tsx",
-                                                                                    lineNumber: 539,
+                                                                                    lineNumber: 438,
                                                                                     columnNumber: 33
                                                                                 }, this),
                                                                                 validationErrors[`${studentIndex}-noteDiscussion`] && /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("span", {
@@ -1337,13 +1325,13 @@ const EvaluationPage = ()=>{
                                                                                     children: validationErrors[`${studentIndex}-noteDiscussion`]
                                                                                 }, void 0, false, {
                                                                                     fileName: "[project]/app/components/prof/evaluation.tsx",
-                                                                                    lineNumber: 563,
+                                                                                    lineNumber: 452,
                                                                                     columnNumber: 35
                                                                                 }, this)
                                                                             ]
                                                                         }, void 0, true, {
                                                                             fileName: "[project]/app/components/prof/evaluation.tsx",
-                                                                            lineNumber: 538,
+                                                                            lineNumber: 437,
                                                                             columnNumber: 31
                                                                         }, this),
                                                                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$table$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["TableCell"], {
@@ -1358,7 +1346,7 @@ const EvaluationPage = ()=>{
                                                                                     className: `text-center bg-[#EFEFEE] ${validationErrors[`${studentIndex}-noteSavoirFaireSavoirEtre`] ? "border-red-500" : "border-gray-300"}`
                                                                                 }, void 0, false, {
                                                                                     fileName: "[project]/app/components/prof/evaluation.tsx",
-                                                                                    lineNumber: 573,
+                                                                                    lineNumber: 458,
                                                                                     columnNumber: 33
                                                                                 }, this),
                                                                                 validationErrors[`${studentIndex}-noteSavoirFaireSavoirEtre`] && /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("span", {
@@ -1366,29 +1354,29 @@ const EvaluationPage = ()=>{
                                                                                     children: validationErrors[`${studentIndex}-noteSavoirFaireSavoirEtre`]
                                                                                 }, void 0, false, {
                                                                                     fileName: "[project]/app/components/prof/evaluation.tsx",
-                                                                                    lineNumber: 597,
+                                                                                    lineNumber: 474,
                                                                                     columnNumber: 35
                                                                                 }, this)
                                                                             ]
                                                                         }, void 0, true, {
                                                                             fileName: "[project]/app/components/prof/evaluation.tsx",
-                                                                            lineNumber: 572,
+                                                                            lineNumber: 457,
                                                                             columnNumber: 31
                                                                         }, this),
                                                                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$table$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["TableCell"], {
                                                                             className: "text-center",
                                                                             children: /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$badge$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["Badge"], {
                                                                                 variant: "outline",
-                                                                                className: `px-3 py-1 ${student.noteTotale !== undefined && !isNaN(student.noteTotale) ? student.noteTotale >= 10 ? "bg-green-100 text-green-800 border-green-200" : "bg-red-100 text-red-800 border-red-200" : "bg-gray-100 text-gray-800 border-gray-200"}`,
-                                                                                children: student.noteTotale !== undefined && !isNaN(student.noteTotale) ? student.noteTotale.toFixed(2) : "-"
+                                                                                className: `px-3 py-1 ${student.noteTotale !== undefined && student.noteTotale !== null ? student.noteTotale >= 10 ? "bg-green-100 text-green-800 border-green-200" : "bg-red-100 text-red-800 border-red-200" : "bg-gray-100 text-gray-800 border-gray-200"}`,
+                                                                                children: student.noteTotale !== undefined && student.noteTotale !== null ? student.noteTotale.toFixed(2) : "-"
                                                                             }, void 0, false, {
                                                                                 fileName: "[project]/app/components/prof/evaluation.tsx",
-                                                                                lineNumber: 607,
+                                                                                lineNumber: 480,
                                                                                 columnNumber: 33
                                                                             }, this)
                                                                         }, void 0, false, {
                                                                             fileName: "[project]/app/components/prof/evaluation.tsx",
-                                                                            lineNumber: 606,
+                                                                            lineNumber: 479,
                                                                             columnNumber: 31
                                                                         }, this),
                                                                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$table$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["TableCell"], {
@@ -1400,12 +1388,12 @@ const EvaluationPage = ()=>{
                                                                                 placeholder: "Commentaires sur la performance..."
                                                                             }, void 0, false, {
                                                                                 fileName: "[project]/app/components/prof/evaluation.tsx",
-                                                                                lineNumber: 625,
+                                                                                lineNumber: 496,
                                                                                 columnNumber: 33
                                                                             }, this)
                                                                         }, void 0, false, {
                                                                             fileName: "[project]/app/components/prof/evaluation.tsx",
-                                                                            lineNumber: 624,
+                                                                            lineNumber: 495,
                                                                             columnNumber: 31
                                                                         }, this),
                                                                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$table$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["TableCell"], {
@@ -1424,14 +1412,14 @@ const EvaluationPage = ()=>{
                                                                                                     className: "animate-spin rounded-full h-4 w-4 border-t-2 border-b-2 border-[#EFEFEE] mr-2"
                                                                                                 }, void 0, false, {
                                                                                                     fileName: "[project]/app/components/prof/evaluation.tsx",
-                                                                                                    lineNumber: 652,
+                                                                                                    lineNumber: 514,
                                                                                                     columnNumber: 41
                                                                                                 }, this),
                                                                                                 "Sauvegarde..."
                                                                                             ]
                                                                                         }, void 0, true, {
                                                                                             fileName: "[project]/app/components/prof/evaluation.tsx",
-                                                                                            lineNumber: 651,
+                                                                                            lineNumber: 513,
                                                                                             columnNumber: 39
                                                                                         }, this) : /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["Fragment"], {
                                                                                             children: [
@@ -1439,16 +1427,15 @@ const EvaluationPage = ()=>{
                                                                                                     className: "h-4 w-4 mr-1"
                                                                                                 }, void 0, false, {
                                                                                                     fileName: "[project]/app/components/prof/evaluation.tsx",
-                                                                                                    lineNumber: 657,
+                                                                                                    lineNumber: 519,
                                                                                                     columnNumber: 41
                                                                                                 }, this),
-                                                                                                " ",
-                                                                                                "Sauvegarder"
+                                                                                                " Sauvegarder"
                                                                                             ]
                                                                                         }, void 0, true)
                                                                                     }, void 0, false, {
                                                                                         fileName: "[project]/app/components/prof/evaluation.tsx",
-                                                                                        lineNumber: 641,
+                                                                                        lineNumber: 506,
                                                                                         columnNumber: 35
                                                                                     }, this),
                                                                                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$button$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["Button"], {
@@ -1463,14 +1450,14 @@ const EvaluationPage = ()=>{
                                                                                                     className: "animate-spin rounded-full h-4 w-4 border-t-2 border-b-2 border-[#EFEFEE] mr-2"
                                                                                                 }, void 0, false, {
                                                                                                     fileName: "[project]/app/components/prof/evaluation.tsx",
-                                                                                                    lineNumber: 673,
+                                                                                                    lineNumber: 531,
                                                                                                     columnNumber: 41
                                                                                                 }, this),
                                                                                                 "Mise à jour..."
                                                                                             ]
                                                                                         }, void 0, true, {
                                                                                             fileName: "[project]/app/components/prof/evaluation.tsx",
-                                                                                            lineNumber: 672,
+                                                                                            lineNumber: 530,
                                                                                             columnNumber: 39
                                                                                         }, this) : /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["Fragment"], {
                                                                                             children: [
@@ -1478,79 +1465,78 @@ const EvaluationPage = ()=>{
                                                                                                     className: "h-4 w-4 mr-1"
                                                                                                 }, void 0, false, {
                                                                                                     fileName: "[project]/app/components/prof/evaluation.tsx",
-                                                                                                    lineNumber: 678,
+                                                                                                    lineNumber: 536,
                                                                                                     columnNumber: 41
                                                                                                 }, this),
-                                                                                                " ",
-                                                                                                "Mettre à jour"
+                                                                                                " Mettre à jour"
                                                                                             ]
                                                                                         }, void 0, true)
                                                                                     }, void 0, false, {
                                                                                         fileName: "[project]/app/components/prof/evaluation.tsx",
-                                                                                        lineNumber: 662,
+                                                                                        lineNumber: 523,
                                                                                         columnNumber: 35
                                                                                     }, this)
                                                                                 ]
                                                                             }, void 0, true, {
                                                                                 fileName: "[project]/app/components/prof/evaluation.tsx",
-                                                                                lineNumber: 640,
+                                                                                lineNumber: 505,
                                                                                 columnNumber: 33
                                                                             }, this)
                                                                         }, void 0, false, {
                                                                             fileName: "[project]/app/components/prof/evaluation.tsx",
-                                                                            lineNumber: 639,
+                                                                            lineNumber: 504,
                                                                             columnNumber: 31
                                                                         }, this)
                                                                     ]
                                                                 }, `${student.idSoutenance}-${student.idGroupe}-${student.idEtudiant}`, true, {
                                                                     fileName: "[project]/app/components/prof/evaluation.tsx",
-                                                                    lineNumber: 458,
+                                                                    lineNumber: 387,
                                                                     columnNumber: 29
                                                                 }, this);
                                                             })
                                                         }, void 0, false, {
                                                             fileName: "[project]/app/components/prof/evaluation.tsx",
-                                                            lineNumber: 449,
+                                                            lineNumber: 378,
                                                             columnNumber: 23
                                                         }, this)
                                                     ]
                                                 }, void 0, true, {
                                                     fileName: "[project]/app/components/prof/evaluation.tsx",
-                                                    lineNumber: 409,
+                                                    lineNumber: 340,
                                                     columnNumber: 21
                                                 }, this)
                                             }, void 0, false, {
                                                 fileName: "[project]/app/components/prof/evaluation.tsx",
-                                                lineNumber: 408,
+                                                lineNumber: 339,
                                                 columnNumber: 19
                                             }, this)
                                         ]
                                     }, group.id, true, {
                                         fileName: "[project]/app/components/prof/evaluation.tsx",
-                                        lineNumber: 396,
+                                        lineNumber: 333,
                                         columnNumber: 17
                                     }, this))
                             ]
                         }, void 0, true, {
                             fileName: "[project]/app/components/prof/evaluation.tsx",
-                            lineNumber: 370,
+                            lineNumber: 313,
                             columnNumber: 13
                         }, this)
                     }, void 0, false, {
                         fileName: "[project]/app/components/prof/evaluation.tsx",
-                        lineNumber: 359,
+                        lineNumber: 302,
                         columnNumber: 9
                     }, this)
                 ]
             }, void 0, true, {
                 fileName: "[project]/app/components/prof/evaluation.tsx",
-                lineNumber: 341,
+                lineNumber: 284,
                 columnNumber: 7
             }, this)
         ]
     }, void 0, true, {
         fileName: "[project]/app/components/prof/evaluation.tsx",
-        lineNumber: 310,
+        lineNumber: 260,
         columnNumber: 5
     }, this);
 };

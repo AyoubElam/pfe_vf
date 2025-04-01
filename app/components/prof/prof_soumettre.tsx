@@ -40,25 +40,26 @@ import { Textarea } from "@/components/ui/textarea"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu"
 
-// Types
 interface SubmittedDocument {
   idPFE: number
   id: number
   fichier: string
   nomGroupe: string
+  nbEtudiants: number
+  authorName?: string
+  subjectTitle?: string
   type: "PDF" | "Presentation"
   validationStatus?: "validated" | "rejected" | "pending"
   comment?: string
+  idLivrable?: number
 }
 
-// Constants
 const API_BASE_URL = "http://localhost:5000"
 
 export default function EncadrantGroupDocumentsPage() {
   const searchParams = useSearchParams()
   const idEncadrant = useMemo(() => searchParams.get("idEncadrant") || "1", [searchParams])
 
-  // State
   const [submittedDocuments, setSubmittedDocuments] = useState<SubmittedDocument[]>([])
   const [isLoading, setIsLoading] = useState(true)
   const [fetchError, setFetchError] = useState<string | null>(null)
@@ -69,7 +70,6 @@ export default function EncadrantGroupDocumentsPage() {
   const [activeFilter, setActiveFilter] = useState<string | null>(null)
   const [activeTab, setActiveTab] = useState("all")
 
-  // Constants
   const livrableNames: Record<string, string> = {
     PDF: "Document PDF",
     Presentation: "Présentation",
@@ -80,19 +80,18 @@ export default function EncadrantGroupDocumentsPage() {
     Presentation: <FileIcon className="h-5 w-5" />,
   }
 
-  // Fetch documents from API
   const fetchDocuments = useCallback(async () => {
     setIsLoading(true)
     setFetchError(null)
     try {
       const response = await fetch(`${API_BASE_URL}/api/prof-documents?idEncadrant=${idEncadrant}`)
-      if (response.ok) {
-        const data = await response.json()
-        setSubmittedDocuments(data)
-      } else {
+      if (!response.ok) {
         const errorData = await response.json()
-        setFetchError(errorData.error || "Impossible de récupérer les documents des groupes")
+        throw new Error(errorData.error || "Impossible de récupérer les documents des groupes")
       }
+      const data = await response.json()
+      console.log("Fetched documents:", JSON.stringify(data, null, 2))
+      setSubmittedDocuments(data)
     } catch (error: any) {
       setFetchError(`Erreur lors de la récupération des documents: ${error.message}`)
       console.error("Fetch error:", error)
@@ -101,7 +100,6 @@ export default function EncadrantGroupDocumentsPage() {
     }
   }, [idEncadrant])
 
-  // Validation form handlers
   const openValidationForm = (doc: SubmittedDocument) => {
     setCurrentDoc(doc)
     setValidationStatus(doc.validationStatus || "pending")
@@ -117,29 +115,33 @@ export default function EncadrantGroupDocumentsPage() {
   const submitValidation = async () => {
     if (!currentDoc) return
 
-    try {
-      const response = await fetch(`${API_BASE_URL}/api/validate_document`, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          idPFE: currentDoc.idPFE,
-          idLivrable: currentDoc.id,
-          idEncadrant,
-          validationStatus,
-          comment,
-        }),
-      })
+    const payload = {
+      idPFE: currentDoc.idPFE,
+      pfeLivrableId: currentDoc.id,
+      idEncadrant,
+      validationStatus,
+      comment,
+    }
 
+    console.log("Submitting validation with payload:", JSON.stringify(payload, null, 2))
+
+    try {
+      const response = await fetch(`${API_BASE_URL}/api/prof-documents/validate`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(payload),
+      })
+      const responseData = await response.json()
+      console.log("Server response:", responseData)
       if (response.ok) {
         fetchDocuments()
         closeValidationForm()
       } else {
-        console.error("Failed to submit validation:", await response.json())
+        alert(`Validation failed: ${responseData.error || "Unknown error"}`)
       }
-    } catch (error) {
+    } catch (error: any) {
       console.error("Error submitting validation:", error)
+      alert("Network error occurred: " + error.message)
     }
   }
 
@@ -148,20 +150,20 @@ export default function EncadrantGroupDocumentsPage() {
 
     try {
       const response = await fetch(
-        `${API_BASE_URL}/api/validate_document?idPFE=${currentDoc.idPFE}&idLivrable=${currentDoc.id}&idEncadrant=${idEncadrant}`,
-        {
-          method: "DELETE",
-        },
+        `${API_BASE_URL}/api/prof-documents/validate?idPFE=${currentDoc.idPFE}&pfeLivrableId=${currentDoc.id}&idEncadrant=${idEncadrant}`,
+        { method: "DELETE" },
       )
-
+      const responseData = await response.json()
+      console.log("Delete response:", responseData)
       if (response.ok) {
         fetchDocuments()
         closeValidationForm()
       } else {
-        console.error("Failed to delete validation:", await response.json())
+        setFetchError(`Failed to delete validation: ${responseData.error || "Unknown error"}`)
       }
-    } catch (error) {
+    } catch (error: any) {
       console.error("Error deleting validation:", error)
+      setFetchError("Network error occurred: " + error.message)
     }
   }
 
@@ -169,7 +171,6 @@ export default function EncadrantGroupDocumentsPage() {
     fetchDocuments()
   }, [fetchDocuments])
 
-  // Helper functions
   const getStatusIcon = (status?: string) => {
     switch (status) {
       case "validated":
@@ -203,23 +204,16 @@ export default function EncadrantGroupDocumentsPage() {
     }
   }
 
-  // Filtered documents
   const filteredDocuments = useMemo(() => {
     let filtered = [...submittedDocuments]
-    if (activeTab === "validated") {
-      filtered = filtered.filter((doc) => doc.validationStatus === "validated")
-    } else if (activeTab === "rejected") {
-      filtered = filtered.filter((doc) => doc.validationStatus === "rejected")
-    } else if (activeTab === "pending") {
+    if (activeTab === "validated") filtered = filtered.filter((doc) => doc.validationStatus === "validated")
+    else if (activeTab === "rejected") filtered = filtered.filter((doc) => doc.validationStatus === "rejected")
+    else if (activeTab === "pending")
       filtered = filtered.filter((doc) => !doc.validationStatus || doc.validationStatus === "pending")
-    }
-    if (activeFilter) {
-      filtered = filtered.filter((doc) => doc.nomGroupe === activeFilter)
-    }
+    if (activeFilter) filtered = filtered.filter((doc) => doc.nomGroupe === activeFilter)
     return filtered
   }, [submittedDocuments, activeFilter, activeTab])
 
-  // Unique groups for filtering
   const uniqueGroups = useMemo(() => {
     const groups = new Set<string>()
     submittedDocuments.forEach((doc) => groups.add(doc.nomGroupe))
@@ -234,11 +228,18 @@ export default function EncadrantGroupDocumentsPage() {
             Documents des Groupes Encadrés
           </CardTitle>
           <CardDescription className="text-muted-foreground">
-            Consultez et validez les documents soumis par les groupes que vous encadrez
+            Consultez et validez les documents soumis par vos groupes supervisés
           </CardDescription>
         </CardHeader>
 
         <CardContent className="p-0">
+          {fetchError && (
+            <Alert variant="destructive" className="m-6">
+              <AlertCircle className="h-4 w-4" />
+              <AlertTitle>Erreur</AlertTitle>
+              <AlertDescription>{fetchError}</AlertDescription>
+            </Alert>
+          )}
           <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
             <div className="px-4 md:px-6 pt-6 flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
               <TabsList className="w-full md:w-auto">
@@ -309,15 +310,6 @@ export default function EncadrantGroupDocumentsPage() {
                   <Loader className="h-5 w-5 animate-spin mr-2 text-primary" />
                   <p className="text-muted-foreground">Chargement des documents...</p>
                 </div>
-              ) : fetchError ? (
-                <Alert variant="destructive" className="bg-destructive/10 text-destructive border-destructive/20">
-                  <AlertCircle className="h-4 w-4" />
-                  <AlertTitle>Erreur</AlertTitle>
-                  <AlertDescription>{fetchError}</AlertDescription>
-                  <Button variant="link" onClick={fetchDocuments} className="text-destructive mt-2">
-                    Réessayer
-                  </Button>
-                </Alert>
               ) : filteredDocuments.length > 0 ? (
                 <div className="space-y-4">
                   {filteredDocuments.map((doc) => (
@@ -332,12 +324,22 @@ export default function EncadrantGroupDocumentsPage() {
                           </div>
                           <div>
                             <div className="font-medium">{livrableNames[doc.type]}</div>
+                            {doc.subjectTitle && (
+                              <div className="text-sm text-muted-foreground">Sujet : {doc.subjectTitle}</div>
+                            )}
                             <div className="flex flex-wrap items-center gap-2 mt-1">
                               <Badge variant="secondary" className="text-xs">
-                                {doc.nomGroupe}
+                                {doc.nomGroupe} ({doc.nbEtudiants} étudiants)
                               </Badge>
+                              {doc.authorName && (
+                                <Badge variant="outline" className="text-xs">
+                                  {doc.authorName}
+                                </Badge>
+                              )}
                               <Badge
-                                className={`text-xs ${doc.validationStatus ? getStatusColor(doc.validationStatus) : "bg-muted"}`}
+                                className={`text-xs ${
+                                  doc.validationStatus ? getStatusColor(doc.validationStatus) : "bg-muted"
+                                }`}
                               >
                                 <span className="flex items-center gap-1">
                                   {getStatusIcon(doc.validationStatus)}
