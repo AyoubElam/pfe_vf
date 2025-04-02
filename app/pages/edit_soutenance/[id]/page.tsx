@@ -147,9 +147,21 @@ export default function EditSoutenancePage({ params }: { params: Promise<{ id: s
           ...soutenanceData,
           date: formattedDate?.toISOString().split("T")[0] || "",
         });
-        const initialGroups = soutenanceData.groupIds ? soutenanceData.groupIds.split(",") : [];
-        setInitialGroupIds(initialGroups); // Store initial groups
-        setSelectedGroupIds(initialGroups); // Pre-select initial groups
+// Change this problematic code:
+// More robust handling of groupIds that works regardless of data type:
+let initialGroups = [];
+if (soutenanceData.groupIds) {
+  if (typeof soutenanceData.groupIds === 'string') {
+    initialGroups = soutenanceData.groupIds.split(",").filter(id => id.trim() !== "");
+  } else if (Array.isArray(soutenanceData.groupIds)) {
+    initialGroups = [...soutenanceData.groupIds];
+  } else {
+    // Handle case where groupIds might be a single ID (not in array or string format)
+    initialGroups = [String(soutenanceData.groupIds)];
+  }
+}
+setInitialGroupIds(initialGroups); // Store initial groups
+setSelectedGroupIds(initialGroups); // Pre-select initial groups
 
         if (soutenanceData.juryNames) {
           const existingJuryNames = soutenanceData.juryNames.split(" | ");

@@ -4,10 +4,14 @@ import path from "path";
 import cors from "cors";
 import db from "./config/db.js";
 
-// Import API routes
-import jurys from "./app/pages/api/jurys.js";
-import groups from "./app/pages/api/groups.js";
-import soutenance from "./app/pages/api/soutenance.js";
+// Import refactored routers
+import juryRouter from "./routers/juryRouter.js";
+import groupRouter from "./routers/groupRouter.js";
+import soutenanceRouter from "./routers/soutenanceRouter.js";
+import documentRouter from "./routers/documentRouter.js";
+import validationRouter from "./routers/validationRouter.js";
+
+// Legacy routes (to be phased out)
 import etu_sout from "./app/pages/api/etu_sout.js";
 import livrable from "./app/pages/api/livrable.js";
 import tut_sout from "./app/pages/api/tut_sout.js";
@@ -34,9 +38,14 @@ app.use(express.urlencoded({ extended: true }));
 app.use("/uploads", express.static(path.join(process.cwd(), "uploads")));
 
 // Register API Routes
-app.use("/api/jurys", jurys);
-app.use("/api/groups", groups);
-app.use("/api/soutenance", soutenance);
+app.use("/api/jurys", juryRouter);
+app.use("/api/groups", groupRouter);
+app.use("/api/soutenance", soutenanceRouter);
+app.use("/api/livrable", documentRouter);
+app.use("/api/validate_document", validationRouter);
+app.use("/api", evaluationRouter);
+
+// Legacy routes (to be refactored)
 app.use("/api/etu_sout", etu_sout);
 app.use("/api/livrable", livrable);
 app.use("/api/soutenances", tut_sout);
@@ -44,7 +53,7 @@ app.use("/api/tut_soumettre", tut_soumettre);
 app.use("/api/validate_document", validate_document);
 app.use("/api/prof_sout", prof_sout);
 app.use("/api/prof-documents", profDocuments);
-app.use("/api", evaluation); // Mount evaluation routes under "/api"
+app.use("/api", evaluation);
 
 // Start the server
 const PORT = 5000;

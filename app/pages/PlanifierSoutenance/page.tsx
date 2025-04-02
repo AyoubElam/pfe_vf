@@ -1,3 +1,4 @@
+/* eslint-disable react/no-unescaped-entities */
 "use client"
 
 import type React from "react"
@@ -18,19 +19,24 @@ import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group"
 
 // Types
 interface Group {
-  idGroupe: string
-  nomGroupe: string
-  nbEtudiants?: number // Optional since not all queries return this
-  annee?: number
-  tuteurNom?: string
-  sujetTitre?: string
-  encadrantNom?: string
+  idGroupe: string;
+  nomGroupe: string;
+  nbEtudiants: number;
+  students: string[];
 }
 
 interface Jury {
-  idJury: number
-  nom: string
-  valideDeliberation: number
+  idJury: number;
+  nom: string;
+  valideDeliberation: number;
+}
+
+interface FormData {
+  date: Date | undefined;
+  time: string;
+  location: string;
+  jury: string[];
+  group: string[];
 }
 
 interface Room {
@@ -38,13 +44,7 @@ interface Room {
   name: string
 }
 
-interface FormData {
-  date: Date | undefined
-  time: string
-  location: string
-  jury: string[]
-  group: string[]
-}
+
 
 interface Toast {
   message: string

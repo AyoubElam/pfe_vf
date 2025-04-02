@@ -35,7 +35,7 @@
     "app/components/PlanifierSoutenance/JurySelector.jsx",
     "app/components/ListeSoutenances/SoutenanceTable.jsx",
     "app/pages/api/tut_soumettre.js"
-  ],
+, "src/entities/models/Etudiant.js", "src/entities/models/Encadrant.js", "src/entities/models/Group.js", "src/entities/models/Pfe.js", "src/entities/models/PfeLivrable.js", "src/entities/models/Document.js", "src/entities/models/ValidationComment.js", "src/entities/models/Soutenance.js", "src/entities/models/Jury.js", "src/entities/models/Evaluation.js", "src/entities/models/Sujet.js", "src/entities/models/Tuteur.js"  ],
   "exclude": [
     "node_modules",
     "config/db.js",

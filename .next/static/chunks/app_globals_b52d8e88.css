@@ -1685,10 +1685,6 @@ body {
   border-color: hsl(var(--destructive));
 }
 
-.border-destructive\/20 {
-  border-color: hsl(var(--destructive) / .2);
-}
-
 .border-destructive\/50 {
   border-color: hsl(var(--destructive) / .5);
 }
@@ -1876,10 +1872,6 @@ body {
 
 .bg-destructive {
   background-color: hsl(var(--destructive));
-}
-
-.bg-destructive\/10 {
-  background-color: hsl(var(--destructive) / .1);
 }
 
 .bg-foreground {

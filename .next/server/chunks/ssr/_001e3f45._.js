@@ -1382,7 +1382,23 @@ function EditSoutenancePage({ params }) {
                     ...soutenanceData,
                     date: formattedDate?.toISOString().split("T")[0] || ""
                 });
-                const initialGroups = soutenanceData.groupIds ? soutenanceData.groupIds.split(",") : [];
+                // Change this problematic code:
+                // More robust handling of groupIds that works regardless of data type:
+                let initialGroups = [];
+                if (soutenanceData.groupIds) {
+                    if (typeof soutenanceData.groupIds === 'string') {
+                        initialGroups = soutenanceData.groupIds.split(",").filter((id)=>id.trim() !== "");
+                    } else if (Array.isArray(soutenanceData.groupIds)) {
+                        initialGroups = [
+                            ...soutenanceData.groupIds
+                        ];
+                    } else {
+                        // Handle case where groupIds might be a single ID (not in array or string format)
+                        initialGroups = [
+                            String(soutenanceData.groupIds)
+                        ];
+                    }
+                }
                 setInitialGroupIds(initialGroups); // Store initial groups
                 setSelectedGroupIds(initialGroups); // Pre-select initial groups
                 if (soutenanceData.juryNames) {
@@ -1566,7 +1582,7 @@ function EditSoutenancePage({ params }) {
                             className: "h-12 w-12 animate-spin text-primary"
                         }, void 0, false, {
                             fileName: "[project]/app/pages/edit_soutenance/[id]/page.tsx",
-                            lineNumber: 315,
+                            lineNumber: 327,
                             columnNumber: 13
                         }, this),
                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("p", {
@@ -1574,23 +1590,23 @@ function EditSoutenancePage({ params }) {
                             children: "Chargement des données..."
                         }, void 0, false, {
                             fileName: "[project]/app/pages/edit_soutenance/[id]/page.tsx",
-                            lineNumber: 316,
+                            lineNumber: 328,
                             columnNumber: 13
                         }, this)
                     ]
                 }, void 0, true, {
                     fileName: "[project]/app/pages/edit_soutenance/[id]/page.tsx",
-                    lineNumber: 314,
+                    lineNumber: 326,
                     columnNumber: 11
                 }, this)
             }, void 0, false, {
                 fileName: "[project]/app/pages/edit_soutenance/[id]/page.tsx",
-                lineNumber: 313,
+                lineNumber: 325,
                 columnNumber: 9
             }, this)
         }, void 0, false, {
             fileName: "[project]/app/pages/edit_soutenance/[id]/page.tsx",
-            lineNumber: 312,
+            lineNumber: 324,
             columnNumber: 7
         }, this);
     }
@@ -1607,37 +1623,37 @@ function EditSoutenancePage({ params }) {
                             className: "h-5 w-5"
                         }, void 0, false, {
                             fileName: "[project]/app/pages/edit_soutenance/[id]/page.tsx",
-                            lineNumber: 328,
+                            lineNumber: 340,
                             columnNumber: 13
                         }, this),
                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$alert$2e$tsx__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["AlertTitle"], {
                             children: "Erreur"
                         }, void 0, false, {
                             fileName: "[project]/app/pages/edit_soutenance/[id]/page.tsx",
-                            lineNumber: 329,
+                            lineNumber: 341,
                             columnNumber: 13
                         }, this),
                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$alert$2e$tsx__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["AlertDescription"], {
                             children: error || "Soutenance non trouvée"
                         }, void 0, false, {
                             fileName: "[project]/app/pages/edit_soutenance/[id]/page.tsx",
-                            lineNumber: 330,
+                            lineNumber: 342,
                             columnNumber: 13
                         }, this)
                     ]
                 }, void 0, true, {
                     fileName: "[project]/app/pages/edit_soutenance/[id]/page.tsx",
-                    lineNumber: 327,
+                    lineNumber: 339,
                     columnNumber: 11
                 }, this)
             }, void 0, false, {
                 fileName: "[project]/app/pages/edit_soutenance/[id]/page.tsx",
-                lineNumber: 326,
+                lineNumber: 338,
                 columnNumber: 9
             }, this)
         }, void 0, false, {
             fileName: "[project]/app/pages/edit_soutenance/[id]/page.tsx",
-            lineNumber: 325,
+            lineNumber: 337,
             columnNumber: 7
         }, this);
     }
@@ -1661,14 +1677,14 @@ function EditSoutenancePage({ params }) {
                                     className: "mr-2 h-4 w-4"
                                 }, void 0, false, {
                                     fileName: "[project]/app/pages/edit_soutenance/[id]/page.tsx",
-                                    lineNumber: 350,
+                                    lineNumber: 362,
                                     columnNumber: 13
                                 }, this),
                                 "Retour à la liste"
                             ]
                         }, void 0, true, {
                             fileName: "[project]/app/pages/edit_soutenance/[id]/page.tsx",
-                            lineNumber: 349,
+                            lineNumber: 361,
                             columnNumber: 11
                         }, this),
                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("h1", {
@@ -1676,7 +1692,7 @@ function EditSoutenancePage({ params }) {
                             children: "Gestion des Soutenances"
                         }, void 0, false, {
                             fileName: "[project]/app/pages/edit_soutenance/[id]/page.tsx",
-                            lineNumber: 353,
+                            lineNumber: 365,
                             columnNumber: 11
                         }, this),
                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("p", {
@@ -1684,13 +1700,13 @@ function EditSoutenancePage({ params }) {
                             children: "Modifiez les détails des soutenances et effectuez des mises à jour en masse"
                         }, void 0, false, {
                             fileName: "[project]/app/pages/edit_soutenance/[id]/page.tsx",
-                            lineNumber: 356,
+                            lineNumber: 368,
                             columnNumber: 11
                         }, this)
                     ]
                 }, void 0, true, {
                     fileName: "[project]/app/pages/edit_soutenance/[id]/page.tsx",
-                    lineNumber: 348,
+                    lineNumber: 360,
                     columnNumber: 9
                 }, this),
                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$tabs$2e$tsx__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["Tabs"], {
@@ -1709,14 +1725,14 @@ function EditSoutenancePage({ params }) {
                                             className: "h-4 w-4"
                                         }, void 0, false, {
                                             fileName: "[project]/app/pages/edit_soutenance/[id]/page.tsx",
-                                            lineNumber: 364,
+                                            lineNumber: 376,
                                             columnNumber: 15
                                         }, this),
                                         "Modifier la Soutenance"
                                     ]
                                 }, void 0, true, {
                                     fileName: "[project]/app/pages/edit_soutenance/[id]/page.tsx",
-                                    lineNumber: 363,
+                                    lineNumber: 375,
                                     columnNumber: 13
                                 }, this),
                                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$tabs$2e$tsx__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["TabsTrigger"], {
@@ -1727,20 +1743,20 @@ function EditSoutenancePage({ params }) {
                                             className: "h-4 w-4"
                                         }, void 0, false, {
                                             fileName: "[project]/app/pages/edit_soutenance/[id]/page.tsx",
-                                            lineNumber: 368,
+                                            lineNumber: 380,
                                             columnNumber: 15
                                         }, this),
                                         "Mise à Jour en Masse"
                                     ]
                                 }, void 0, true, {
                                     fileName: "[project]/app/pages/edit_soutenance/[id]/page.tsx",
-                                    lineNumber: 367,
+                                    lineNumber: 379,
                                     columnNumber: 13
                                 }, this)
                             ]
                         }, void 0, true, {
                             fileName: "[project]/app/pages/edit_soutenance/[id]/page.tsx",
-                            lineNumber: 362,
+                            lineNumber: 374,
                             columnNumber: 11
                         }, this),
                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$tabs$2e$tsx__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["TabsContent"], {
@@ -1760,20 +1776,20 @@ function EditSoutenancePage({ params }) {
                                                 ]
                                             }, void 0, true, {
                                                 fileName: "[project]/app/pages/edit_soutenance/[id]/page.tsx",
-                                                lineNumber: 376,
+                                                lineNumber: 388,
                                                 columnNumber: 17
                                             }, this),
                                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$card$2e$tsx__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["CardDescription"], {
                                                 children: "Modifiez les informations de la soutenance"
                                             }, void 0, false, {
                                                 fileName: "[project]/app/pages/edit_soutenance/[id]/page.tsx",
-                                                lineNumber: 377,
+                                                lineNumber: 389,
                                                 columnNumber: 17
                                             }, this)
                                         ]
                                     }, void 0, true, {
                                         fileName: "[project]/app/pages/edit_soutenance/[id]/page.tsx",
-                                        lineNumber: 375,
+                                        lineNumber: 387,
                                         columnNumber: 15
                                     }, this),
                                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$card$2e$tsx__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["CardContent"], {
@@ -1787,20 +1803,20 @@ function EditSoutenancePage({ params }) {
                                                         className: "h-4 w-4"
                                                     }, void 0, false, {
                                                         fileName: "[project]/app/pages/edit_soutenance/[id]/page.tsx",
-                                                        lineNumber: 382,
+                                                        lineNumber: 394,
                                                         columnNumber: 21
                                                     }, this),
                                                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$alert$2e$tsx__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["AlertDescription"], {
                                                         children: error
                                                     }, void 0, false, {
                                                         fileName: "[project]/app/pages/edit_soutenance/[id]/page.tsx",
-                                                        lineNumber: 383,
+                                                        lineNumber: 395,
                                                         columnNumber: 21
                                                     }, this)
                                                 ]
                                             }, void 0, true, {
                                                 fileName: "[project]/app/pages/edit_soutenance/[id]/page.tsx",
-                                                lineNumber: 381,
+                                                lineNumber: 393,
                                                 columnNumber: 19
                                             }, this),
                                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -1819,14 +1835,14 @@ function EditSoutenancePage({ params }) {
                                                                                 className: "h-4 w-4 text-primary"
                                                                             }, void 0, false, {
                                                                                 fileName: "[project]/app/pages/edit_soutenance/[id]/page.tsx",
-                                                                                lineNumber: 391,
+                                                                                lineNumber: 403,
                                                                                 columnNumber: 25
                                                                             }, this),
                                                                             "Date"
                                                                         ]
                                                                     }, void 0, true, {
                                                                         fileName: "[project]/app/pages/edit_soutenance/[id]/page.tsx",
-                                                                        lineNumber: 390,
+                                                                        lineNumber: 402,
                                                                         columnNumber: 23
                                                                     }, this),
                                                                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$popover$2e$tsx__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["Popover"], {
@@ -1841,7 +1857,7 @@ function EditSoutenancePage({ params }) {
                                                                                             className: "mr-2 h-4 w-4"
                                                                                         }, void 0, false, {
                                                                                             fileName: "[project]/app/pages/edit_soutenance/[id]/page.tsx",
-                                                                                            lineNumber: 397,
+                                                                                            lineNumber: 409,
                                                                                             columnNumber: 29
                                                                                         }, this),
                                                                                         date ? (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$date$2d$fns$2f$format$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__$3c$locals$3e$__["format"])(date, "PPP", {
@@ -1850,12 +1866,12 @@ function EditSoutenancePage({ params }) {
                                                                                     ]
                                                                                 }, void 0, true, {
                                                                                     fileName: "[project]/app/pages/edit_soutenance/[id]/page.tsx",
-                                                                                    lineNumber: 396,
+                                                                                    lineNumber: 408,
                                                                                     columnNumber: 27
                                                                                 }, this)
                                                                             }, void 0, false, {
                                                                                 fileName: "[project]/app/pages/edit_soutenance/[id]/page.tsx",
-                                                                                lineNumber: 395,
+                                                                                lineNumber: 407,
                                                                                 columnNumber: 25
                                                                             }, this),
                                                                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$popover$2e$tsx__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["PopoverContent"], {
@@ -1876,24 +1892,24 @@ function EditSoutenancePage({ params }) {
                                                                                     initialFocus: true
                                                                                 }, void 0, false, {
                                                                                     fileName: "[project]/app/pages/edit_soutenance/[id]/page.tsx",
-                                                                                    lineNumber: 402,
+                                                                                    lineNumber: 414,
                                                                                     columnNumber: 27
                                                                                 }, this)
                                                                             }, void 0, false, {
                                                                                 fileName: "[project]/app/pages/edit_soutenance/[id]/page.tsx",
-                                                                                lineNumber: 401,
+                                                                                lineNumber: 413,
                                                                                 columnNumber: 25
                                                                             }, this)
                                                                         ]
                                                                     }, void 0, true, {
                                                                         fileName: "[project]/app/pages/edit_soutenance/[id]/page.tsx",
-                                                                        lineNumber: 394,
+                                                                        lineNumber: 406,
                                                                         columnNumber: 23
                                                                     }, this)
                                                                 ]
                                                             }, void 0, true, {
                                                                 fileName: "[project]/app/pages/edit_soutenance/[id]/page.tsx",
-                                                                lineNumber: 389,
+                                                                lineNumber: 401,
                                                                 columnNumber: 21
                                                             }, this),
                                                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -1906,14 +1922,14 @@ function EditSoutenancePage({ params }) {
                                                                                 className: "h-4 w-4 text-primary"
                                                                             }, void 0, false, {
                                                                                 fileName: "[project]/app/pages/edit_soutenance/[id]/page.tsx",
-                                                                                lineNumber: 419,
+                                                                                lineNumber: 431,
                                                                                 columnNumber: 25
                                                                             }, this),
                                                                             "Heure"
                                                                         ]
                                                                     }, void 0, true, {
                                                                         fileName: "[project]/app/pages/edit_soutenance/[id]/page.tsx",
-                                                                        lineNumber: 418,
+                                                                        lineNumber: 430,
                                                                         columnNumber: 23
                                                                     }, this),
                                                                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$popover$2e$tsx__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["Popover"], {
@@ -1930,19 +1946,19 @@ function EditSoutenancePage({ params }) {
                                                                                             className: "mr-2 h-4 w-4"
                                                                                         }, void 0, false, {
                                                                                             fileName: "[project]/app/pages/edit_soutenance/[id]/page.tsx",
-                                                                                            lineNumber: 425,
+                                                                                            lineNumber: 437,
                                                                                             columnNumber: 29
                                                                                         }, this),
                                                                                         soutenance.time || "Sélectionner une heure"
                                                                                     ]
                                                                                 }, void 0, true, {
                                                                                     fileName: "[project]/app/pages/edit_soutenance/[id]/page.tsx",
-                                                                                    lineNumber: 424,
+                                                                                    lineNumber: 436,
                                                                                     columnNumber: 27
                                                                                 }, this)
                                                                             }, void 0, false, {
                                                                                 fileName: "[project]/app/pages/edit_soutenance/[id]/page.tsx",
-                                                                                lineNumber: 423,
+                                                                                lineNumber: 435,
                                                                                 columnNumber: 25
                                                                             }, this),
                                                                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$popover$2e$tsx__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["PopoverContent"], {
@@ -1953,7 +1969,7 @@ function EditSoutenancePage({ params }) {
                                                                                             placeholder: "Rechercher une heure..."
                                                                                         }, void 0, false, {
                                                                                             fileName: "[project]/app/pages/edit_soutenance/[id]/page.tsx",
-                                                                                            lineNumber: 431,
+                                                                                            lineNumber: 443,
                                                                                             columnNumber: 29
                                                                                         }, this),
                                                                                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$command$2e$tsx__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["CommandList"], {
@@ -1962,7 +1978,7 @@ function EditSoutenancePage({ params }) {
                                                                                                     children: "Aucune heure trouvée."
                                                                                                 }, void 0, false, {
                                                                                                     fileName: "[project]/app/pages/edit_soutenance/[id]/page.tsx",
-                                                                                                    lineNumber: 433,
+                                                                                                    lineNumber: 445,
                                                                                                     columnNumber: 31
                                                                                                 }, this),
                                                                                                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$command$2e$tsx__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["CommandGroup"], {
@@ -1980,61 +1996,61 @@ function EditSoutenancePage({ params }) {
                                                                                                                     className: (0, __TURBOPACK__imported__module__$5b$project$5d2f$lib$2f$utils$2e$ts__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["cn"])("mr-2 h-4 w-4", soutenance.time === time ? "opacity-100" : "opacity-0")
                                                                                                                 }, void 0, false, {
                                                                                                                     fileName: "[project]/app/pages/edit_soutenance/[id]/page.tsx",
-                                                                                                                    lineNumber: 444,
+                                                                                                                    lineNumber: 456,
                                                                                                                     columnNumber: 37
                                                                                                                 }, this),
                                                                                                                 time
                                                                                                             ]
                                                                                                         }, time, true, {
                                                                                                             fileName: "[project]/app/pages/edit_soutenance/[id]/page.tsx",
-                                                                                                            lineNumber: 436,
+                                                                                                            lineNumber: 448,
                                                                                                             columnNumber: 35
                                                                                                         }, this))
                                                                                                 }, void 0, false, {
                                                                                                     fileName: "[project]/app/pages/edit_soutenance/[id]/page.tsx",
-                                                                                                    lineNumber: 434,
+                                                                                                    lineNumber: 446,
                                                                                                     columnNumber: 31
                                                                                                 }, this)
                                                                                             ]
                                                                                         }, void 0, true, {
                                                                                             fileName: "[project]/app/pages/edit_soutenance/[id]/page.tsx",
-                                                                                            lineNumber: 432,
+                                                                                            lineNumber: 444,
                                                                                             columnNumber: 29
                                                                                         }, this)
                                                                                     ]
                                                                                 }, void 0, true, {
                                                                                     fileName: "[project]/app/pages/edit_soutenance/[id]/page.tsx",
-                                                                                    lineNumber: 430,
+                                                                                    lineNumber: 442,
                                                                                     columnNumber: 27
                                                                                 }, this)
                                                                             }, void 0, false, {
                                                                                 fileName: "[project]/app/pages/edit_soutenance/[id]/page.tsx",
-                                                                                lineNumber: 429,
+                                                                                lineNumber: 441,
                                                                                 columnNumber: 25
                                                                             }, this)
                                                                         ]
                                                                     }, void 0, true, {
                                                                         fileName: "[project]/app/pages/edit_soutenance/[id]/page.tsx",
-                                                                        lineNumber: 422,
+                                                                        lineNumber: 434,
                                                                         columnNumber: 23
                                                                     }, this)
                                                                 ]
                                                             }, void 0, true, {
                                                                 fileName: "[project]/app/pages/edit_soutenance/[id]/page.tsx",
-                                                                lineNumber: 417,
+                                                                lineNumber: 429,
                                                                 columnNumber: 21
                                                             }, this)
                                                         ]
                                                     }, void 0, true, {
                                                         fileName: "[project]/app/pages/edit_soutenance/[id]/page.tsx",
-                                                        lineNumber: 388,
+                                                        lineNumber: 400,
                                                         columnNumber: 19
                                                     }, this),
                                                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$separator$2e$tsx__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["Separator"], {
                                                         className: "my-8"
                                                     }, void 0, false, {
                                                         fileName: "[project]/app/pages/edit_soutenance/[id]/page.tsx",
-                                                        lineNumber: 456,
+                                                        lineNumber: 468,
                                                         columnNumber: 19
                                                     }, this),
                                                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -2050,14 +2066,14 @@ function EditSoutenancePage({ params }) {
                                                                                 className: "h-4 w-4 text-primary"
                                                                             }, void 0, false, {
                                                                                 fileName: "[project]/app/pages/edit_soutenance/[id]/page.tsx",
-                                                                                lineNumber: 461,
+                                                                                lineNumber: 473,
                                                                                 columnNumber: 25
                                                                             }, this),
                                                                             "Groupes actuels"
                                                                         ]
                                                                     }, void 0, true, {
                                                                         fileName: "[project]/app/pages/edit_soutenance/[id]/page.tsx",
-                                                                        lineNumber: 460,
+                                                                        lineNumber: 472,
                                                                         columnNumber: 23
                                                                     }, this),
                                                                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -2065,13 +2081,13 @@ function EditSoutenancePage({ params }) {
                                                                         children: initialGroupNames
                                                                     }, void 0, false, {
                                                                         fileName: "[project]/app/pages/edit_soutenance/[id]/page.tsx",
-                                                                        lineNumber: 464,
+                                                                        lineNumber: 476,
                                                                         columnNumber: 23
                                                                     }, this)
                                                                 ]
                                                             }, void 0, true, {
                                                                 fileName: "[project]/app/pages/edit_soutenance/[id]/page.tsx",
-                                                                lineNumber: 459,
+                                                                lineNumber: 471,
                                                                 columnNumber: 21
                                                             }, this),
                                                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -2084,14 +2100,14 @@ function EditSoutenancePage({ params }) {
                                                                                 className: "h-4 w-4 text-primary"
                                                                             }, void 0, false, {
                                                                                 fileName: "[project]/app/pages/edit_soutenance/[id]/page.tsx",
-                                                                                lineNumber: 471,
+                                                                                lineNumber: 483,
                                                                                 columnNumber: 25
                                                                             }, this),
                                                                             "Modifier les groupes"
                                                                         ]
                                                                     }, void 0, true, {
                                                                         fileName: "[project]/app/pages/edit_soutenance/[id]/page.tsx",
-                                                                        lineNumber: 470,
+                                                                        lineNumber: 482,
                                                                         columnNumber: 23
                                                                     }, this),
                                                                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$badge$2e$tsx__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["Badge"], {
@@ -2103,13 +2119,13 @@ function EditSoutenancePage({ params }) {
                                                                         ]
                                                                     }, void 0, true, {
                                                                         fileName: "[project]/app/pages/edit_soutenance/[id]/page.tsx",
-                                                                        lineNumber: 474,
+                                                                        lineNumber: 486,
                                                                         columnNumber: 23
                                                                     }, this)
                                                                 ]
                                                             }, void 0, true, {
                                                                 fileName: "[project]/app/pages/edit_soutenance/[id]/page.tsx",
-                                                                lineNumber: 469,
+                                                                lineNumber: 481,
                                                                 columnNumber: 21
                                                             }, this),
                                                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$card$2e$tsx__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["Card"], {
@@ -2127,7 +2143,7 @@ function EditSoutenancePage({ params }) {
                                                                                         onCheckedChange: ()=>handleGroupChange(group.idGroupe)
                                                                                     }, void 0, false, {
                                                                                         fileName: "[project]/app/pages/edit_soutenance/[id]/page.tsx",
-                                                                                        lineNumber: 486,
+                                                                                        lineNumber: 498,
                                                                                         columnNumber: 31
                                                                                     }, this),
                                                                                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$label$2e$tsx__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["Label"], {
@@ -2141,28 +2157,28 @@ function EditSoutenancePage({ params }) {
                                                                                         ]
                                                                                     }, void 0, true, {
                                                                                         fileName: "[project]/app/pages/edit_soutenance/[id]/page.tsx",
-                                                                                        lineNumber: 491,
+                                                                                        lineNumber: 503,
                                                                                         columnNumber: 31
                                                                                     }, this)
                                                                                 ]
                                                                             }, group.idGroupe, true, {
                                                                                 fileName: "[project]/app/pages/edit_soutenance/[id]/page.tsx",
-                                                                                lineNumber: 482,
+                                                                                lineNumber: 494,
                                                                                 columnNumber: 29
                                                                             }, this))
                                                                     }, void 0, false, {
                                                                         fileName: "[project]/app/pages/edit_soutenance/[id]/page.tsx",
-                                                                        lineNumber: 480,
+                                                                        lineNumber: 492,
                                                                         columnNumber: 25
                                                                     }, this)
                                                                 }, void 0, false, {
                                                                     fileName: "[project]/app/pages/edit_soutenance/[id]/page.tsx",
-                                                                    lineNumber: 479,
+                                                                    lineNumber: 491,
                                                                     columnNumber: 23
                                                                 }, this)
                                                             }, void 0, false, {
                                                                 fileName: "[project]/app/pages/edit_soutenance/[id]/page.tsx",
-                                                                lineNumber: 478,
+                                                                lineNumber: 490,
                                                                 columnNumber: 21
                                                             }, this),
                                                             selectedGroupIds.length === 0 && /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("p", {
@@ -2172,27 +2188,27 @@ function EditSoutenancePage({ params }) {
                                                                         className: "h-4 w-4"
                                                                     }, void 0, false, {
                                                                         fileName: "[project]/app/pages/edit_soutenance/[id]/page.tsx",
-                                                                        lineNumber: 501,
+                                                                        lineNumber: 513,
                                                                         columnNumber: 25
                                                                     }, this),
                                                                     "Veuillez sélectionner au moins un groupe"
                                                                 ]
                                                             }, void 0, true, {
                                                                 fileName: "[project]/app/pages/edit_soutenance/[id]/page.tsx",
-                                                                lineNumber: 500,
+                                                                lineNumber: 512,
                                                                 columnNumber: 23
                                                             }, this)
                                                         ]
                                                     }, void 0, true, {
                                                         fileName: "[project]/app/pages/edit_soutenance/[id]/page.tsx",
-                                                        lineNumber: 458,
+                                                        lineNumber: 470,
                                                         columnNumber: 19
                                                     }, this),
                                                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$separator$2e$tsx__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["Separator"], {
                                                         className: "my-8"
                                                     }, void 0, false, {
                                                         fileName: "[project]/app/pages/edit_soutenance/[id]/page.tsx",
-                                                        lineNumber: 507,
+                                                        lineNumber: 519,
                                                         columnNumber: 19
                                                     }, this),
                                                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -2208,14 +2224,14 @@ function EditSoutenancePage({ params }) {
                                                                                 className: "h-4 w-4 text-primary"
                                                                             }, void 0, false, {
                                                                                 fileName: "[project]/app/pages/edit_soutenance/[id]/page.tsx",
-                                                                                lineNumber: 512,
+                                                                                lineNumber: 524,
                                                                                 columnNumber: 25
                                                                             }, this),
                                                                             "Jury"
                                                                         ]
                                                                     }, void 0, true, {
                                                                         fileName: "[project]/app/pages/edit_soutenance/[id]/page.tsx",
-                                                                        lineNumber: 511,
+                                                                        lineNumber: 523,
                                                                         columnNumber: 23
                                                                     }, this),
                                                                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$badge$2e$tsx__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["Badge"], {
@@ -2227,13 +2243,13 @@ function EditSoutenancePage({ params }) {
                                                                         ]
                                                                     }, void 0, true, {
                                                                         fileName: "[project]/app/pages/edit_soutenance/[id]/page.tsx",
-                                                                        lineNumber: 515,
+                                                                        lineNumber: 527,
                                                                         columnNumber: 23
                                                                     }, this)
                                                                 ]
                                                             }, void 0, true, {
                                                                 fileName: "[project]/app/pages/edit_soutenance/[id]/page.tsx",
-                                                                lineNumber: 510,
+                                                                lineNumber: 522,
                                                                 columnNumber: 21
                                                             }, this),
                                                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$card$2e$tsx__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["Card"], {
@@ -2252,7 +2268,7 @@ function EditSoutenancePage({ params }) {
                                                                                         disabled: !selectedJuryIds.includes(jury.idJury) && selectedJuryIds.length >= 3
                                                                                     }, void 0, false, {
                                                                                         fileName: "[project]/app/pages/edit_soutenance/[id]/page.tsx",
-                                                                                        lineNumber: 527,
+                                                                                        lineNumber: 539,
                                                                                         columnNumber: 31
                                                                                     }, this),
                                                                                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$label$2e$tsx__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["Label"], {
@@ -2261,28 +2277,28 @@ function EditSoutenancePage({ params }) {
                                                                                         children: jury.nom
                                                                                     }, void 0, false, {
                                                                                         fileName: "[project]/app/pages/edit_soutenance/[id]/page.tsx",
-                                                                                        lineNumber: 533,
+                                                                                        lineNumber: 545,
                                                                                         columnNumber: 31
                                                                                     }, this)
                                                                                 ]
                                                                             }, jury.idJury, true, {
                                                                                 fileName: "[project]/app/pages/edit_soutenance/[id]/page.tsx",
-                                                                                lineNumber: 523,
+                                                                                lineNumber: 535,
                                                                                 columnNumber: 29
                                                                             }, this))
                                                                     }, void 0, false, {
                                                                         fileName: "[project]/app/pages/edit_soutenance/[id]/page.tsx",
-                                                                        lineNumber: 521,
+                                                                        lineNumber: 533,
                                                                         columnNumber: 25
                                                                     }, this)
                                                                 }, void 0, false, {
                                                                     fileName: "[project]/app/pages/edit_soutenance/[id]/page.tsx",
-                                                                    lineNumber: 520,
+                                                                    lineNumber: 532,
                                                                     columnNumber: 23
                                                                 }, this)
                                                             }, void 0, false, {
                                                                 fileName: "[project]/app/pages/edit_soutenance/[id]/page.tsx",
-                                                                lineNumber: 519,
+                                                                lineNumber: 531,
                                                                 columnNumber: 21
                                                             }, this),
                                                             selectedJuryIds.length !== 3 && /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("p", {
@@ -2292,27 +2308,27 @@ function EditSoutenancePage({ params }) {
                                                                         className: "h-4 w-4"
                                                                     }, void 0, false, {
                                                                         fileName: "[project]/app/pages/edit_soutenance/[id]/page.tsx",
-                                                                        lineNumber: 543,
+                                                                        lineNumber: 555,
                                                                         columnNumber: 25
                                                                     }, this),
                                                                     "Veuillez sélectionner exactement 3 membres du jury"
                                                                 ]
                                                             }, void 0, true, {
                                                                 fileName: "[project]/app/pages/edit_soutenance/[id]/page.tsx",
-                                                                lineNumber: 542,
+                                                                lineNumber: 554,
                                                                 columnNumber: 23
                                                             }, this)
                                                         ]
                                                     }, void 0, true, {
                                                         fileName: "[project]/app/pages/edit_soutenance/[id]/page.tsx",
-                                                        lineNumber: 509,
+                                                        lineNumber: 521,
                                                         columnNumber: 19
                                                     }, this),
                                                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$separator$2e$tsx__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["Separator"], {
                                                         className: "my-8"
                                                     }, void 0, false, {
                                                         fileName: "[project]/app/pages/edit_soutenance/[id]/page.tsx",
-                                                        lineNumber: 549,
+                                                        lineNumber: 561,
                                                         columnNumber: 19
                                                     }, this),
                                                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -2328,14 +2344,14 @@ function EditSoutenancePage({ params }) {
                                                                                 className: "h-4 w-4 text-primary"
                                                                             }, void 0, false, {
                                                                                 fileName: "[project]/app/pages/edit_soutenance/[id]/page.tsx",
-                                                                                lineNumber: 554,
+                                                                                lineNumber: 566,
                                                                                 columnNumber: 25
                                                                             }, this),
                                                                             "Salle"
                                                                         ]
                                                                     }, void 0, true, {
                                                                         fileName: "[project]/app/pages/edit_soutenance/[id]/page.tsx",
-                                                                        lineNumber: 553,
+                                                                        lineNumber: 565,
                                                                         columnNumber: 23
                                                                     }, this),
                                                                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$popover$2e$tsx__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["Popover"], {
@@ -2351,18 +2367,18 @@ function EditSoutenancePage({ params }) {
                                                                                             className: "ml-2 h-4 w-4 shrink-0 opacity-50"
                                                                                         }, void 0, false, {
                                                                                             fileName: "[project]/app/pages/edit_soutenance/[id]/page.tsx",
-                                                                                            lineNumber: 561,
+                                                                                            lineNumber: 573,
                                                                                             columnNumber: 29
                                                                                         }, this)
                                                                                     ]
                                                                                 }, void 0, true, {
                                                                                     fileName: "[project]/app/pages/edit_soutenance/[id]/page.tsx",
-                                                                                    lineNumber: 559,
+                                                                                    lineNumber: 571,
                                                                                     columnNumber: 27
                                                                                 }, this)
                                                                             }, void 0, false, {
                                                                                 fileName: "[project]/app/pages/edit_soutenance/[id]/page.tsx",
-                                                                                lineNumber: 558,
+                                                                                lineNumber: 570,
                                                                                 columnNumber: 25
                                                                             }, this),
                                                                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$popover$2e$tsx__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["PopoverContent"], {
@@ -2373,7 +2389,7 @@ function EditSoutenancePage({ params }) {
                                                                                             placeholder: "Rechercher une salle..."
                                                                                         }, void 0, false, {
                                                                                             fileName: "[project]/app/pages/edit_soutenance/[id]/page.tsx",
-                                                                                            lineNumber: 566,
+                                                                                            lineNumber: 578,
                                                                                             columnNumber: 29
                                                                                         }, this),
                                                                                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$command$2e$tsx__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["CommandList"], {
@@ -2382,7 +2398,7 @@ function EditSoutenancePage({ params }) {
                                                                                                     children: "Aucune salle trouvée."
                                                                                                 }, void 0, false, {
                                                                                                     fileName: "[project]/app/pages/edit_soutenance/[id]/page.tsx",
-                                                                                                    lineNumber: 568,
+                                                                                                    lineNumber: 580,
                                                                                                     columnNumber: 31
                                                                                                 }, this),
                                                                                                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$command$2e$tsx__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["CommandGroup"], {
@@ -2399,48 +2415,48 @@ function EditSoutenancePage({ params }) {
                                                                                                                     className: (0, __TURBOPACK__imported__module__$5b$project$5d2f$lib$2f$utils$2e$ts__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["cn"])("mr-2 h-4 w-4", soutenance.location === salle ? "opacity-100" : "opacity-0")
                                                                                                                 }, void 0, false, {
                                                                                                                     fileName: "[project]/app/pages/edit_soutenance/[id]/page.tsx",
-                                                                                                                    lineNumber: 576,
+                                                                                                                    lineNumber: 588,
                                                                                                                     columnNumber: 37
                                                                                                                 }, this),
                                                                                                                 salle
                                                                                                             ]
                                                                                                         }, salle, true, {
                                                                                                             fileName: "[project]/app/pages/edit_soutenance/[id]/page.tsx",
-                                                                                                            lineNumber: 571,
+                                                                                                            lineNumber: 583,
                                                                                                             columnNumber: 35
                                                                                                         }, this))
                                                                                                 }, void 0, false, {
                                                                                                     fileName: "[project]/app/pages/edit_soutenance/[id]/page.tsx",
-                                                                                                    lineNumber: 569,
+                                                                                                    lineNumber: 581,
                                                                                                     columnNumber: 31
                                                                                                 }, this)
                                                                                             ]
                                                                                         }, void 0, true, {
                                                                                             fileName: "[project]/app/pages/edit_soutenance/[id]/page.tsx",
-                                                                                            lineNumber: 567,
+                                                                                            lineNumber: 579,
                                                                                             columnNumber: 29
                                                                                         }, this)
                                                                                     ]
                                                                                 }, void 0, true, {
                                                                                     fileName: "[project]/app/pages/edit_soutenance/[id]/page.tsx",
-                                                                                    lineNumber: 565,
+                                                                                    lineNumber: 577,
                                                                                     columnNumber: 27
                                                                                 }, this)
                                                                             }, void 0, false, {
                                                                                 fileName: "[project]/app/pages/edit_soutenance/[id]/page.tsx",
-                                                                                lineNumber: 564,
+                                                                                lineNumber: 576,
                                                                                 columnNumber: 25
                                                                             }, this)
                                                                         ]
                                                                     }, void 0, true, {
                                                                         fileName: "[project]/app/pages/edit_soutenance/[id]/page.tsx",
-                                                                        lineNumber: 557,
+                                                                        lineNumber: 569,
                                                                         columnNumber: 23
                                                                     }, this)
                                                                 ]
                                                             }, void 0, true, {
                                                                 fileName: "[project]/app/pages/edit_soutenance/[id]/page.tsx",
-                                                                lineNumber: 552,
+                                                                lineNumber: 564,
                                                                 columnNumber: 21
                                                             }, this),
                                                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -2453,14 +2469,14 @@ function EditSoutenancePage({ params }) {
                                                                                 className: "h-4 w-4 text-primary"
                                                                             }, void 0, false, {
                                                                                 fileName: "[project]/app/pages/edit_soutenance/[id]/page.tsx",
-                                                                                lineNumber: 589,
+                                                                                lineNumber: 601,
                                                                                 columnNumber: 25
                                                                             }, this),
                                                                             "Statut"
                                                                         ]
                                                                     }, void 0, true, {
                                                                         fileName: "[project]/app/pages/edit_soutenance/[id]/page.tsx",
-                                                                        lineNumber: 588,
+                                                                        lineNumber: 600,
                                                                         columnNumber: 23
                                                                     }, this),
                                                                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$select$2e$tsx__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["Select"], {
@@ -2484,22 +2500,22 @@ function EditSoutenancePage({ params }) {
                                                                                             ]
                                                                                         }, void 0, true, {
                                                                                             fileName: "[project]/app/pages/edit_soutenance/[id]/page.tsx",
-                                                                                            lineNumber: 597,
+                                                                                            lineNumber: 609,
                                                                                             columnNumber: 33
                                                                                         }, this)
                                                                                     }, void 0, false, {
                                                                                         fileName: "[project]/app/pages/edit_soutenance/[id]/page.tsx",
-                                                                                        lineNumber: 596,
+                                                                                        lineNumber: 608,
                                                                                         columnNumber: 31
                                                                                     }, this)
                                                                                 }, void 0, false, {
                                                                                     fileName: "[project]/app/pages/edit_soutenance/[id]/page.tsx",
-                                                                                    lineNumber: 594,
+                                                                                    lineNumber: 606,
                                                                                     columnNumber: 27
                                                                                 }, this)
                                                                             }, void 0, false, {
                                                                                 fileName: "[project]/app/pages/edit_soutenance/[id]/page.tsx",
-                                                                                lineNumber: 593,
+                                                                                lineNumber: 605,
                                                                                 columnNumber: 25
                                                                             }, this),
                                                                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$select$2e$tsx__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["SelectContent"], {
@@ -2516,24 +2532,24 @@ function EditSoutenancePage({ params }) {
                                                                                                         className: "h-4 w-4"
                                                                                                     }, void 0, false, {
                                                                                                         fileName: "[project]/app/pages/edit_soutenance/[id]/page.tsx",
-                                                                                                        lineNumber: 609,
+                                                                                                        lineNumber: 621,
                                                                                                         columnNumber: 33
                                                                                                     }, this),
                                                                                                     "Planifié"
                                                                                                 ]
                                                                                             }, void 0, true, {
                                                                                                 fileName: "[project]/app/pages/edit_soutenance/[id]/page.tsx",
-                                                                                                lineNumber: 608,
+                                                                                                lineNumber: 620,
                                                                                                 columnNumber: 31
                                                                                             }, this)
                                                                                         }, void 0, false, {
                                                                                             fileName: "[project]/app/pages/edit_soutenance/[id]/page.tsx",
-                                                                                            lineNumber: 607,
+                                                                                            lineNumber: 619,
                                                                                             columnNumber: 29
                                                                                         }, this)
                                                                                     }, void 0, false, {
                                                                                         fileName: "[project]/app/pages/edit_soutenance/[id]/page.tsx",
-                                                                                        lineNumber: 606,
+                                                                                        lineNumber: 618,
                                                                                         columnNumber: 27
                                                                                     }, this),
                                                                                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$select$2e$tsx__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["SelectItem"], {
@@ -2548,24 +2564,24 @@ function EditSoutenancePage({ params }) {
                                                                                                         className: "h-4 w-4"
                                                                                                     }, void 0, false, {
                                                                                                         fileName: "[project]/app/pages/edit_soutenance/[id]/page.tsx",
-                                                                                                        lineNumber: 617,
+                                                                                                        lineNumber: 629,
                                                                                                         columnNumber: 33
                                                                                                     }, this),
                                                                                                     "Terminé"
                                                                                                 ]
                                                                                             }, void 0, true, {
                                                                                                 fileName: "[project]/app/pages/edit_soutenance/[id]/page.tsx",
-                                                                                                lineNumber: 616,
+                                                                                                lineNumber: 628,
                                                                                                 columnNumber: 31
                                                                                             }, this)
                                                                                         }, void 0, false, {
                                                                                             fileName: "[project]/app/pages/edit_soutenance/[id]/page.tsx",
-                                                                                            lineNumber: 615,
+                                                                                            lineNumber: 627,
                                                                                             columnNumber: 29
                                                                                         }, this)
                                                                                     }, void 0, false, {
                                                                                         fileName: "[project]/app/pages/edit_soutenance/[id]/page.tsx",
-                                                                                        lineNumber: 614,
+                                                                                        lineNumber: 626,
                                                                                         columnNumber: 27
                                                                                     }, this),
                                                                                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$select$2e$tsx__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["SelectItem"], {
@@ -2580,24 +2596,24 @@ function EditSoutenancePage({ params }) {
                                                                                                         className: "h-4 w-4"
                                                                                                     }, void 0, false, {
                                                                                                         fileName: "[project]/app/pages/edit_soutenance/[id]/page.tsx",
-                                                                                                        lineNumber: 625,
+                                                                                                        lineNumber: 637,
                                                                                                         columnNumber: 33
                                                                                                     }, this),
                                                                                                     "En attente"
                                                                                                 ]
                                                                                             }, void 0, true, {
                                                                                                 fileName: "[project]/app/pages/edit_soutenance/[id]/page.tsx",
-                                                                                                lineNumber: 624,
+                                                                                                lineNumber: 636,
                                                                                                 columnNumber: 31
                                                                                             }, this)
                                                                                         }, void 0, false, {
                                                                                             fileName: "[project]/app/pages/edit_soutenance/[id]/page.tsx",
-                                                                                            lineNumber: 623,
+                                                                                            lineNumber: 635,
                                                                                             columnNumber: 29
                                                                                         }, this)
                                                                                     }, void 0, false, {
                                                                                         fileName: "[project]/app/pages/edit_soutenance/[id]/page.tsx",
-                                                                                        lineNumber: 622,
+                                                                                        lineNumber: 634,
                                                                                         columnNumber: 27
                                                                                     }, this),
                                                                                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$select$2e$tsx__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["SelectItem"], {
@@ -2612,48 +2628,48 @@ function EditSoutenancePage({ params }) {
                                                                                                         className: "h-4 w-4"
                                                                                                     }, void 0, false, {
                                                                                                         fileName: "[project]/app/pages/edit_soutenance/[id]/page.tsx",
-                                                                                                        lineNumber: 633,
+                                                                                                        lineNumber: 645,
                                                                                                         columnNumber: 33
                                                                                                     }, this),
                                                                                                     "Annulé"
                                                                                                 ]
                                                                                             }, void 0, true, {
                                                                                                 fileName: "[project]/app/pages/edit_soutenance/[id]/page.tsx",
-                                                                                                lineNumber: 632,
+                                                                                                lineNumber: 644,
                                                                                                 columnNumber: 31
                                                                                             }, this)
                                                                                         }, void 0, false, {
                                                                                             fileName: "[project]/app/pages/edit_soutenance/[id]/page.tsx",
-                                                                                            lineNumber: 631,
+                                                                                            lineNumber: 643,
                                                                                             columnNumber: 29
                                                                                         }, this)
                                                                                     }, void 0, false, {
                                                                                         fileName: "[project]/app/pages/edit_soutenance/[id]/page.tsx",
-                                                                                        lineNumber: 630,
+                                                                                        lineNumber: 642,
                                                                                         columnNumber: 27
                                                                                     }, this)
                                                                                 ]
                                                                             }, void 0, true, {
                                                                                 fileName: "[project]/app/pages/edit_soutenance/[id]/page.tsx",
-                                                                                lineNumber: 605,
+                                                                                lineNumber: 617,
                                                                                 columnNumber: 25
                                                                             }, this)
                                                                         ]
                                                                     }, void 0, true, {
                                                                         fileName: "[project]/app/pages/edit_soutenance/[id]/page.tsx",
-                                                                        lineNumber: 592,
+                                                                        lineNumber: 604,
                                                                         columnNumber: 23
                                                                     }, this)
                                                                 ]
                                                             }, void 0, true, {
                                                                 fileName: "[project]/app/pages/edit_soutenance/[id]/page.tsx",
-                                                                lineNumber: 587,
+                                                                lineNumber: 599,
                                                                 columnNumber: 21
                                                             }, this)
                                                         ]
                                                     }, void 0, true, {
                                                         fileName: "[project]/app/pages/edit_soutenance/[id]/page.tsx",
-                                                        lineNumber: 551,
+                                                        lineNumber: 563,
                                                         columnNumber: 19
                                                     }, this),
                                                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -2666,7 +2682,7 @@ function EditSoutenancePage({ params }) {
                                                                 children: "Annuler"
                                                             }, void 0, false, {
                                                                 fileName: "[project]/app/pages/edit_soutenance/[id]/page.tsx",
-                                                                lineNumber: 644,
+                                                                lineNumber: 656,
                                                                 columnNumber: 21
                                                             }, this),
                                                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$button$2e$tsx__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["Button"], {
@@ -2679,7 +2695,7 @@ function EditSoutenancePage({ params }) {
                                                                             className: "mr-2 h-4 w-4 animate-spin"
                                                                         }, void 0, false, {
                                                                             fileName: "[project]/app/pages/edit_soutenance/[id]/page.tsx",
-                                                                            lineNumber: 650,
+                                                                            lineNumber: 662,
                                                                             columnNumber: 27
                                                                         }, this),
                                                                         "Enregistrement..."
@@ -2690,7 +2706,7 @@ function EditSoutenancePage({ params }) {
                                                                             className: "mr-2 h-4 w-4"
                                                                         }, void 0, false, {
                                                                             fileName: "[project]/app/pages/edit_soutenance/[id]/page.tsx",
-                                                                            lineNumber: 655,
+                                                                            lineNumber: 667,
                                                                             columnNumber: 27
                                                                         }, this),
                                                                         "Sauvegarder"
@@ -2698,36 +2714,36 @@ function EditSoutenancePage({ params }) {
                                                                 }, void 0, true)
                                                             }, void 0, false, {
                                                                 fileName: "[project]/app/pages/edit_soutenance/[id]/page.tsx",
-                                                                lineNumber: 647,
+                                                                lineNumber: 659,
                                                                 columnNumber: 21
                                                             }, this)
                                                         ]
                                                     }, void 0, true, {
                                                         fileName: "[project]/app/pages/edit_soutenance/[id]/page.tsx",
-                                                        lineNumber: 643,
+                                                        lineNumber: 655,
                                                         columnNumber: 19
                                                     }, this)
                                                 ]
                                             }, void 0, true, {
                                                 fileName: "[project]/app/pages/edit_soutenance/[id]/page.tsx",
-                                                lineNumber: 387,
+                                                lineNumber: 399,
                                                 columnNumber: 17
                                             }, this)
                                         ]
                                     }, void 0, true, {
                                         fileName: "[project]/app/pages/edit_soutenance/[id]/page.tsx",
-                                        lineNumber: 379,
+                                        lineNumber: 391,
                                         columnNumber: 15
                                     }, this)
                                 ]
                             }, void 0, true, {
                                 fileName: "[project]/app/pages/edit_soutenance/[id]/page.tsx",
-                                lineNumber: 374,
+                                lineNumber: 386,
                                 columnNumber: 13
                             }, this)
                         }, void 0, false, {
                             fileName: "[project]/app/pages/edit_soutenance/[id]/page.tsx",
-                            lineNumber: 373,
+                            lineNumber: 385,
                             columnNumber: 11
                         }, this),
                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$tabs$2e$tsx__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["TabsContent"], {
@@ -2743,20 +2759,20 @@ function EditSoutenancePage({ params }) {
                                                 children: "Mise à jour en masse"
                                             }, void 0, false, {
                                                 fileName: "[project]/app/pages/edit_soutenance/[id]/page.tsx",
-                                                lineNumber: 669,
+                                                lineNumber: 681,
                                                 columnNumber: 17
                                             }, this),
                                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$card$2e$tsx__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["CardDescription"], {
                                                 children: "Modifiez le statut de plusieurs soutenances simultanément"
                                             }, void 0, false, {
                                                 fileName: "[project]/app/pages/edit_soutenance/[id]/page.tsx",
-                                                lineNumber: 670,
+                                                lineNumber: 682,
                                                 columnNumber: 17
                                             }, this)
                                         ]
                                     }, void 0, true, {
                                         fileName: "[project]/app/pages/edit_soutenance/[id]/page.tsx",
-                                        lineNumber: 668,
+                                        lineNumber: 680,
                                         columnNumber: 15
                                     }, this),
                                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$card$2e$tsx__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["CardContent"], {
@@ -2774,7 +2790,7 @@ function EditSoutenancePage({ params }) {
                                                                 children: "Soutenances"
                                                             }, void 0, false, {
                                                                 fileName: "[project]/app/pages/edit_soutenance/[id]/page.tsx",
-                                                                lineNumber: 676,
+                                                                lineNumber: 688,
                                                                 columnNumber: 23
                                                             }, this),
                                                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$button$2e$tsx__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["Button"], {
@@ -2785,13 +2801,13 @@ function EditSoutenancePage({ params }) {
                                                                 children: selectedSoutenanceIds.length === allSoutenances.length ? "Désélectionner tout" : "Sélectionner tout"
                                                             }, void 0, false, {
                                                                 fileName: "[project]/app/pages/edit_soutenance/[id]/page.tsx",
-                                                                lineNumber: 677,
+                                                                lineNumber: 689,
                                                                 columnNumber: 23
                                                             }, this)
                                                         ]
                                                     }, void 0, true, {
                                                         fileName: "[project]/app/pages/edit_soutenance/[id]/page.tsx",
-                                                        lineNumber: 675,
+                                                        lineNumber: 687,
                                                         columnNumber: 21
                                                     }, this),
                                                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$card$2e$tsx__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["Card"], {
@@ -2811,7 +2827,7 @@ function EditSoutenancePage({ params }) {
                                                                                 id: `soutenance-${s.idSoutenance}`
                                                                             }, void 0, false, {
                                                                                 fileName: "[project]/app/pages/edit_soutenance/[id]/page.tsx",
-                                                                                lineNumber: 692,
+                                                                                lineNumber: 704,
                                                                                 columnNumber: 33
                                                                             }, this),
                                                                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -2823,7 +2839,7 @@ function EditSoutenancePage({ params }) {
                                                                                         children: s.groupNames
                                                                                     }, void 0, false, {
                                                                                         fileName: "[project]/app/pages/edit_soutenance/[id]/page.tsx",
-                                                                                        lineNumber: 698,
+                                                                                        lineNumber: 710,
                                                                                         columnNumber: 35
                                                                                     }, this),
                                                                                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -2836,14 +2852,14 @@ function EditSoutenancePage({ params }) {
                                                                                                         className: "h-3.5 w-3.5"
                                                                                                     }, void 0, false, {
                                                                                                         fileName: "[project]/app/pages/edit_soutenance/[id]/page.tsx",
-                                                                                                        lineNumber: 703,
+                                                                                                        lineNumber: 715,
                                                                                                         columnNumber: 39
                                                                                                     }, this),
                                                                                                     s.date
                                                                                                 ]
                                                                                             }, void 0, true, {
                                                                                                 fileName: "[project]/app/pages/edit_soutenance/[id]/page.tsx",
-                                                                                                lineNumber: 702,
+                                                                                                lineNumber: 714,
                                                                                                 columnNumber: 37
                                                                                             }, this),
                                                                                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("span", {
@@ -2853,14 +2869,14 @@ function EditSoutenancePage({ params }) {
                                                                                                         className: "h-3.5 w-3.5"
                                                                                                     }, void 0, false, {
                                                                                                         fileName: "[project]/app/pages/edit_soutenance/[id]/page.tsx",
-                                                                                                        lineNumber: 707,
+                                                                                                        lineNumber: 719,
                                                                                                         columnNumber: 39
                                                                                                     }, this),
                                                                                                     s.time
                                                                                                 ]
                                                                                             }, void 0, true, {
                                                                                                 fileName: "[project]/app/pages/edit_soutenance/[id]/page.tsx",
-                                                                                                lineNumber: 706,
+                                                                                                lineNumber: 718,
                                                                                                 columnNumber: 37
                                                                                             }, this),
                                                                                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$badge$2e$tsx__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["Badge"], {
@@ -2872,41 +2888,41 @@ function EditSoutenancePage({ params }) {
                                                                                                 ]
                                                                                             }, void 0, true, {
                                                                                                 fileName: "[project]/app/pages/edit_soutenance/[id]/page.tsx",
-                                                                                                lineNumber: 710,
+                                                                                                lineNumber: 722,
                                                                                                 columnNumber: 37
                                                                                             }, this)
                                                                                         ]
                                                                                     }, void 0, true, {
                                                                                         fileName: "[project]/app/pages/edit_soutenance/[id]/page.tsx",
-                                                                                        lineNumber: 701,
+                                                                                        lineNumber: 713,
                                                                                         columnNumber: 35
                                                                                     }, this)
                                                                                 ]
                                                                             }, void 0, true, {
                                                                                 fileName: "[project]/app/pages/edit_soutenance/[id]/page.tsx",
-                                                                                lineNumber: 697,
+                                                                                lineNumber: 709,
                                                                                 columnNumber: 33
                                                                             }, this)
                                                                         ]
                                                                     }, s.idSoutenance, true, {
                                                                         fileName: "[project]/app/pages/edit_soutenance/[id]/page.tsx",
-                                                                        lineNumber: 688,
+                                                                        lineNumber: 700,
                                                                         columnNumber: 31
                                                                     }, this);
                                                                 })
                                                             }, void 0, false, {
                                                                 fileName: "[project]/app/pages/edit_soutenance/[id]/page.tsx",
-                                                                lineNumber: 684,
+                                                                lineNumber: 696,
                                                                 columnNumber: 25
                                                             }, this)
                                                         }, void 0, false, {
                                                             fileName: "[project]/app/pages/edit_soutenance/[id]/page.tsx",
-                                                            lineNumber: 683,
+                                                            lineNumber: 695,
                                                             columnNumber: 23
                                                         }, this)
                                                     }, void 0, false, {
                                                         fileName: "[project]/app/pages/edit_soutenance/[id]/page.tsx",
-                                                        lineNumber: 682,
+                                                        lineNumber: 694,
                                                         columnNumber: 21
                                                     }, this),
                                                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -2917,7 +2933,7 @@ function EditSoutenancePage({ params }) {
                                                                 children: "Nouveau Statut"
                                                             }, void 0, false, {
                                                                 fileName: "[project]/app/pages/edit_soutenance/[id]/page.tsx",
-                                                                lineNumber: 724,
+                                                                lineNumber: 736,
                                                                 columnNumber: 23
                                                             }, this),
                                                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -2932,12 +2948,12 @@ function EditSoutenancePage({ params }) {
                                                                                     placeholder: "Sélectionner un statut"
                                                                                 }, void 0, false, {
                                                                                     fileName: "[project]/app/pages/edit_soutenance/[id]/page.tsx",
-                                                                                    lineNumber: 728,
+                                                                                    lineNumber: 740,
                                                                                     columnNumber: 29
                                                                                 }, this)
                                                                             }, void 0, false, {
                                                                                 fileName: "[project]/app/pages/edit_soutenance/[id]/page.tsx",
-                                                                                lineNumber: 727,
+                                                                                lineNumber: 739,
                                                                                 columnNumber: 27
                                                                             }, this),
                                                                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$select$2e$tsx__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["SelectContent"], {
@@ -2951,58 +2967,10 @@ function EditSoutenancePage({ params }) {
                                                                                                     className: "h-4 w-4 text-blue-600"
                                                                                                 }, void 0, false, {
                                                                                                     fileName: "[project]/app/pages/edit_soutenance/[id]/page.tsx",
-                                                                                                    lineNumber: 733,
-                                                                                                    columnNumber: 33
-                                                                                                }, this),
-                                                                                                "Planifié"
-                                                                                            ]
-                                                                                        }, void 0, true, {
-                                                                                            fileName: "[project]/app/pages/edit_soutenance/[id]/page.tsx",
-                                                                                            lineNumber: 732,
-                                                                                            columnNumber: 31
-                                                                                        }, this)
-                                                                                    }, void 0, false, {
-                                                                                        fileName: "[project]/app/pages/edit_soutenance/[id]/page.tsx",
-                                                                                        lineNumber: 731,
-                                                                                        columnNumber: 29
-                                                                                    }, this),
-                                                                                    /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$select$2e$tsx__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["SelectItem"], {
-                                                                                        value: "Completed",
-                                                                                        children: /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
-                                                                                            className: "flex items-center gap-2",
-                                                                                            children: [
-                                                                                                /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$lucide$2d$react$2f$dist$2f$esm$2f$icons$2f$circle$2d$check$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__$3c$export__default__as__CheckCircle2$3e$__["CheckCircle2"], {
-                                                                                                    className: "h-4 w-4 text-green-600"
-                                                                                                }, void 0, false, {
-                                                                                                    fileName: "[project]/app/pages/edit_soutenance/[id]/page.tsx",
-                                                                                                    lineNumber: 739,
-                                                                                                    columnNumber: 33
-                                                                                                }, this),
-                                                                                                "Terminé"
-                                                                                            ]
-                                                                                        }, void 0, true, {
-                                                                                            fileName: "[project]/app/pages/edit_soutenance/[id]/page.tsx",
-                                                                                            lineNumber: 738,
-                                                                                            columnNumber: 31
-                                                                                        }, this)
-                                                                                    }, void 0, false, {
-                                                                                        fileName: "[project]/app/pages/edit_soutenance/[id]/page.tsx",
-                                                                                        lineNumber: 737,
-                                                                                        columnNumber: 29
-                                                                                    }, this),
-                                                                                    /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$select$2e$tsx__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["SelectItem"], {
-                                                                                        value: "Pending",
-                                                                                        children: /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
-                                                                                            className: "flex items-center gap-2",
-                                                                                            children: [
-                                                                                                /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$lucide$2d$react$2f$dist$2f$esm$2f$icons$2f$clock$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__$3c$export__default__as__Clock$3e$__["Clock"], {
-                                                                                                    className: "h-4 w-4 text-yellow-600"
-                                                                                                }, void 0, false, {
-                                                                                                    fileName: "[project]/app/pages/edit_soutenance/[id]/page.tsx",
                                                                                                     lineNumber: 745,
                                                                                                     columnNumber: 33
                                                                                                 }, this),
-                                                                                                "En attente"
+                                                                                                "Planifié"
                                                                                             ]
                                                                                         }, void 0, true, {
                                                                                             fileName: "[project]/app/pages/edit_soutenance/[id]/page.tsx",
@@ -3015,18 +2983,18 @@ function EditSoutenancePage({ params }) {
                                                                                         columnNumber: 29
                                                                                     }, this),
                                                                                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$select$2e$tsx__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["SelectItem"], {
-                                                                                        value: "Cancelled",
+                                                                                        value: "Completed",
                                                                                         children: /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
                                                                                             className: "flex items-center gap-2",
                                                                                             children: [
-                                                                                                /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$lucide$2d$react$2f$dist$2f$esm$2f$icons$2f$circle$2d$alert$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__$3c$export__default__as__AlertCircle$3e$__["AlertCircle"], {
-                                                                                                    className: "h-4 w-4 text-red-600"
+                                                                                                /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$lucide$2d$react$2f$dist$2f$esm$2f$icons$2f$circle$2d$check$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__$3c$export__default__as__CheckCircle2$3e$__["CheckCircle2"], {
+                                                                                                    className: "h-4 w-4 text-green-600"
                                                                                                 }, void 0, false, {
                                                                                                     fileName: "[project]/app/pages/edit_soutenance/[id]/page.tsx",
                                                                                                     lineNumber: 751,
                                                                                                     columnNumber: 33
                                                                                                 }, this),
-                                                                                                "Annulé"
+                                                                                                "Terminé"
                                                                                             ]
                                                                                         }, void 0, true, {
                                                                                             fileName: "[project]/app/pages/edit_soutenance/[id]/page.tsx",
@@ -3037,17 +3005,65 @@ function EditSoutenancePage({ params }) {
                                                                                         fileName: "[project]/app/pages/edit_soutenance/[id]/page.tsx",
                                                                                         lineNumber: 749,
                                                                                         columnNumber: 29
+                                                                                    }, this),
+                                                                                    /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$select$2e$tsx__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["SelectItem"], {
+                                                                                        value: "Pending",
+                                                                                        children: /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
+                                                                                            className: "flex items-center gap-2",
+                                                                                            children: [
+                                                                                                /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$lucide$2d$react$2f$dist$2f$esm$2f$icons$2f$clock$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__$3c$export__default__as__Clock$3e$__["Clock"], {
+                                                                                                    className: "h-4 w-4 text-yellow-600"
+                                                                                                }, void 0, false, {
+                                                                                                    fileName: "[project]/app/pages/edit_soutenance/[id]/page.tsx",
+                                                                                                    lineNumber: 757,
+                                                                                                    columnNumber: 33
+                                                                                                }, this),
+                                                                                                "En attente"
+                                                                                            ]
+                                                                                        }, void 0, true, {
+                                                                                            fileName: "[project]/app/pages/edit_soutenance/[id]/page.tsx",
+                                                                                            lineNumber: 756,
+                                                                                            columnNumber: 31
+                                                                                        }, this)
+                                                                                    }, void 0, false, {
+                                                                                        fileName: "[project]/app/pages/edit_soutenance/[id]/page.tsx",
+                                                                                        lineNumber: 755,
+                                                                                        columnNumber: 29
+                                                                                    }, this),
+                                                                                    /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$select$2e$tsx__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["SelectItem"], {
+                                                                                        value: "Cancelled",
+                                                                                        children: /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
+                                                                                            className: "flex items-center gap-2",
+                                                                                            children: [
+                                                                                                /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$lucide$2d$react$2f$dist$2f$esm$2f$icons$2f$circle$2d$alert$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__$3c$export__default__as__AlertCircle$3e$__["AlertCircle"], {
+                                                                                                    className: "h-4 w-4 text-red-600"
+                                                                                                }, void 0, false, {
+                                                                                                    fileName: "[project]/app/pages/edit_soutenance/[id]/page.tsx",
+                                                                                                    lineNumber: 763,
+                                                                                                    columnNumber: 33
+                                                                                                }, this),
+                                                                                                "Annulé"
+                                                                                            ]
+                                                                                        }, void 0, true, {
+                                                                                            fileName: "[project]/app/pages/edit_soutenance/[id]/page.tsx",
+                                                                                            lineNumber: 762,
+                                                                                            columnNumber: 31
+                                                                                        }, this)
+                                                                                    }, void 0, false, {
+                                                                                        fileName: "[project]/app/pages/edit_soutenance/[id]/page.tsx",
+                                                                                        lineNumber: 761,
+                                                                                        columnNumber: 29
                                                                                     }, this)
                                                                                 ]
                                                                             }, void 0, true, {
                                                                                 fileName: "[project]/app/pages/edit_soutenance/[id]/page.tsx",
-                                                                                lineNumber: 730,
+                                                                                lineNumber: 742,
                                                                                 columnNumber: 27
                                                                             }, this)
                                                                         ]
                                                                     }, void 0, true, {
                                                                         fileName: "[project]/app/pages/edit_soutenance/[id]/page.tsx",
-                                                                        lineNumber: 726,
+                                                                        lineNumber: 738,
                                                                         columnNumber: 25
                                                                     }, this),
                                                                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$button$2e$tsx__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["Button"], {
@@ -3060,7 +3076,7 @@ function EditSoutenancePage({ params }) {
                                                                                     className: "mr-2 h-4 w-4 animate-spin"
                                                                                 }, void 0, false, {
                                                                                     fileName: "[project]/app/pages/edit_soutenance/[id]/page.tsx",
-                                                                                    lineNumber: 761,
+                                                                                    lineNumber: 773,
                                                                                     columnNumber: 31
                                                                                 }, this),
                                                                                 "Mise à jour..."
@@ -3071,7 +3087,7 @@ function EditSoutenancePage({ params }) {
                                                                                     className: "mr-2 h-4 w-4"
                                                                                 }, void 0, false, {
                                                                                     fileName: "[project]/app/pages/edit_soutenance/[id]/page.tsx",
-                                                                                    lineNumber: 766,
+                                                                                    lineNumber: 778,
                                                                                     columnNumber: 31
                                                                                 }, this),
                                                                                 "Appliquer le statut"
@@ -3079,19 +3095,19 @@ function EditSoutenancePage({ params }) {
                                                                         }, void 0, true)
                                                                     }, void 0, false, {
                                                                         fileName: "[project]/app/pages/edit_soutenance/[id]/page.tsx",
-                                                                        lineNumber: 758,
+                                                                        lineNumber: 770,
                                                                         columnNumber: 25
                                                                     }, this)
                                                                 ]
                                                             }, void 0, true, {
                                                                 fileName: "[project]/app/pages/edit_soutenance/[id]/page.tsx",
-                                                                lineNumber: 725,
+                                                                lineNumber: 737,
                                                                 columnNumber: 23
                                                             }, this)
                                                         ]
                                                     }, void 0, true, {
                                                         fileName: "[project]/app/pages/edit_soutenance/[id]/page.tsx",
-                                                        lineNumber: 723,
+                                                        lineNumber: 735,
                                                         columnNumber: 21
                                                     }, this),
                                                     selectedSoutenanceIds.length > 0 && /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -3103,7 +3119,7 @@ function EditSoutenancePage({ params }) {
                                                                     className: "h-4 w-4 text-primary"
                                                                 }, void 0, false, {
                                                                     fileName: "[project]/app/pages/edit_soutenance/[id]/page.tsx",
-                                                                    lineNumber: 777,
+                                                                    lineNumber: 789,
                                                                     columnNumber: 27
                                                                 }, this),
                                                                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("span", {
@@ -3112,69 +3128,69 @@ function EditSoutenancePage({ params }) {
                                                                             children: selectedSoutenanceIds.length
                                                                         }, void 0, false, {
                                                                             fileName: "[project]/app/pages/edit_soutenance/[id]/page.tsx",
-                                                                            lineNumber: 778,
+                                                                            lineNumber: 790,
                                                                             columnNumber: 33
                                                                         }, this),
                                                                         " soutenance(s) sélectionnée(s)"
                                                                     ]
                                                                 }, void 0, true, {
                                                                     fileName: "[project]/app/pages/edit_soutenance/[id]/page.tsx",
-                                                                    lineNumber: 778,
+                                                                    lineNumber: 790,
                                                                     columnNumber: 27
                                                                 }, this)
                                                             ]
                                                         }, void 0, true, {
                                                             fileName: "[project]/app/pages/edit_soutenance/[id]/page.tsx",
-                                                            lineNumber: 776,
+                                                            lineNumber: 788,
                                                             columnNumber: 25
                                                         }, this)
                                                     }, void 0, false, {
                                                         fileName: "[project]/app/pages/edit_soutenance/[id]/page.tsx",
-                                                        lineNumber: 775,
+                                                        lineNumber: 787,
                                                         columnNumber: 23
                                                     }, this)
                                                 ]
                                             }, void 0, true, {
                                                 fileName: "[project]/app/pages/edit_soutenance/[id]/page.tsx",
-                                                lineNumber: 674,
+                                                lineNumber: 686,
                                                 columnNumber: 19
                                             }, this)
                                         }, void 0, false, {
                                             fileName: "[project]/app/pages/edit_soutenance/[id]/page.tsx",
-                                            lineNumber: 673,
+                                            lineNumber: 685,
                                             columnNumber: 17
                                         }, this)
                                     }, void 0, false, {
                                         fileName: "[project]/app/pages/edit_soutenance/[id]/page.tsx",
-                                        lineNumber: 672,
+                                        lineNumber: 684,
                                         columnNumber: 15
                                     }, this)
                                 ]
                             }, void 0, true, {
                                 fileName: "[project]/app/pages/edit_soutenance/[id]/page.tsx",
-                                lineNumber: 667,
+                                lineNumber: 679,
                                 columnNumber: 13
                             }, this)
                         }, void 0, false, {
                             fileName: "[project]/app/pages/edit_soutenance/[id]/page.tsx",
-                            lineNumber: 666,
+                            lineNumber: 678,
                             columnNumber: 11
                         }, this)
                     ]
                 }, void 0, true, {
                     fileName: "[project]/app/pages/edit_soutenance/[id]/page.tsx",
-                    lineNumber: 361,
+                    lineNumber: 373,
                     columnNumber: 9
                 }, this)
             ]
         }, void 0, true, {
             fileName: "[project]/app/pages/edit_soutenance/[id]/page.tsx",
-            lineNumber: 347,
+            lineNumber: 359,
             columnNumber: 7
         }, this)
     }, void 0, false, {
         fileName: "[project]/app/pages/edit_soutenance/[id]/page.tsx",
-        lineNumber: 346,
+        lineNumber: 358,
         columnNumber: 5
     }, this);
 }
