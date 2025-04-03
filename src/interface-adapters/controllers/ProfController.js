@@ -1,35 +1,29 @@
 /* eslint-disable @typescript-eslint/no-unused-vars */
-// src/controllers/ProfController.js
 import { GetProfDocuments } from "../../application/use-cases/prof/GetProfDocuments.js";
 import { ValidateProfDocument } from "../../application/use-cases/prof/ValidateProfDocument.js";
 import { DeleteProfValidation } from "../../application/use-cases/prof/DeleteProfValidation.js";
 import { GetSoutenancesByEncadrant } from "../../application/use-cases/prof/GetSoutenancesByEncadrant.js";
+
 export class ProfController {
-    constructor(
-        getProfDocuments,
-        validateProfDocument,
-        deleteProfValidation,
-        getSoutenancesByEncadrantUseCase
-      ) {
-        this.getProfDocuments = getProfDocuments;
-        this.validateProfDocument = validateProfDocument;
-        this.deleteProfValidation = deleteProfValidation;
-        this.getSoutenancesByEncadrantUseCase = getSoutenancesByEncadrantUseCase;
-    
-        // Auto-bind all methods
-        const methods = [
-          'getDocuments',
-          'validateDocument',
-          'deleteValidation',
-          'getSoutenancesByEncadrant'
-        ];
-        methods.forEach(method => {
-          if (this[method]) {
-            this[method] = this[method].bind(this);
-          }
-        });
-      }
-    
+  constructor(
+    getProfDocuments,
+    validateProfDocument,
+    deleteProfValidation,
+    getSoutenancesByEncadrantUseCase,
+    generateSoutenancePdfUseCase
+  ) {
+    this.getProfDocuments = getProfDocuments;
+    this.validateProfDocument = validateProfDocument;
+    this.deleteProfValidation = deleteProfValidation;
+    this.getSoutenancesByEncadrantUseCase = getSoutenancesByEncadrantUseCase;
+    this.generateSoutenancePdfUseCase = generateSoutenancePdfUseCase;
+
+    this.getDocuments = this.getDocuments.bind(this);
+    this.validateDocument = this.validateDocument.bind(this);
+    this.deleteValidation = this.deleteValidation.bind(this);
+    this.getSoutenancesByEncadrant = this.getSoutenancesByEncadrant.bind(this);
+    this.generateSoutenancePdf = this.generateSoutenancePdf.bind(this);
+  }
 
   async getDocuments(req, res) {
     const { idEncadrant } = req.query;
@@ -97,7 +91,7 @@ export class ProfController {
       if (!idEncadrant) {
         return res.status(400).json({ error: "Missing idEncadrant parameter" });
       }
-  
+    
       const soutenances = await this.getSoutenancesByEncadrantUseCase.execute(
         idEncadrant, 
         year
@@ -109,6 +103,32 @@ export class ProfController {
       res.status(500).json({ 
         error: "Failed to fetch soutenances",
         details: err.message 
+      });
+    }
+  }
+
+  async generateSoutenancePdf(req, res) {
+    try {
+      const { idSoutenance } = req.params;
+      if (!this.generateSoutenancePdfUseCase) {
+        return res.status(501).json({ error: "PDF generation service not implemented" });
+      }
+      const pdfBuffer = await this.generateSoutenancePdfUseCase.execute(idSoutenance);
+      if (!pdfBuffer || !(pdfBuffer instanceof Buffer)) {
+        return res.status(404).json({ error: "PDF generation failed - no data returned" });
+      }
+      res.set({
+        'Content-Type': 'application/pdf',
+        'Content-Disposition': `attachment; filename=soutenance_${idSoutenance}.pdf`,
+        'Content-Length': pdfBuffer.length
+      });
+      return res.send(pdfBuffer);
+    } catch (error) {
+      console.error("PDF Generation Error:", error);
+      return res.status(500).json({ 
+        error: "PDF generation failed",
+        details: error.message,
+        stack: process.env.NODE_ENV === 'development' ? error.stack : undefined
       });
     }
   }

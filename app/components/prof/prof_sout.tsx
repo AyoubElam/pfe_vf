@@ -23,6 +23,7 @@ import {
   XCircle,
   AlertCircle,
   FileUp,
+  FileText,
 } from "lucide-react";
 import { format, parseISO } from "date-fns";
 import { fr } from "date-fns/locale";
@@ -36,6 +37,8 @@ interface Soutenance {
   juryNames: string[] | string | null;
   status: string;
   idGroupe: number;
+  subjectTitle?: string;
+  studentNames?: string;
 }
 
 interface StatusConfig {
@@ -134,7 +137,6 @@ export default function ProfSoutenancesPage() {
   const [yearFilter, setYearFilter] = useState("all");
   const router = useRouter();
 
-  // Replace with dynamic logic to get the current professor's ID (e.g., from auth)
   const idEncadrant = 1; // Example ID, replace with actual professor ID
 
   useEffect(() => {
@@ -161,8 +163,54 @@ export default function ProfSoutenancesPage() {
     fetchSoutenances();
   }, [idEncadrant, yearFilter]);
 
-  const groupName =
-    soutenances.length > 0 ? soutenances[0].nomGroupe : "Inconnu";
+  const handleDownloadPdf = async (idSoutenance: number) => {
+    try {
+      // Use full backend URL in development
+      const apiUrl = process.env.NODE_ENV === 'development' 
+        ? 'http://localhost:5000/api/prof/soutenances'
+        : '/api/prof/soutenances';
+  
+      const response = await fetch(`${apiUrl}/${idSoutenance}/pdf`, {
+        method: 'GET',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+      });
+  
+      if (!response.ok) {
+        const errorData = await response.json().catch(() => ({}));
+        throw new Error(
+          errorData.error || 
+          errorData.message || 
+          `Server responded with ${response.status}`
+        );
+      }
+  
+      const pdfBlob = await response.blob();
+      const url = window.URL.createObjectURL(pdfBlob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = `soutenance_${idSoutenance}.pdf`;
+      
+      document.body.appendChild(a);
+      a.click();
+      
+      window.URL.revokeObjectURL(url);
+      document.body.removeChild(a);
+  
+    } catch (error) {
+      console.error('PDF download error:', error);
+      
+      let errorMessage = 'Failed to download PDF';
+      if (error instanceof Error) {
+        errorMessage = error.message;
+      }
+      
+      alert(errorMessage);
+    }
+  };
+
+  const groupName = soutenances.length > 0 ? soutenances[0].nomGroupe : "Inconnu";
 
   if (loading) {
     return (
@@ -222,7 +270,6 @@ export default function ProfSoutenancesPage() {
             <span className="text-primary font-extrabold">{groupName}</span>
           </CardTitle>
           <div className="flex flex-col md:flex-row md:items-center gap-4">
-            {/* Year filter dropdown */}
             <div className="flex items-center gap-2">
               <label htmlFor="yearFilter" className="text-sm font-medium text-muted-foreground">
                 Année :
@@ -237,7 +284,6 @@ export default function ProfSoutenancesPage() {
                 <option value="2023">2023</option>
                 <option value="2024">2024</option>
                 <option value="2025">2025</option>
-                {/* Add more years as needed */}
               </select>
             </div>
             <Button
@@ -267,18 +313,36 @@ export default function ProfSoutenancesPage() {
                 key={soutenance.idSoutenance}
                 className="bg-card rounded-xl shadow-sm border border-border/50 p-6 hover:shadow-md transition-all duration-300 hover:-translate-y-1 relative overflow-hidden group w-full"
               >
-                {/* Status badge positioned at top right */}
                 <div className="absolute top-4 right-4">
                   <StatusBadge status={soutenance.status} />
                 </div>
-                {/* Decorative background element */}
-                <div className="absolute -top-10 -right-10 w-20 h-20 bg-primary/5 rounded-full blur-xl group-hover:bg-primary/10 transition-all duration-500"></div>
-                <div className="flex flex-col space-y-6">
+                
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  className="absolute top-4 left-4 gap-1.5 text-sm"
+                  onClick={() => handleDownloadPdf(
+                    soutenance.idSoutenance,
+                    soutenance.nomGroupe,
+                    soutenance.date
+                  )}
+                >
+                  <FileText className="h-4 w-4" />
+                  Télécharger PDF
+                </Button>
+
+                <div className="flex flex-col space-y-6 pt-8">
                   <div className="flex items-center gap-2">
                     <Badge variant="secondary" className="px-3 py-1 text-sm font-medium">
                       {soutenance.nomGroupe}
                     </Badge>
+                    {soutenance.subjectTitle && (
+                      <Badge variant="outline" className="text-sm">
+                        {soutenance.subjectTitle}
+                      </Badge>
+                    )}
                   </div>
+                  
                   <div className="grid grid-cols-1 gap-4">
                     <div className="flex items-center gap-3 text-foreground">
                       <div className="bg-primary/10 p-2 rounded-full">
@@ -291,6 +355,7 @@ export default function ProfSoutenancesPage() {
                         </div>
                       </div>
                     </div>
+                    
                     <div className="flex items-center gap-3 text-foreground">
                       <div className="bg-primary/10 p-2 rounded-full">
                         <Clock className="h-5 w-5 text-primary" />
@@ -300,6 +365,7 @@ export default function ProfSoutenancesPage() {
                         <div className="font-medium">{soutenance.time}</div>
                       </div>
                     </div>
+                    
                     <div className="flex items-center gap-3 text-foreground">
                       <div className="bg-primary/10 p-2 rounded-full">
                         <MapPin className="h-5 w-5 text-primary" />
@@ -309,6 +375,7 @@ export default function ProfSoutenancesPage() {
                         <div className="font-medium">{soutenance.location}</div>
                       </div>
                     </div>
+                    
                     <div className="flex items-center gap-3 text-foreground">
                       <div className="bg-primary/10 p-2 rounded-full">
                         <Users className="h-5 w-5 text-primary" />
@@ -318,6 +385,18 @@ export default function ProfSoutenancesPage() {
                         <div className="font-medium">{formatJuryNames(soutenance.juryNames)}</div>
                       </div>
                     </div>
+                    
+                    {soutenance.studentNames && (
+                      <div className="flex items-center gap-3 text-foreground">
+                        <div className="bg-primary/10 p-2 rounded-full">
+                          <Users className="h-5 w-5 text-primary" />
+                        </div>
+                        <div>
+                          <div className="text-sm text-muted-foreground">Étudiants</div>
+                          <div className="font-medium">{soutenance.studentNames}</div>
+                        </div>
+                      </div>
+                    )}
                   </div>
                 </div>
               </div>

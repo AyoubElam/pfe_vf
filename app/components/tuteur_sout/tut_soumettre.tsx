@@ -58,7 +58,7 @@ export default function TuteurGroupDocumentsPage() {
     setIsLoading(true);
     setFetchError(null);
     try {
-      const response = await fetch(`http://localhost:5000/api/group-documents?idTuteur=${idTuteur}`);
+      const response = await fetch(`http://localhost:5000/api/tutor/group-documents?idTuteur=${idTuteur}`);
       if (!response.ok) {
         const errorData = await response.json();
         throw new Error(errorData.error || "Impossible de récupérer les documents du groupe");

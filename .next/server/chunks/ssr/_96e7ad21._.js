@@ -310,7 +310,8 @@ function SoutenancesPage() {
         const fetchSoutenances = async ()=>{
             try {
                 setLoading(true);
-                const response = await fetch(`http://localhost:5000/api/soutenances/tuteur/${idTuteur}`);
+                // In sout_table.tsx
+                const response = await fetch(`http://localhost:5000/api/tutor/soutenances/tuteur/${idTuteur}`);
                 if (!response.ok) {
                     throw new Error("Failed to fetch soutenances");
                 }

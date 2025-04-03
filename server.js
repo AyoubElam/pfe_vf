@@ -22,6 +22,7 @@ const app = express();
 const PORT = process.env.PORT || 5000;
 const UPLOADS_DIR = path.join(process.cwd(), "uploads");
 const CORS_ORIGIN = process.env.CORS_ORIGIN || "http://localhost:3000";
+const PDF_DIR = path.join(process.cwd(), "generated-pdfs"); // New PDF directory
 
 // Middleware
 app.use(cors({
@@ -41,8 +42,8 @@ app.use("/uploads", express.static(UPLOADS_DIR));
 const API_PREFIX = "/api";
 const routes = [
   { path: `${API_PREFIX}/prof`, router: profRoutes },
-  { path: `${API_PREFIX}/tutor`, router: tutorRoutes }, // More consistent naming
-  { path: `${API_PREFIX}/student`, router: studentRoutes },
+  { path: `${API_PREFIX}/tutor`, router: tutorRoutes },
+  { path: `${API_PREFIX}/etu`, router: studentRoutes },
   { path: `${API_PREFIX}/validate_document`, router: validationRoutes },
   { path: `${API_PREFIX}/soutenance`, router: soutenanceRoutes },
   { path: `${API_PREFIX}/documents`, router: documentRoutes },
@@ -61,7 +62,8 @@ app.get(`${API_PREFIX}/health`, (req, res) => {
   res.status(200).json({ 
     status: "OK",
     timestamp: new Date().toISOString(),
-    uptime: process.uptime()
+    uptime: process.uptime() ,
+    pdfDirectory: PDF_DIR // Include in health check
   });
 });
 
@@ -96,7 +98,9 @@ app.use((err, req, res, next) => {
 app.listen(PORT, () => {
   console.log(`✅ Server running on http://localhost:${PORT}`);
   console.log(`📁 Uploads directory: ${UPLOADS_DIR}`);
+  console.log(`📄 PDF storage directory: ${PDF_DIR}`); // New log 
   console.log(`🌐 CORS allowed origin: ${CORS_ORIGIN}`);
+  
 });
 
 // Handle shutdown gracefully
