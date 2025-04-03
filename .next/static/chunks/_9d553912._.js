@@ -738,7 +738,7 @@ if (typeof globalThis.$RefreshHelpers$ === 'object' && globalThis.$RefreshHelper
 
 var { g: global, __dirname, k: __turbopack_refresh__, m: module } = __turbopack_context__;
 {
-__turbopack_context__.s({
+/* eslint-disable @typescript-eslint/no-explicit-any */ __turbopack_context__.s({
     "default": (()=>EncadrantGroupDocumentsPage)
 });
 var __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__ = __turbopack_context__.i("[project]/node_modules/next/dist/compiled/react/jsx-dev-runtime.js [app-client] (ecmascript)");
@@ -813,14 +813,14 @@ function EncadrantGroupDocumentsPage() {
             className: "h-5 w-5"
         }, void 0, false, {
             fileName: "[project]/app/components/prof/prof_soumettre.tsx",
-            lineNumber: 79,
+            lineNumber: 80,
             columnNumber: 10
         }, this),
         Presentation: /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$lucide$2d$react$2f$dist$2f$esm$2f$icons$2f$file$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__$3c$export__default__as__FileIcon$3e$__["FileIcon"], {
             className: "h-5 w-5"
         }, void 0, false, {
             fileName: "[project]/app/components/prof/prof_soumettre.tsx",
-            lineNumber: 80,
+            lineNumber: 81,
             columnNumber: 19
         }, this)
     };
@@ -829,7 +829,7 @@ function EncadrantGroupDocumentsPage() {
             setIsLoading(true);
             setFetchError(null);
             try {
-                const response = await fetch(`${API_BASE_URL}/api/prof-documents?idEncadrant=${idEncadrant}`);
+                const response = await fetch(`${API_BASE_URL}/api/prof/documents?idEncadrant=${idEncadrant}`);
                 if (!response.ok) {
                     const errorData = await response.json();
                     throw new Error(errorData.error || "Impossible de récupérer les documents des groupes");
@@ -868,7 +868,7 @@ function EncadrantGroupDocumentsPage() {
         };
         console.log("Submitting validation with payload:", JSON.stringify(payload, null, 2));
         try {
-            const response = await fetch(`${API_BASE_URL}/api/prof-documents/validate`, {
+            const response = await fetch(`${API_BASE_URL}/api/prof/documents/validate`, {
                 method: "POST",
                 headers: {
                     "Content-Type": "application/json"
@@ -891,7 +891,7 @@ function EncadrantGroupDocumentsPage() {
     const deleteValidation = async ()=>{
         if (!currentDoc) return;
         try {
-            const response = await fetch(`${API_BASE_URL}/api/prof-documents/validate?idPFE=${currentDoc.idPFE}&pfeLivrableId=${currentDoc.id}&idEncadrant=${idEncadrant}`, {
+            const response = await fetch(`${API_BASE_URL}/api/prof/documents/validate?idPFE=${currentDoc.idPFE}&pfeLivrableId=${currentDoc.id}&idEncadrant=${idEncadrant}`, {
                 method: "DELETE"
             });
             const responseData = await response.json();
@@ -921,7 +921,7 @@ function EncadrantGroupDocumentsPage() {
                     className: "h-4 w-4 text-green-500"
                 }, void 0, false, {
                     fileName: "[project]/app/components/prof/prof_soumettre.tsx",
-                    lineNumber: 177,
+                    lineNumber: 178,
                     columnNumber: 16
                 }, this);
             case "rejected":
@@ -929,7 +929,7 @@ function EncadrantGroupDocumentsPage() {
                     className: "h-4 w-4 text-red-500"
                 }, void 0, false, {
                     fileName: "[project]/app/components/prof/prof_soumettre.tsx",
-                    lineNumber: 179,
+                    lineNumber: 180,
                     columnNumber: 16
                 }, this);
             default:
@@ -937,7 +937,7 @@ function EncadrantGroupDocumentsPage() {
                     className: "h-4 w-4 text-amber-500"
                 }, void 0, false, {
                     fileName: "[project]/app/components/prof/prof_soumettre.tsx",
-                    lineNumber: 181,
+                    lineNumber: 182,
                     columnNumber: 16
                 }, this);
         }
@@ -1011,7 +1011,7 @@ function EncadrantGroupDocumentsPage() {
                                 children: "Documents des Groupes Encadrés"
                             }, void 0, false, {
                                 fileName: "[project]/app/components/prof/prof_soumettre.tsx",
-                                lineNumber: 227,
+                                lineNumber: 228,
                                 columnNumber: 11
                             }, this),
                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$card$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["CardDescription"], {
@@ -1019,13 +1019,13 @@ function EncadrantGroupDocumentsPage() {
                                 children: "Consultez et validez les documents soumis par vos groupes supervisés"
                             }, void 0, false, {
                                 fileName: "[project]/app/components/prof/prof_soumettre.tsx",
-                                lineNumber: 230,
+                                lineNumber: 231,
                                 columnNumber: 11
                             }, this)
                         ]
                     }, void 0, true, {
                         fileName: "[project]/app/components/prof/prof_soumettre.tsx",
-                        lineNumber: 226,
+                        lineNumber: 227,
                         columnNumber: 9
                     }, this),
                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$card$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["CardContent"], {
@@ -1039,27 +1039,27 @@ function EncadrantGroupDocumentsPage() {
                                         className: "h-4 w-4"
                                     }, void 0, false, {
                                         fileName: "[project]/app/components/prof/prof_soumettre.tsx",
-                                        lineNumber: 238,
+                                        lineNumber: 239,
                                         columnNumber: 15
                                     }, this),
                                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$alert$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["AlertTitle"], {
                                         children: "Erreur"
                                     }, void 0, false, {
                                         fileName: "[project]/app/components/prof/prof_soumettre.tsx",
-                                        lineNumber: 239,
+                                        lineNumber: 240,
                                         columnNumber: 15
                                     }, this),
                                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$alert$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["AlertDescription"], {
                                         children: fetchError
                                     }, void 0, false, {
                                         fileName: "[project]/app/components/prof/prof_soumettre.tsx",
-                                        lineNumber: 240,
+                                        lineNumber: 241,
                                         columnNumber: 15
                                     }, this)
                                 ]
                             }, void 0, true, {
                                 fileName: "[project]/app/components/prof/prof_soumettre.tsx",
-                                lineNumber: 237,
+                                lineNumber: 238,
                                 columnNumber: 13
                             }, this),
                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$tabs$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["Tabs"], {
@@ -1079,7 +1079,7 @@ function EncadrantGroupDocumentsPage() {
                                                         children: "Tous"
                                                     }, void 0, false, {
                                                         fileName: "[project]/app/components/prof/prof_soumettre.tsx",
-                                                        lineNumber: 246,
+                                                        lineNumber: 247,
                                                         columnNumber: 17
                                                     }, this),
                                                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$tabs$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["TabsTrigger"], {
@@ -1088,7 +1088,7 @@ function EncadrantGroupDocumentsPage() {
                                                         children: "En attente"
                                                     }, void 0, false, {
                                                         fileName: "[project]/app/components/prof/prof_soumettre.tsx",
-                                                        lineNumber: 249,
+                                                        lineNumber: 250,
                                                         columnNumber: 17
                                                     }, this),
                                                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$tabs$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["TabsTrigger"], {
@@ -1097,7 +1097,7 @@ function EncadrantGroupDocumentsPage() {
                                                         children: "Validés"
                                                     }, void 0, false, {
                                                         fileName: "[project]/app/components/prof/prof_soumettre.tsx",
-                                                        lineNumber: 252,
+                                                        lineNumber: 253,
                                                         columnNumber: 17
                                                     }, this),
                                                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$tabs$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["TabsTrigger"], {
@@ -1106,13 +1106,13 @@ function EncadrantGroupDocumentsPage() {
                                                         children: "Rejetés"
                                                     }, void 0, false, {
                                                         fileName: "[project]/app/components/prof/prof_soumettre.tsx",
-                                                        lineNumber: 255,
+                                                        lineNumber: 256,
                                                         columnNumber: 17
                                                     }, this)
                                                 ]
                                             }, void 0, true, {
                                                 fileName: "[project]/app/components/prof/prof_soumettre.tsx",
-                                                lineNumber: 245,
+                                                lineNumber: 246,
                                                 columnNumber: 15
                                             }, this),
                                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -1131,19 +1131,19 @@ function EncadrantGroupDocumentsPage() {
                                                                             className: "h-3.5 w-3.5 mr-1.5"
                                                                         }, void 0, false, {
                                                                             fileName: "[project]/app/components/prof/prof_soumettre.tsx",
-                                                                            lineNumber: 263,
+                                                                            lineNumber: 264,
                                                                             columnNumber: 23
                                                                         }, this),
                                                                         activeFilter ? `Groupe: ${activeFilter}` : "Filtrer par groupe"
                                                                     ]
                                                                 }, void 0, true, {
                                                                     fileName: "[project]/app/components/prof/prof_soumettre.tsx",
-                                                                    lineNumber: 262,
+                                                                    lineNumber: 263,
                                                                     columnNumber: 21
                                                                 }, this)
                                                             }, void 0, false, {
                                                                 fileName: "[project]/app/components/prof/prof_soumettre.tsx",
-                                                                lineNumber: 261,
+                                                                lineNumber: 262,
                                                                 columnNumber: 19
                                                             }, this),
                                                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$dropdown$2d$menu$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["DropdownMenuContent"], {
@@ -1154,7 +1154,7 @@ function EncadrantGroupDocumentsPage() {
                                                                         children: "Tous les groupes"
                                                                     }, void 0, false, {
                                                                         fileName: "[project]/app/components/prof/prof_soumettre.tsx",
-                                                                        lineNumber: 269,
+                                                                        lineNumber: 270,
                                                                         columnNumber: 23
                                                                     }, this),
                                                                     uniqueGroups.map((group)=>/*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$dropdown$2d$menu$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["DropdownMenuItem"], {
@@ -1162,19 +1162,19 @@ function EncadrantGroupDocumentsPage() {
                                                                             children: group
                                                                         }, group, false, {
                                                                             fileName: "[project]/app/components/prof/prof_soumettre.tsx",
-                                                                            lineNumber: 272,
+                                                                            lineNumber: 273,
                                                                             columnNumber: 23
                                                                         }, this))
                                                                 ]
                                                             }, void 0, true, {
                                                                 fileName: "[project]/app/components/prof/prof_soumettre.tsx",
-                                                                lineNumber: 267,
+                                                                lineNumber: 268,
                                                                 columnNumber: 19
                                                             }, this)
                                                         ]
                                                     }, void 0, true, {
                                                         fileName: "[project]/app/components/prof/prof_soumettre.tsx",
-                                                        lineNumber: 260,
+                                                        lineNumber: 261,
                                                         columnNumber: 17
                                                     }, this),
                                                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$button$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["Button"], {
@@ -1188,26 +1188,26 @@ function EncadrantGroupDocumentsPage() {
                                                                 className: `h-3.5 w-3.5 mr-1.5 ${isLoading ? "animate-spin" : ""}`
                                                             }, void 0, false, {
                                                                 fileName: "[project]/app/components/prof/prof_soumettre.tsx",
-                                                                lineNumber: 285,
+                                                                lineNumber: 286,
                                                                 columnNumber: 19
                                                             }, this),
                                                             "Actualiser"
                                                         ]
                                                     }, void 0, true, {
                                                         fileName: "[project]/app/components/prof/prof_soumettre.tsx",
-                                                        lineNumber: 278,
+                                                        lineNumber: 279,
                                                         columnNumber: 17
                                                     }, this)
                                                 ]
                                             }, void 0, true, {
                                                 fileName: "[project]/app/components/prof/prof_soumettre.tsx",
-                                                lineNumber: 259,
+                                                lineNumber: 260,
                                                 columnNumber: 15
                                             }, this)
                                         ]
                                     }, void 0, true, {
                                         fileName: "[project]/app/components/prof/prof_soumettre.tsx",
-                                        lineNumber: 244,
+                                        lineNumber: 245,
                                         columnNumber: 13
                                     }, this),
                                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$tabs$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["TabsContent"], {
@@ -1224,7 +1224,7 @@ function EncadrantGroupDocumentsPage() {
                                                                 className: "h-5 w-5 text-primary"
                                                             }, void 0, false, {
                                                                 fileName: "[project]/app/components/prof/prof_soumettre.tsx",
-                                                                lineNumber: 294,
+                                                                lineNumber: 295,
                                                                 columnNumber: 19
                                                             }, this),
                                                             "Documents ",
@@ -1238,13 +1238,13 @@ function EncadrantGroupDocumentsPage() {
                                                                 ]
                                                             }, void 0, true, {
                                                                 fileName: "[project]/app/components/prof/prof_soumettre.tsx",
-                                                                lineNumber: 297,
+                                                                lineNumber: 298,
                                                                 columnNumber: 21
                                                             }, this)
                                                         ]
                                                     }, void 0, true, {
                                                         fileName: "[project]/app/components/prof/prof_soumettre.tsx",
-                                                        lineNumber: 293,
+                                                        lineNumber: 294,
                                                         columnNumber: 17
                                                     }, this),
                                                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$badge$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["Badge"], {
@@ -1255,7 +1255,7 @@ function EncadrantGroupDocumentsPage() {
                                                                 className: "h-3.5 w-3.5 mr-1.5"
                                                             }, void 0, false, {
                                                                 fileName: "[project]/app/components/prof/prof_soumettre.tsx",
-                                                                lineNumber: 303,
+                                                                lineNumber: 304,
                                                                 columnNumber: 19
                                                             }, this),
                                                             filteredDocuments.length,
@@ -1264,13 +1264,13 @@ function EncadrantGroupDocumentsPage() {
                                                         ]
                                                     }, void 0, true, {
                                                         fileName: "[project]/app/components/prof/prof_soumettre.tsx",
-                                                        lineNumber: 302,
+                                                        lineNumber: 303,
                                                         columnNumber: 17
                                                     }, this)
                                                 ]
                                             }, void 0, true, {
                                                 fileName: "[project]/app/components/prof/prof_soumettre.tsx",
-                                                lineNumber: 292,
+                                                lineNumber: 293,
                                                 columnNumber: 15
                                             }, this),
                                             isLoading ? /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -1280,7 +1280,7 @@ function EncadrantGroupDocumentsPage() {
                                                         className: "h-5 w-5 animate-spin mr-2 text-primary"
                                                     }, void 0, false, {
                                                         fileName: "[project]/app/components/prof/prof_soumettre.tsx",
-                                                        lineNumber: 310,
+                                                        lineNumber: 311,
                                                         columnNumber: 19
                                                     }, this),
                                                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("p", {
@@ -1288,13 +1288,13 @@ function EncadrantGroupDocumentsPage() {
                                                         children: "Chargement des documents..."
                                                     }, void 0, false, {
                                                         fileName: "[project]/app/components/prof/prof_soumettre.tsx",
-                                                        lineNumber: 311,
+                                                        lineNumber: 312,
                                                         columnNumber: 19
                                                     }, this)
                                                 ]
                                             }, void 0, true, {
                                                 fileName: "[project]/app/components/prof/prof_soumettre.tsx",
-                                                lineNumber: 309,
+                                                lineNumber: 310,
                                                 columnNumber: 17
                                             }, this) : filteredDocuments.length > 0 ? /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
                                                 className: "space-y-4",
@@ -1313,12 +1313,12 @@ function EncadrantGroupDocumentsPage() {
                                                                                     className: "h-5 w-5"
                                                                                 }, void 0, false, {
                                                                                     fileName: "[project]/app/components/prof/prof_soumettre.tsx",
-                                                                                    lineNumber: 323,
+                                                                                    lineNumber: 324,
                                                                                     columnNumber: 57
                                                                                 }, this)
                                                                             }, void 0, false, {
                                                                                 fileName: "[project]/app/components/prof/prof_soumettre.tsx",
-                                                                                lineNumber: 322,
+                                                                                lineNumber: 323,
                                                                                 columnNumber: 27
                                                                             }, this),
                                                                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -1328,7 +1328,7 @@ function EncadrantGroupDocumentsPage() {
                                                                                         children: livrableNames[doc.type]
                                                                                     }, void 0, false, {
                                                                                         fileName: "[project]/app/components/prof/prof_soumettre.tsx",
-                                                                                        lineNumber: 326,
+                                                                                        lineNumber: 327,
                                                                                         columnNumber: 29
                                                                                     }, this),
                                                                                     doc.subjectTitle && /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -1339,7 +1339,7 @@ function EncadrantGroupDocumentsPage() {
                                                                                         ]
                                                                                     }, void 0, true, {
                                                                                         fileName: "[project]/app/components/prof/prof_soumettre.tsx",
-                                                                                        lineNumber: 328,
+                                                                                        lineNumber: 329,
                                                                                         columnNumber: 31
                                                                                     }, this),
                                                                                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -1356,7 +1356,7 @@ function EncadrantGroupDocumentsPage() {
                                                                                                 ]
                                                                                             }, void 0, true, {
                                                                                                 fileName: "[project]/app/components/prof/prof_soumettre.tsx",
-                                                                                                lineNumber: 331,
+                                                                                                lineNumber: 332,
                                                                                                 columnNumber: 31
                                                                                             }, this),
                                                                                             doc.authorName && /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$badge$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["Badge"], {
@@ -1365,7 +1365,7 @@ function EncadrantGroupDocumentsPage() {
                                                                                                 children: doc.authorName
                                                                                             }, void 0, false, {
                                                                                                 fileName: "[project]/app/components/prof/prof_soumettre.tsx",
-                                                                                                lineNumber: 335,
+                                                                                                lineNumber: 336,
                                                                                                 columnNumber: 33
                                                                                             }, this),
                                                                                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$badge$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["Badge"], {
@@ -1378,30 +1378,30 @@ function EncadrantGroupDocumentsPage() {
                                                                                                     ]
                                                                                                 }, void 0, true, {
                                                                                                     fileName: "[project]/app/components/prof/prof_soumettre.tsx",
-                                                                                                    lineNumber: 344,
+                                                                                                    lineNumber: 345,
                                                                                                     columnNumber: 33
                                                                                                 }, this)
                                                                                             }, void 0, false, {
                                                                                                 fileName: "[project]/app/components/prof/prof_soumettre.tsx",
-                                                                                                lineNumber: 339,
+                                                                                                lineNumber: 340,
                                                                                                 columnNumber: 31
                                                                                             }, this)
                                                                                         ]
                                                                                     }, void 0, true, {
                                                                                         fileName: "[project]/app/components/prof/prof_soumettre.tsx",
-                                                                                        lineNumber: 330,
+                                                                                        lineNumber: 331,
                                                                                         columnNumber: 29
                                                                                     }, this)
                                                                                 ]
                                                                             }, void 0, true, {
                                                                                 fileName: "[project]/app/components/prof/prof_soumettre.tsx",
-                                                                                lineNumber: 325,
+                                                                                lineNumber: 326,
                                                                                 columnNumber: 27
                                                                             }, this)
                                                                         ]
                                                                     }, void 0, true, {
                                                                         fileName: "[project]/app/components/prof/prof_soumettre.tsx",
-                                                                        lineNumber: 321,
+                                                                        lineNumber: 322,
                                                                         columnNumber: 25
                                                                     }, this),
                                                                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -1420,19 +1420,19 @@ function EncadrantGroupDocumentsPage() {
                                                                                             className: "h-3.5 w-3.5 mr-1.5"
                                                                                         }, void 0, false, {
                                                                                             fileName: "[project]/app/components/prof/prof_soumettre.tsx",
-                                                                                            lineNumber: 355,
+                                                                                            lineNumber: 356,
                                                                                             columnNumber: 31
                                                                                         }, this),
                                                                                         "Télécharger"
                                                                                     ]
                                                                                 }, void 0, true, {
                                                                                     fileName: "[project]/app/components/prof/prof_soumettre.tsx",
-                                                                                    lineNumber: 354,
+                                                                                    lineNumber: 355,
                                                                                     columnNumber: 29
                                                                                 }, this)
                                                                             }, void 0, false, {
                                                                                 fileName: "[project]/app/components/prof/prof_soumettre.tsx",
-                                                                                lineNumber: 353,
+                                                                                lineNumber: 354,
                                                                                 columnNumber: 27
                                                                             }, this),
                                                                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$button$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["Button"], {
@@ -1445,14 +1445,14 @@ function EncadrantGroupDocumentsPage() {
                                                                                         className: "h-3.5 w-3.5 mr-1.5"
                                                                                     }, void 0, false, {
                                                                                         fileName: "[project]/app/components/prof/prof_soumettre.tsx",
-                                                                                        lineNumber: 365,
+                                                                                        lineNumber: 366,
                                                                                         columnNumber: 29
                                                                                     }, this),
                                                                                     "Prévisualiser"
                                                                                 ]
                                                                             }, void 0, true, {
                                                                                 fileName: "[project]/app/components/prof/prof_soumettre.tsx",
-                                                                                lineNumber: 359,
+                                                                                lineNumber: 360,
                                                                                 columnNumber: 27
                                                                             }, this),
                                                                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$button$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["Button"], {
@@ -1465,26 +1465,26 @@ function EncadrantGroupDocumentsPage() {
                                                                                         className: "h-3.5 w-3.5 mr-1.5"
                                                                                     }, void 0, false, {
                                                                                         fileName: "[project]/app/components/prof/prof_soumettre.tsx",
-                                                                                        lineNumber: 374,
+                                                                                        lineNumber: 375,
                                                                                         columnNumber: 29
                                                                                     }, this),
                                                                                     doc.validationStatus ? "Modifier" : "Valider"
                                                                                 ]
                                                                             }, void 0, true, {
                                                                                 fileName: "[project]/app/components/prof/prof_soumettre.tsx",
-                                                                                lineNumber: 368,
+                                                                                lineNumber: 369,
                                                                                 columnNumber: 27
                                                                             }, this)
                                                                         ]
                                                                     }, void 0, true, {
                                                                         fileName: "[project]/app/components/prof/prof_soumettre.tsx",
-                                                                        lineNumber: 352,
+                                                                        lineNumber: 353,
                                                                         columnNumber: 25
                                                                     }, this)
                                                                 ]
                                                             }, void 0, true, {
                                                                 fileName: "[project]/app/components/prof/prof_soumettre.tsx",
-                                                                lineNumber: 320,
+                                                                lineNumber: 321,
                                                                 columnNumber: 23
                                                             }, this),
                                                             doc.comment && /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -1495,7 +1495,7 @@ function EncadrantGroupDocumentsPage() {
                                                                         children: "Commentaire:"
                                                                     }, void 0, false, {
                                                                         fileName: "[project]/app/components/prof/prof_soumettre.tsx",
-                                                                        lineNumber: 381,
+                                                                        lineNumber: 382,
                                                                         columnNumber: 27
                                                                     }, this),
                                                                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -1503,24 +1503,24 @@ function EncadrantGroupDocumentsPage() {
                                                                         children: doc.comment
                                                                     }, void 0, false, {
                                                                         fileName: "[project]/app/components/prof/prof_soumettre.tsx",
-                                                                        lineNumber: 382,
+                                                                        lineNumber: 383,
                                                                         columnNumber: 27
                                                                     }, this)
                                                                 ]
                                                             }, void 0, true, {
                                                                 fileName: "[project]/app/components/prof/prof_soumettre.tsx",
-                                                                lineNumber: 380,
+                                                                lineNumber: 381,
                                                                 columnNumber: 25
                                                             }, this)
                                                         ]
                                                     }, `${doc.idPFE}-${doc.id}`, true, {
                                                         fileName: "[project]/app/components/prof/prof_soumettre.tsx",
-                                                        lineNumber: 316,
+                                                        lineNumber: 317,
                                                         columnNumber: 21
                                                     }, this))
                                             }, void 0, false, {
                                                 fileName: "[project]/app/components/prof/prof_soumettre.tsx",
-                                                lineNumber: 314,
+                                                lineNumber: 315,
                                                 columnNumber: 17
                                             }, this) : /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
                                                 className: "flex flex-col items-center justify-center p-8 bg-muted/10 rounded-xl border border-border/40",
@@ -1529,7 +1529,7 @@ function EncadrantGroupDocumentsPage() {
                                                         className: "h-8 w-8 text-muted-foreground mb-2"
                                                     }, void 0, false, {
                                                         fileName: "[project]/app/components/prof/prof_soumettre.tsx",
-                                                        lineNumber: 390,
+                                                        lineNumber: 391,
                                                         columnNumber: 19
                                                     }, this),
                                                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("p", {
@@ -1537,7 +1537,7 @@ function EncadrantGroupDocumentsPage() {
                                                         children: activeFilter ? `Aucun document ${activeTab !== "all" ? getStatusText(activeTab).toLowerCase() : ""} pour le groupe ${activeFilter}.` : activeTab !== "all" ? `Aucun document ${getStatusText(activeTab).toLowerCase()}.` : "Aucun document soumis par vos groupes pour le moment."
                                                     }, void 0, false, {
                                                         fileName: "[project]/app/components/prof/prof_soumettre.tsx",
-                                                        lineNumber: 391,
+                                                        lineNumber: 392,
                                                         columnNumber: 19
                                                     }, this),
                                                     (activeFilter || activeTab !== "all") && /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$button$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["Button"], {
@@ -1550,31 +1550,31 @@ function EncadrantGroupDocumentsPage() {
                                                         children: "Voir tous les documents"
                                                     }, void 0, false, {
                                                         fileName: "[project]/app/components/prof/prof_soumettre.tsx",
-                                                        lineNumber: 399,
+                                                        lineNumber: 400,
                                                         columnNumber: 21
                                                     }, this)
                                                 ]
                                             }, void 0, true, {
                                                 fileName: "[project]/app/components/prof/prof_soumettre.tsx",
-                                                lineNumber: 389,
+                                                lineNumber: 390,
                                                 columnNumber: 17
                                             }, this)
                                         ]
                                     }, void 0, true, {
                                         fileName: "[project]/app/components/prof/prof_soumettre.tsx",
-                                        lineNumber: 291,
+                                        lineNumber: 292,
                                         columnNumber: 13
                                     }, this)
                                 ]
                             }, void 0, true, {
                                 fileName: "[project]/app/components/prof/prof_soumettre.tsx",
-                                lineNumber: 243,
+                                lineNumber: 244,
                                 columnNumber: 11
                             }, this)
                         ]
                     }, void 0, true, {
                         fileName: "[project]/app/components/prof/prof_soumettre.tsx",
-                        lineNumber: 235,
+                        lineNumber: 236,
                         columnNumber: 9
                     }, this),
                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$card$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["CardFooter"], {
@@ -1588,7 +1588,7 @@ function EncadrantGroupDocumentsPage() {
                                 ]
                             }, void 0, true, {
                                 fileName: "[project]/app/components/prof/prof_soumettre.tsx",
-                                lineNumber: 417,
+                                lineNumber: 418,
                                 columnNumber: 11
                             }, this),
                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("p", {
@@ -1599,19 +1599,19 @@ function EncadrantGroupDocumentsPage() {
                                 ]
                             }, void 0, true, {
                                 fileName: "[project]/app/components/prof/prof_soumettre.tsx",
-                                lineNumber: 418,
+                                lineNumber: 419,
                                 columnNumber: 11
                             }, this)
                         ]
                     }, void 0, true, {
                         fileName: "[project]/app/components/prof/prof_soumettre.tsx",
-                        lineNumber: 416,
+                        lineNumber: 417,
                         columnNumber: 9
                     }, this)
                 ]
             }, void 0, true, {
                 fileName: "[project]/app/components/prof/prof_soumettre.tsx",
-                lineNumber: 225,
+                lineNumber: 226,
                 columnNumber: 7
             }, this),
             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$dialog$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["Dialog"], {
@@ -1626,7 +1626,7 @@ function EncadrantGroupDocumentsPage() {
                                     children: currentDoc?.validationStatus ? "Modifier la validation" : "Valider le document"
                                 }, void 0, false, {
                                     fileName: "[project]/app/components/prof/prof_soumettre.tsx",
-                                    lineNumber: 425,
+                                    lineNumber: 426,
                                     columnNumber: 13
                                 }, this),
                                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$dialog$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["DialogDescription"], {
@@ -1638,7 +1638,7 @@ function EncadrantGroupDocumentsPage() {
                                                 children: livrableNames[currentDoc.type]
                                             }, void 0, false, {
                                                 fileName: "[project]/app/components/prof/prof_soumettre.tsx",
-                                                lineNumber: 429,
+                                                lineNumber: 430,
                                                 columnNumber: 19
                                             }, this),
                                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$badge$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["Badge"], {
@@ -1646,24 +1646,24 @@ function EncadrantGroupDocumentsPage() {
                                                 children: currentDoc.nomGroupe
                                             }, void 0, false, {
                                                 fileName: "[project]/app/components/prof/prof_soumettre.tsx",
-                                                lineNumber: 430,
+                                                lineNumber: 431,
                                                 columnNumber: 19
                                             }, this)
                                         ]
                                     }, void 0, true, {
                                         fileName: "[project]/app/components/prof/prof_soumettre.tsx",
-                                        lineNumber: 428,
+                                        lineNumber: 429,
                                         columnNumber: 17
                                     }, this)
                                 }, void 0, false, {
                                     fileName: "[project]/app/components/prof/prof_soumettre.tsx",
-                                    lineNumber: 426,
+                                    lineNumber: 427,
                                     columnNumber: 13
                                 }, this)
                             ]
                         }, void 0, true, {
                             fileName: "[project]/app/components/prof/prof_soumettre.tsx",
-                            lineNumber: 424,
+                            lineNumber: 425,
                             columnNumber: 11
                         }, this),
                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -1677,7 +1677,7 @@ function EncadrantGroupDocumentsPage() {
                                             children: "Statut de validation"
                                         }, void 0, false, {
                                             fileName: "[project]/app/components/prof/prof_soumettre.tsx",
-                                            lineNumber: 438,
+                                            lineNumber: 439,
                                             columnNumber: 15
                                         }, this),
                                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$select$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["Select"], {
@@ -1689,12 +1689,12 @@ function EncadrantGroupDocumentsPage() {
                                                         placeholder: "Sélectionner un statut"
                                                     }, void 0, false, {
                                                         fileName: "[project]/app/components/prof/prof_soumettre.tsx",
-                                                        lineNumber: 444,
+                                                        lineNumber: 445,
                                                         columnNumber: 19
                                                     }, this)
                                                 }, void 0, false, {
                                                     fileName: "[project]/app/components/prof/prof_soumettre.tsx",
-                                                    lineNumber: 443,
+                                                    lineNumber: 444,
                                                     columnNumber: 17
                                                 }, this),
                                                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$select$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["SelectContent"], {
@@ -1708,19 +1708,19 @@ function EncadrantGroupDocumentsPage() {
                                                                         className: "h-4 w-4 text-amber-500"
                                                                     }, void 0, false, {
                                                                         fileName: "[project]/app/components/prof/prof_soumettre.tsx",
-                                                                        lineNumber: 449,
+                                                                        lineNumber: 450,
                                                                         columnNumber: 23
                                                                     }, this),
                                                                     "En attente"
                                                                 ]
                                                             }, void 0, true, {
                                                                 fileName: "[project]/app/components/prof/prof_soumettre.tsx",
-                                                                lineNumber: 448,
+                                                                lineNumber: 449,
                                                                 columnNumber: 21
                                                             }, this)
                                                         }, void 0, false, {
                                                             fileName: "[project]/app/components/prof/prof_soumettre.tsx",
-                                                            lineNumber: 447,
+                                                            lineNumber: 448,
                                                             columnNumber: 19
                                                         }, this),
                                                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$select$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["SelectItem"], {
@@ -1732,19 +1732,19 @@ function EncadrantGroupDocumentsPage() {
                                                                         className: "h-4 w-4 text-green-500"
                                                                     }, void 0, false, {
                                                                         fileName: "[project]/app/components/prof/prof_soumettre.tsx",
-                                                                        lineNumber: 455,
+                                                                        lineNumber: 456,
                                                                         columnNumber: 23
                                                                     }, this),
                                                                     "Validé"
                                                                 ]
                                                             }, void 0, true, {
                                                                 fileName: "[project]/app/components/prof/prof_soumettre.tsx",
-                                                                lineNumber: 454,
+                                                                lineNumber: 455,
                                                                 columnNumber: 21
                                                             }, this)
                                                         }, void 0, false, {
                                                             fileName: "[project]/app/components/prof/prof_soumettre.tsx",
-                                                            lineNumber: 453,
+                                                            lineNumber: 454,
                                                             columnNumber: 19
                                                         }, this),
                                                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$select$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["SelectItem"], {
@@ -1756,37 +1756,37 @@ function EncadrantGroupDocumentsPage() {
                                                                         className: "h-4 w-4 text-red-500"
                                                                     }, void 0, false, {
                                                                         fileName: "[project]/app/components/prof/prof_soumettre.tsx",
-                                                                        lineNumber: 461,
+                                                                        lineNumber: 462,
                                                                         columnNumber: 23
                                                                     }, this),
                                                                     "Rejeté"
                                                                 ]
                                                             }, void 0, true, {
                                                                 fileName: "[project]/app/components/prof/prof_soumettre.tsx",
-                                                                lineNumber: 460,
+                                                                lineNumber: 461,
                                                                 columnNumber: 21
                                                             }, this)
                                                         }, void 0, false, {
                                                             fileName: "[project]/app/components/prof/prof_soumettre.tsx",
-                                                            lineNumber: 459,
+                                                            lineNumber: 460,
                                                             columnNumber: 19
                                                         }, this)
                                                     ]
                                                 }, void 0, true, {
                                                     fileName: "[project]/app/components/prof/prof_soumettre.tsx",
-                                                    lineNumber: 446,
+                                                    lineNumber: 447,
                                                     columnNumber: 17
                                                 }, this)
                                             ]
                                         }, void 0, true, {
                                             fileName: "[project]/app/components/prof/prof_soumettre.tsx",
-                                            lineNumber: 439,
+                                            lineNumber: 440,
                                             columnNumber: 15
                                         }, this)
                                     ]
                                 }, void 0, true, {
                                     fileName: "[project]/app/components/prof/prof_soumettre.tsx",
-                                    lineNumber: 437,
+                                    lineNumber: 438,
                                     columnNumber: 13
                                 }, this),
                                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -1797,7 +1797,7 @@ function EncadrantGroupDocumentsPage() {
                                             children: "Commentaire"
                                         }, void 0, false, {
                                             fileName: "[project]/app/components/prof/prof_soumettre.tsx",
-                                            lineNumber: 469,
+                                            lineNumber: 470,
                                             columnNumber: 15
                                         }, this),
                                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$textarea$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["Textarea"], {
@@ -1809,19 +1809,19 @@ function EncadrantGroupDocumentsPage() {
                                             className: "resize-none"
                                         }, void 0, false, {
                                             fileName: "[project]/app/components/prof/prof_soumettre.tsx",
-                                            lineNumber: 470,
+                                            lineNumber: 471,
                                             columnNumber: 15
                                         }, this)
                                     ]
                                 }, void 0, true, {
                                     fileName: "[project]/app/components/prof/prof_soumettre.tsx",
-                                    lineNumber: 468,
+                                    lineNumber: 469,
                                     columnNumber: 13
                                 }, this)
                             ]
                         }, void 0, true, {
                             fileName: "[project]/app/components/prof/prof_soumettre.tsx",
-                            lineNumber: 436,
+                            lineNumber: 437,
                             columnNumber: 11
                         }, this),
                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$dialog$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["DialogFooter"], {
@@ -1837,19 +1837,19 @@ function EncadrantGroupDocumentsPage() {
                                                 className: "h-4 w-4 mr-2"
                                             }, void 0, false, {
                                                 fileName: "[project]/app/components/prof/prof_soumettre.tsx",
-                                                lineNumber: 485,
+                                                lineNumber: 486,
                                                 columnNumber: 19
                                             }, this),
                                             "Supprimer"
                                         ]
                                     }, void 0, true, {
                                         fileName: "[project]/app/components/prof/prof_soumettre.tsx",
-                                        lineNumber: 484,
+                                        lineNumber: 485,
                                         columnNumber: 17
                                     }, this)
                                 }, void 0, false, {
                                     fileName: "[project]/app/components/prof/prof_soumettre.tsx",
-                                    lineNumber: 482,
+                                    lineNumber: 483,
                                     columnNumber: 13
                                 }, this),
                                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -1862,7 +1862,7 @@ function EncadrantGroupDocumentsPage() {
                                             children: "Annuler"
                                         }, void 0, false, {
                                             fileName: "[project]/app/components/prof/prof_soumettre.tsx",
-                                            lineNumber: 491,
+                                            lineNumber: 492,
                                             columnNumber: 15
                                         }, this),
                                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$button$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["Button"], {
@@ -1874,7 +1874,7 @@ function EncadrantGroupDocumentsPage() {
                                                         className: "h-4 w-4 mr-2"
                                                     }, void 0, false, {
                                                         fileName: "[project]/app/components/prof/prof_soumettre.tsx",
-                                                        lineNumber: 497,
+                                                        lineNumber: 498,
                                                         columnNumber: 21
                                                     }, this),
                                                     "Modifier"
@@ -1882,36 +1882,36 @@ function EncadrantGroupDocumentsPage() {
                                             }, void 0, true) : "Soumettre"
                                         }, void 0, false, {
                                             fileName: "[project]/app/components/prof/prof_soumettre.tsx",
-                                            lineNumber: 494,
+                                            lineNumber: 495,
                                             columnNumber: 15
                                         }, this)
                                     ]
                                 }, void 0, true, {
                                     fileName: "[project]/app/components/prof/prof_soumettre.tsx",
-                                    lineNumber: 490,
+                                    lineNumber: 491,
                                     columnNumber: 13
                                 }, this)
                             ]
                         }, void 0, true, {
                             fileName: "[project]/app/components/prof/prof_soumettre.tsx",
-                            lineNumber: 481,
+                            lineNumber: 482,
                             columnNumber: 11
                         }, this)
                     ]
                 }, void 0, true, {
                     fileName: "[project]/app/components/prof/prof_soumettre.tsx",
-                    lineNumber: 423,
+                    lineNumber: 424,
                     columnNumber: 9
                 }, this)
             }, void 0, false, {
                 fileName: "[project]/app/components/prof/prof_soumettre.tsx",
-                lineNumber: 422,
+                lineNumber: 423,
                 columnNumber: 7
             }, this)
         ]
     }, void 0, true, {
         fileName: "[project]/app/components/prof/prof_soumettre.tsx",
-        lineNumber: 224,
+        lineNumber: 225,
         columnNumber: 5
     }, this);
 }

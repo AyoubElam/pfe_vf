@@ -1,3 +1,4 @@
+/* eslint-disable react/no-unescaped-entities */
   /* eslint-disable react/jsx-no-duplicate-props */
   "use client"
 
@@ -82,7 +83,7 @@
       setIsLoading(true);
       setFetchError(null);
       try {
-        const response = await fetch(`${API_BASE_URL}/api/livrable/documents?idEtudiant=${idEtudiant}`);
+        const response = await fetch(`${API_BASE_URL}/api/etu/documents?idEtudiant=${idEtudiant}`);
         if (!response.ok) throw new Error("Failed to fetch documents");
         const data = await response.json();
         console.log("Fetched documents:", JSON.stringify(data, null, 2));
@@ -150,7 +151,7 @@
       formData.append("idGroupe", idGroupe)
 
       try {
-        const response = await fetch(`${API_BASE_URL}/api/livrable/submit-documents`, {
+        const response = await fetch(`${API_BASE_URL}/api/etu/submit-documents`, {
           method: "POST",
           body: formData,
         })
@@ -178,7 +179,7 @@
     
       try {
         console.log("Sending delete request:", { idEtudiant, idPFE, id });
-        const response = await fetch(`${API_BASE_URL}/api/livrable/delete-document`, {
+        const response = await fetch(`${API_BASE_URL}/api/etu/delete-document`, {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({ idEtudiant, idPFE, id }),

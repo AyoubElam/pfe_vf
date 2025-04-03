@@ -58,13 +58,15 @@ export default function TuteurGroupDocumentsPage() {
     setIsLoading(true);
     setFetchError(null);
     try {
-      const response = await fetch(`http://localhost:5000/api/tut_soumettre/group-documents?idTuteur=${idTuteur}`);
-      if (!response.ok) throw new Error("Impossible de récupérer les documents du groupe");
+      const response = await fetch(`http://localhost:5000/api/group-documents?idTuteur=${idTuteur}`);
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.error || "Impossible de récupérer les documents du groupe");
+      }
       const data = await response.json();
-      console.log("Fetched documents:", JSON.stringify(data, null, 2)); // Debug log
       setSubmittedDocuments(data);
     } catch (error) {
-      setFetchError("Erreur lors de la récupération des documents");
+      setFetchError(error instanceof Error ? error.message : "Erreur inconnue");
       console.error("Fetch error:", error);
     } finally {
       setIsLoading(false);
@@ -84,39 +86,31 @@ export default function TuteurGroupDocumentsPage() {
   };
 
   const submitValidation = async () => {
-    const payload = {
-      idPFE: currentDoc?.idPFE,
-      pfeLivrableId: currentDoc?.id,
-      idTuteur,
-      validationStatus,
-      comment: comment || "",
-    };
-
-    console.log("Submitting validation with payload:", payload);
-
-    if (!payload.idPFE || !payload.pfeLivrableId || !payload.idTuteur || !payload.validationStatus) {
-      console.error("Missing fields in payload:", payload);
-      alert("Please ensure all required fields are filled.");
-      return;
-    }
+    if (!currentDoc) return;
 
     try {
-      const res = await fetch("http://localhost:5000/api/validate_document", {
+      const response = await fetch("http://localhost:5000/api/validate_document", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(payload),
+        body: JSON.stringify({
+          idPFE: currentDoc.idPFE,
+          pfeLivrableId: currentDoc.id,
+          idTuteur,
+          validationStatus,
+          comment: comment || null
+        })
       });
-      if (res.ok) {
-        fetchDocuments();
-        closeValidationForm();
-      } else {
-        const errorData = await res.json();
-        console.log("Validation error:", errorData);
-        alert(`Validation failed: ${errorData.error}`);
+
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.error || "Échec de la validation");
       }
+
+      fetchDocuments();
+      closeValidationForm();
     } catch (error) {
-      console.error("Network error:", error);
-      alert("Network error occurred: " + error.message);
+      console.error("Validation error:", error);
+      setFetchError(error instanceof Error ? error.message : "Erreur inconnue");
     }
   };
 
@@ -126,22 +120,19 @@ export default function TuteurGroupDocumentsPage() {
     try {
       const response = await fetch(
         `http://localhost:5000/api/validate_document?idPFE=${currentDoc.idPFE}&pfeLivrableId=${currentDoc.id}&idTuteur=${idTuteur}`,
-        {
-          method: "DELETE",
-          headers: { "Content-Type": "application/json" },
-        }
+        { method: "DELETE" }
       );
 
-      if (response.ok) {
-        fetchDocuments();
-        closeValidationForm();
-      } else {
+      if (!response.ok) {
         const errorData = await response.json();
-        setFetchError(`Échec de la suppression de la validation : ${errorData.error || "Erreur inconnue"}`);
+        throw new Error(errorData.error || "Échec de la suppression");
       }
+
+      fetchDocuments();
+      closeValidationForm();
     } catch (error) {
-      console.error("Erreur lors de la suppression de la validation :", error);
-      setFetchError("Erreur de connexion au serveur lors de la suppression de la validation");
+      console.error("Deletion error:", error);
+      setFetchError(error instanceof Error ? error.message : "Erreur inconnue");
     }
   };
 
@@ -270,7 +261,7 @@ export default function TuteurGroupDocumentsPage() {
                 <div className="space-y-4">
                   {filteredDocuments.map((doc, index) => (
                     <Card
-                      key={`${doc.idPFE}-${doc.id}-${doc.type}-${index}`} // Enhanced key
+                      key={`${doc.idPFE}-${doc.id}-${doc.type}-${index}`}
                       className="overflow-hidden border border-border/40 hover:shadow-md transition-all duration-300 hover:border-primary/20"
                     >
                       <div className="flex items-center justify-between p-4 bg-muted/20 border-b border-border/30">
@@ -297,7 +288,7 @@ export default function TuteurGroupDocumentsPage() {
                         <div className="flex gap-2">
                           <Button variant="outline" size="sm" asChild className="h-8 text-xs">
                             <a
-                              href={`${process.env.NEXT_PUBLIC_API_URL || "http://localhost:5000"}${doc.fichier}`}
+                              href={`http://localhost:5000${doc.fichier}`}
                               download={doc.fichier.split("/").pop()}
                             >
                               <Download className="h-3.5 w-3.5 mr-1.5" />
@@ -307,7 +298,7 @@ export default function TuteurGroupDocumentsPage() {
                           <Button
                             variant="outline"
                             size="sm"
-                            onClick={() => window.open(`${process.env.NEXT_PUBLIC_API_URL || "http://localhost:5000"}${doc.fichier}`, "_blank")}
+                            onClick={() => window.open(`http://localhost:5000${doc.fichier}`, "_blank")}
                             className="h-8 text-xs"
                           >
                             <Eye className="h-3.5 w-3.5 mr-1.5" />

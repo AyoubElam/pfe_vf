@@ -1,3 +1,4 @@
+// src/repositories/SoutenanceRepository.js
 import db from "../../../config/db.js";
 import { Soutenance } from "../../entities/models/Soutenance.js";
 
@@ -261,6 +262,138 @@ export class SoutenanceRepository {
       db.query(query, [idJury, idJury, idJury, idJury], (err, results) => {
         if (err) return reject(err);
         resolve(results);
+      });
+    });
+  }
+
+  async getTutorSoutenances(idTuteur) {
+    const query = `
+      SELECT 
+        s.idSoutenance, DATE(s.date) AS date, s.time, s.location, s.status,
+        g.idGroupe, g.nomGroupe, j.nom AS juryNom
+      FROM soutenance s
+      INNER JOIN soutenance_groupe sg ON s.idSoutenance = sg.idSoutenance
+      INNER JOIN groupe g ON sg.idGroupe = g.idGroupe
+      INNER JOIN pfe p ON g.idGroupe = p.idGroupe
+      LEFT JOIN soutenance_jury sj ON s.idSoutenance = sj.idSoutenance
+      LEFT JOIN jury j ON sj.idJury = j.idJury
+      WHERE p.idTuteur = ?;
+    `;
+    return new Promise((resolve, reject) => {
+      db.query(query, [idTuteur], (err, results) => {
+        if (err) return reject(err);
+        const soutenancesMap = new Map();
+        results.forEach(row => {
+          if (!soutenancesMap.has(row.idSoutenance)) {
+            soutenancesMap.set(row.idSoutenance, new Soutenance(
+              row.idSoutenance, row.date, row.time, row.location, row.status,
+              [row.idGroupe], [], row.nomGroupe, ""
+            ));
+          }
+          if (row.juryNom) {
+            const soutenance = soutenancesMap.get(row.idSoutenance);
+            soutenance.juryNames = soutenance.juryNames ? `${soutenance.juryNames} | ${row.juryNom}` : row.juryNom;
+          }
+        });
+        resolve(Array.from(soutenancesMap.values()));
+      });
+    });
+  }
+
+  async getSoutenancesByGroup(groupId) {
+    const query = `
+      SELECT 
+        s.idSoutenance,
+        s.date,
+        s.time,
+        s.location,
+        s.status,
+        sg.idGroupe,
+        g.nomGroupe,
+        GROUP_CONCAT(j.nom ORDER BY j.nom ASC SEPARATOR ', ') AS juryNames
+      FROM smart_v.soutenance s
+      INNER JOIN smart_v.soutenance_groupe sg ON s.idSoutenance = sg.idSoutenance
+      INNER JOIN smart_v.groupe g ON sg.idGroupe = g.idGroupe
+      LEFT JOIN smart_v.soutenance_jury sj ON s.idSoutenance = sj.idSoutenance
+      LEFT JOIN smart_v.jury j ON sj.idJury = j.idJury
+      WHERE sg.idGroupe = ?
+      GROUP BY s.idSoutenance, sg.idGroupe, g.nomGroupe;
+    `;
+    return new Promise((resolve, reject) => {
+      db.query(query, [groupId], (err, results) => {
+        if (err) return reject(err);
+        const soutenances = results.map(row => ({
+          idSoutenance: row.idSoutenance,
+          date: row.date,
+          time: row.time,
+          location: row.location,
+          status: row.status,
+          idGroupe: row.idGroupe,
+          nomGroupe: row.nomGroupe,
+          juryNames: row.juryNames || ""
+        }));
+        resolve(soutenances);
+      });
+    });
+  }
+  async getByEncadrant(idEncadrant, year = null) {
+    let query = `
+      SELECT 
+        s.idSoutenance,
+        s.date,
+        s.time,
+        s.location,
+        s.status,
+        g.idGroupe,
+        g.nomGroupe,
+        su.titre AS subjectTitle,
+        GROUP_CONCAT(DISTINCT j.nom ORDER BY j.nom ASC SEPARATOR ' | ') AS juryNames,
+        COUNT(DISTINCT e.idEtudiant) AS nbEtudiants,
+        GROUP_CONCAT(DISTINCT CONCAT(e.nom, ' ', e.prenom) SEPARATOR ', ') AS studentNames
+      FROM soutenance s
+      JOIN soutenance_groupe sg ON s.idSoutenance = sg.idSoutenance
+      JOIN groupe g ON sg.idGroupe = g.idGroupe
+      JOIN sujet su ON g.idSujet = su.idSujet
+      LEFT JOIN etudiant e ON g.idGroupe = e.idGroupe
+      LEFT JOIN soutenance_jury sj ON s.idSoutenance = sj.idSoutenance
+      LEFT JOIN jury j ON sj.idJury = j.idJury
+      WHERE su.idEncadrant = ?
+    `;
+  
+    const params = [idEncadrant];
+  
+    if (year && year !== "all") {
+      query += " AND YEAR(s.date) = ?";
+      params.push(year);
+    }
+  
+    query += " GROUP BY s.idSoutenance, g.idGroupe, g.nomGroupe, su.titre";
+  
+    console.log("Executing query:", query);
+    console.log("Parameters:", params);
+  
+    return new Promise((resolve, reject) => {
+      db.query(query, params, (err, results) => {
+        if (err) {
+          console.error("Error fetching soutenances:", err);
+          return reject(err);
+        }
+  
+        console.log("Query results:", results);
+        
+        resolve(results.map(row => ({
+          idSoutenance: row.idSoutenance,
+          date: row.date,
+          time: row.time,
+          location: row.location,
+          status: row.status,
+          idGroupe: row.idGroupe,
+          nomGroupe: row.nomGroupe,
+          subjectTitle: row.subjectTitle,
+          juryNames: row.juryNames || "Aucun jury assigné",
+          nbEtudiants: row.nbEtudiants,
+          studentNames: row.studentNames
+        })));
       });
     });
   }

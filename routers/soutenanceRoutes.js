@@ -7,9 +7,8 @@ import { UpdateSoutenance } from "../src/application/use-cases/soutenance/Update
 import { DeleteSoutenance } from "../src/application/use-cases/soutenance/DeleteSoutenance.js";
 import { BulkUpdateSoutenanceStatuses } from "../src/application/use-cases/soutenance/BulkUpdateSoutenances.js";
 import { GetJuryGroups } from "../src/application/use-cases/soutenance/GetJuryGroups.js";
+import { GetSoutenancesByEncadrant } from "../src/application/use-cases/prof/GetSoutenancesByEncadrant.js";
 import { SoutenanceController } from "../src/interface-adapters/controllers/SoutenanceController.js";
-
-
 
 const router = express.Router();
 
@@ -22,6 +21,7 @@ const updateSoutenanceUseCase = new UpdateSoutenance(soutenanceRepository);
 const deleteSoutenanceUseCase = new DeleteSoutenance(soutenanceRepository);
 const bulkUpdateSoutenanceStatusesUseCase = new BulkUpdateSoutenanceStatuses(soutenanceRepository);
 const getJuryGroupsUseCase = new GetJuryGroups(soutenanceRepository);
+const getSoutenancesByEncadrantUseCase = new GetSoutenancesByEncadrant(soutenanceRepository);
 
 // Create the controller with all dependencies
 const soutenanceController = new SoutenanceController(
@@ -31,7 +31,8 @@ const soutenanceController = new SoutenanceController(
   updateSoutenanceUseCase,
   deleteSoutenanceUseCase,
   bulkUpdateSoutenanceStatusesUseCase,
-  getJuryGroupsUseCase
+  getJuryGroupsUseCase,
+  getSoutenancesByEncadrantUseCase // Don't forget this one!
 );
 
 // Define routes - CRITICAL: Order matters! More specific routes must come before generic ones
@@ -39,8 +40,9 @@ router.get("/", (req, res) => soutenanceController.getAll(req, res));
 router.post("/", (req, res) => soutenanceController.create(req, res));
 router.put("/bulk-update", (req, res) => soutenanceController.bulkUpdate(req, res));
 
-// This specific route MUST come BEFORE the generic "/:id" route
+// Specific routes must come before generic ones
 router.get("/jury-groups/:idJury", (req, res) => soutenanceController.getJuryGroups(req, res));
+router.get("/encadrant/:idEncadrant", (req, res) => soutenanceController.getSoutenancesByEncadrant(req, res));
 
 // Generic ID routes
 router.get("/:id", (req, res) => soutenanceController.getById(req, res));

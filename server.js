@@ -1,62 +1,109 @@
 /* eslint-disable @typescript-eslint/no-unused-vars */
+// src/server.js
 import express from "express";
 import path from "path";
 import cors from "cors";
 import db from "./config/db.js";
 
-// Import refactored routers
-import juryRouter from "./routers/juryRouter.js";
-import groupRouter from "./routers/groupRouter.js";
-import soutenanceRouter from "./routers/soutenanceRouter.js";
-import documentRouter from "./routers/documentRouter.js";
-import validationRouter from "./routers/validationRouter.js";
-
-// Legacy routes (to be phased out)
-import etu_sout from "./app/pages/api/etu_sout.js";
-import livrable from "./app/pages/api/livrable.js";
-import tut_sout from "./app/pages/api/tut_sout.js";
-import tut_soumettre from "./app/pages/api/tut_soumettre.js";
-import validate_document from "./app/pages/api/validate_document.js";
-import prof_sout from "./app/pages/api/prof_sout.js";
-import profDocuments from "./app/pages/api/prof_documents.js";
-import evaluation from "./app/pages/api/evaluation.js";
+// Import routers
+import profRoutes from "./routers/profRoutes.js";
+import tutorRoutes from "./routers/tutorRoutes.js";
+import studentRoutes from "./routers/studentRoutes.js";
+import validationRoutes from "./routers/validationRoutes.js";
+import soutenanceRoutes from "./routers/soutenanceRoutes.js";
+import documentRoutes from "./routers/documentRouter.js";
+import juryRoutes from "./routers/juryRouter.js";
+import groupRoutes from "./routers/groupRouter.js";
+import evaluationRoutes from "./routers/evaluationRoutes.js"; // Updated import
 
 const app = express();
 
+// Configuration
+const PORT = process.env.PORT || 5000;
+const UPLOADS_DIR = path.join(process.cwd(), "uploads");
+const CORS_ORIGIN = process.env.CORS_ORIGIN || "http://localhost:3000";
+
 // Middleware
-app.use(
-  cors({
-    origin: "http://localhost:3000",
-    methods: ["GET", "POST", "PUT", "DELETE"],
-    allowedHeaders: ["Content-Type", "Authorization"],
-  })
-);
-app.use(express.json());
-app.use(express.urlencoded({ extended: true }));
+app.use(cors({
+  origin: CORS_ORIGIN,
+  methods: ["GET", "POST", "PUT", "DELETE", "PATCH"],
+  allowedHeaders: ["Content-Type", "Authorization", "X-Requested-With"],
+  credentials: true
+}));
 
-// Serve uploaded files
-app.use("/uploads", express.static(path.join(process.cwd(), "uploads")));
+app.use(express.json({ limit: "10mb" }));
+app.use(express.urlencoded({ extended: true, limit: "10mb" }));
 
-// Register API Routes
-app.use("/api/jurys", juryRouter);
-app.use("/api/groups", groupRouter);
-app.use("/api/soutenance", soutenanceRouter);
-app.use("/api/livrable", documentRouter);
-app.use("/api/validate_document", validationRouter);
-app.use("/api", evaluationRouter);
+// Static files
+app.use("/uploads", express.static(UPLOADS_DIR));
 
-// Legacy routes (to be refactored)
-app.use("/api/etu_sout", etu_sout);
-app.use("/api/livrable", livrable);
-app.use("/api/soutenances", tut_sout);
-app.use("/api/tut_soumettre", tut_soumettre);
-app.use("/api/validate_document", validate_document);
-app.use("/api/prof_sout", prof_sout);
-app.use("/api/prof-documents", profDocuments);
-app.use("/api", evaluation);
+// API Routes
+const API_PREFIX = "/api";
+const routes = [
+  { path: `${API_PREFIX}/prof`, router: profRoutes },
+  { path: `${API_PREFIX}/tutor`, router: tutorRoutes }, // More consistent naming
+  { path: `${API_PREFIX}/student`, router: studentRoutes },
+  { path: `${API_PREFIX}/validate_document`, router: validationRoutes },
+  { path: `${API_PREFIX}/soutenance`, router: soutenanceRoutes },
+  { path: `${API_PREFIX}/documents`, router: documentRoutes },
+  { path: `${API_PREFIX}/jurys`, router: juryRoutes },
+  { path: `${API_PREFIX}/groups`, router: groupRoutes },
+  { path: `${API_PREFIX}/evaluation`, router: evaluationRoutes } // Using the new routes
+];
 
-// Start the server
-const PORT = 5000;
+routes.forEach(({ path, router }) => {
+  app.use(path, router);
+  console.log(`Registered routes for ${path}`);
+});
+
+// Health check
+app.get(`${API_PREFIX}/health`, (req, res) => {
+  res.status(200).json({ 
+    status: "OK",
+    timestamp: new Date().toISOString(),
+    uptime: process.uptime()
+  });
+});
+
+// Not found handler
+app.use((req, res, next) => {
+  res.status(404).json({ 
+    error: "Not Found",
+    path: req.path,
+    method: req.method
+  });
+});
+
+// Error handler
+app.use((err, req, res, next) => {
+  console.error("❌ Server error:", err);
+  
+  const statusCode = err.statusCode || 500;
+  const message = err.message || "Internal server error";
+  
+  if (process.env.NODE_ENV !== "production") {
+    return res.status(statusCode).json({ 
+      error: message,
+      stack: err.stack,
+      details: err.details
+    });
+  }
+  
+  res.status(statusCode).json({ error: message });
+});
+
+// Server startup
 app.listen(PORT, () => {
   console.log(`✅ Server running on http://localhost:${PORT}`);
+  console.log(`📁 Uploads directory: ${UPLOADS_DIR}`);
+  console.log(`🌐 CORS allowed origin: ${CORS_ORIGIN}`);
+});
+
+// Handle shutdown gracefully
+process.on("SIGTERM", () => {
+  console.log("SIGTERM received. Shutting down gracefully...");
+  server.close(() => {
+    console.log("Server closed");
+    process.exit(0);
+  });
 });

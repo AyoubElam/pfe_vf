@@ -346,14 +346,12 @@ function ProfSoutenancesPage() {
                 "ProfSoutenancesPage.useEffect.fetchSoutenances": async ()=>{
                     try {
                         setLoading(true);
-                        let url = `http://localhost:5000/api/prof_sout/soutenances/${idEncadrant}`;
+                        const url = new URL(`http://localhost:5000/api/prof/encadrant/${idEncadrant}/soutenances`);
                         if (yearFilter && yearFilter !== "all") {
-                            url += `?year=${yearFilter}`;
+                            url.searchParams.append('year', yearFilter);
                         }
-                        const response = await fetch(url);
-                        if (!response.ok) {
-                            throw new Error("Network response was not ok");
-                        }
+                        const response = await fetch(url.toString());
+                        if (!response.ok) throw new Error("Network response was not ok");
                         const data = await response.json();
                         setSoutenances(data);
                     } catch (error) {
@@ -383,17 +381,17 @@ function ProfSoutenancesPage() {
                             className: "h-8 w-3/4"
                         }, void 0, false, {
                             fileName: "[project]/app/components/prof/prof_sout.tsx",
-                            lineNumber: 173,
+                            lineNumber: 172,
                             columnNumber: 13
                         }, this)
                     }, void 0, false, {
                         fileName: "[project]/app/components/prof/prof_sout.tsx",
-                        lineNumber: 172,
+                        lineNumber: 171,
                         columnNumber: 11
                     }, this)
                 }, void 0, false, {
                     fileName: "[project]/app/components/prof/prof_sout.tsx",
-                    lineNumber: 171,
+                    lineNumber: 170,
                     columnNumber: 9
                 }, this),
                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$card$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["CardContent"], {
@@ -416,33 +414,33 @@ function ProfSoutenancesPage() {
                                                         className: "h-6 w-24"
                                                     }, void 0, false, {
                                                         fileName: "[project]/app/components/prof/prof_sout.tsx",
-                                                        lineNumber: 182,
+                                                        lineNumber: 181,
                                                         columnNumber: 21
                                                     }, this),
                                                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$skeleton$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["Skeleton"], {
                                                         className: "h-6 w-20"
                                                     }, void 0, false, {
                                                         fileName: "[project]/app/components/prof/prof_sout.tsx",
-                                                        lineNumber: 183,
+                                                        lineNumber: 182,
                                                         columnNumber: 21
                                                     }, this)
                                                 ]
                                             }, void 0, true, {
                                                 fileName: "[project]/app/components/prof/prof_sout.tsx",
-                                                lineNumber: 181,
+                                                lineNumber: 180,
                                                 columnNumber: 19
                                             }, this),
                                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$skeleton$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["Skeleton"], {
                                                 className: "h-10 w-40"
                                             }, void 0, false, {
                                                 fileName: "[project]/app/components/prof/prof_sout.tsx",
-                                                lineNumber: 185,
+                                                lineNumber: 184,
                                                 columnNumber: 19
                                             }, this)
                                         ]
                                     }, void 0, true, {
                                         fileName: "[project]/app/components/prof/prof_sout.tsx",
-                                        lineNumber: 180,
+                                        lineNumber: 179,
                                         columnNumber: 17
                                     }, this),
                                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -456,34 +454,34 @@ function ProfSoutenancesPage() {
                                                 className: "h-6 w-full"
                                             }, j, false, {
                                                 fileName: "[project]/app/components/prof/prof_sout.tsx",
-                                                lineNumber: 189,
+                                                lineNumber: 188,
                                                 columnNumber: 21
                                             }, this))
                                     }, void 0, false, {
                                         fileName: "[project]/app/components/prof/prof_sout.tsx",
-                                        lineNumber: 187,
+                                        lineNumber: 186,
                                         columnNumber: 17
                                     }, this)
                                 ]
                             }, i, true, {
                                 fileName: "[project]/app/components/prof/prof_sout.tsx",
-                                lineNumber: 179,
+                                lineNumber: 178,
                                 columnNumber: 15
                             }, this))
                     }, void 0, false, {
                         fileName: "[project]/app/components/prof/prof_sout.tsx",
-                        lineNumber: 177,
+                        lineNumber: 176,
                         columnNumber: 11
                     }, this)
                 }, void 0, false, {
                     fileName: "[project]/app/components/prof/prof_sout.tsx",
-                    lineNumber: 176,
+                    lineNumber: 175,
                     columnNumber: 9
                 }, this)
             ]
         }, void 0, true, {
             fileName: "[project]/app/components/prof/prof_sout.tsx",
-            lineNumber: 170,
+            lineNumber: 169,
             columnNumber: 7
         }, this);
     }
@@ -499,7 +497,7 @@ function ProfSoutenancesPage() {
                             className: "h-12 w-12 text-destructive"
                         }, void 0, false, {
                             fileName: "[project]/app/components/prof/prof_sout.tsx",
-                            lineNumber: 205,
+                            lineNumber: 204,
                             columnNumber: 13
                         }, this),
                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("h3", {
@@ -507,7 +505,7 @@ function ProfSoutenancesPage() {
                             children: "Erreur de chargement"
                         }, void 0, false, {
                             fileName: "[project]/app/components/prof/prof_sout.tsx",
-                            lineNumber: 206,
+                            lineNumber: 205,
                             columnNumber: 13
                         }, this),
                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("p", {
@@ -515,7 +513,7 @@ function ProfSoutenancesPage() {
                             children: error
                         }, void 0, false, {
                             fileName: "[project]/app/components/prof/prof_sout.tsx",
-                            lineNumber: 207,
+                            lineNumber: 206,
                             columnNumber: 13
                         }, this),
                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$button$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["Button"], {
@@ -525,23 +523,23 @@ function ProfSoutenancesPage() {
                             children: "Réessayer"
                         }, void 0, false, {
                             fileName: "[project]/app/components/prof/prof_sout.tsx",
-                            lineNumber: 208,
+                            lineNumber: 207,
                             columnNumber: 13
                         }, this)
                     ]
                 }, void 0, true, {
                     fileName: "[project]/app/components/prof/prof_sout.tsx",
-                    lineNumber: 204,
+                    lineNumber: 203,
                     columnNumber: 11
                 }, this)
             }, void 0, false, {
                 fileName: "[project]/app/components/prof/prof_sout.tsx",
-                lineNumber: 203,
+                lineNumber: 202,
                 columnNumber: 9
             }, this)
         }, void 0, false, {
             fileName: "[project]/app/components/prof/prof_sout.tsx",
-            lineNumber: 202,
+            lineNumber: 201,
             columnNumber: 7
         }, this);
     }
@@ -563,13 +561,13 @@ function ProfSoutenancesPage() {
                                     children: groupName
                                 }, void 0, false, {
                                     fileName: "[project]/app/components/prof/prof_sout.tsx",
-                                    lineNumber: 223,
+                                    lineNumber: 222,
                                     columnNumber: 13
                                 }, this)
                             ]
                         }, void 0, true, {
                             fileName: "[project]/app/components/prof/prof_sout.tsx",
-                            lineNumber: 221,
+                            lineNumber: 220,
                             columnNumber: 11
                         }, this),
                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -584,7 +582,7 @@ function ProfSoutenancesPage() {
                                             children: "Année :"
                                         }, void 0, false, {
                                             fileName: "[project]/app/components/prof/prof_sout.tsx",
-                                            lineNumber: 228,
+                                            lineNumber: 227,
                                             columnNumber: 15
                                         }, this),
                                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("select", {
@@ -598,7 +596,7 @@ function ProfSoutenancesPage() {
                                                     children: "Toutes"
                                                 }, void 0, false, {
                                                     fileName: "[project]/app/components/prof/prof_sout.tsx",
-                                                    lineNumber: 237,
+                                                    lineNumber: 236,
                                                     columnNumber: 17
                                                 }, this),
                                                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("option", {
@@ -606,7 +604,7 @@ function ProfSoutenancesPage() {
                                                     children: "2023"
                                                 }, void 0, false, {
                                                     fileName: "[project]/app/components/prof/prof_sout.tsx",
-                                                    lineNumber: 238,
+                                                    lineNumber: 237,
                                                     columnNumber: 17
                                                 }, this),
                                                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("option", {
@@ -614,7 +612,7 @@ function ProfSoutenancesPage() {
                                                     children: "2024"
                                                 }, void 0, false, {
                                                     fileName: "[project]/app/components/prof/prof_sout.tsx",
-                                                    lineNumber: 239,
+                                                    lineNumber: 238,
                                                     columnNumber: 17
                                                 }, this),
                                                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("option", {
@@ -622,19 +620,19 @@ function ProfSoutenancesPage() {
                                                     children: "2025"
                                                 }, void 0, false, {
                                                     fileName: "[project]/app/components/prof/prof_sout.tsx",
-                                                    lineNumber: 240,
+                                                    lineNumber: 239,
                                                     columnNumber: 17
                                                 }, this)
                                             ]
                                         }, void 0, true, {
                                             fileName: "[project]/app/components/prof/prof_sout.tsx",
-                                            lineNumber: 231,
+                                            lineNumber: 230,
                                             columnNumber: 15
                                         }, this)
                                     ]
                                 }, void 0, true, {
                                     fileName: "[project]/app/components/prof/prof_sout.tsx",
-                                    lineNumber: 227,
+                                    lineNumber: 226,
                                     columnNumber: 13
                                 }, this),
                                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$button$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["Button"], {
@@ -646,37 +644,37 @@ function ProfSoutenancesPage() {
                                             className: "h-4 w-4"
                                         }, void 0, false, {
                                             fileName: "[project]/app/components/prof/prof_sout.tsx",
-                                            lineNumber: 249,
+                                            lineNumber: 248,
                                             columnNumber: 15
                                         }, this),
                                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("span", {
                                             children: "Visualisation des documents"
                                         }, void 0, false, {
                                             fileName: "[project]/app/components/prof/prof_sout.tsx",
-                                            lineNumber: 250,
+                                            lineNumber: 249,
                                             columnNumber: 15
                                         }, this)
                                     ]
                                 }, void 0, true, {
                                     fileName: "[project]/app/components/prof/prof_sout.tsx",
-                                    lineNumber: 244,
+                                    lineNumber: 243,
                                     columnNumber: 13
                                 }, this)
                             ]
                         }, void 0, true, {
                             fileName: "[project]/app/components/prof/prof_sout.tsx",
-                            lineNumber: 225,
+                            lineNumber: 224,
                             columnNumber: 11
                         }, this)
                     ]
                 }, void 0, true, {
                     fileName: "[project]/app/components/prof/prof_sout.tsx",
-                    lineNumber: 220,
+                    lineNumber: 219,
                     columnNumber: 9
                 }, this)
             }, void 0, false, {
                 fileName: "[project]/app/components/prof/prof_sout.tsx",
-                lineNumber: 219,
+                lineNumber: 218,
                 columnNumber: 7
             }, this),
             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$card$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["CardContent"], {
@@ -688,7 +686,7 @@ function ProfSoutenancesPage() {
                             className: "h-12 w-12 text-muted-foreground"
                         }, void 0, false, {
                             fileName: "[project]/app/components/prof/prof_sout.tsx",
-                            lineNumber: 258,
+                            lineNumber: 257,
                             columnNumber: 13
                         }, this),
                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("h3", {
@@ -696,7 +694,7 @@ function ProfSoutenancesPage() {
                             children: "Aucune soutenance planifiée"
                         }, void 0, false, {
                             fileName: "[project]/app/components/prof/prof_sout.tsx",
-                            lineNumber: 259,
+                            lineNumber: 258,
                             columnNumber: 13
                         }, this),
                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("p", {
@@ -704,13 +702,13 @@ function ProfSoutenancesPage() {
                             children: "Vous n'avez pas encore de soutenances programmées."
                         }, void 0, false, {
                             fileName: "[project]/app/components/prof/prof_sout.tsx",
-                            lineNumber: 260,
+                            lineNumber: 259,
                             columnNumber: 13
                         }, this)
                     ]
                 }, void 0, true, {
                     fileName: "[project]/app/components/prof/prof_sout.tsx",
-                    lineNumber: 257,
+                    lineNumber: 256,
                     columnNumber: 11
                 }, this) : /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
                     className: "flex flex-col items-center justify-center space-y-6 max-w-xl mx-auto",
@@ -723,19 +721,19 @@ function ProfSoutenancesPage() {
                                         status: soutenance.status
                                     }, void 0, false, {
                                         fileName: "[project]/app/components/prof/prof_sout.tsx",
-                                        lineNumber: 273,
+                                        lineNumber: 272,
                                         columnNumber: 19
                                     }, this)
                                 }, void 0, false, {
                                     fileName: "[project]/app/components/prof/prof_sout.tsx",
-                                    lineNumber: 272,
+                                    lineNumber: 271,
                                     columnNumber: 17
                                 }, this),
                                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
                                     className: "absolute -top-10 -right-10 w-20 h-20 bg-primary/5 rounded-full blur-xl group-hover:bg-primary/10 transition-all duration-500"
                                 }, void 0, false, {
                                     fileName: "[project]/app/components/prof/prof_sout.tsx",
-                                    lineNumber: 276,
+                                    lineNumber: 275,
                                     columnNumber: 17
                                 }, this),
                                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -749,12 +747,12 @@ function ProfSoutenancesPage() {
                                                 children: soutenance.nomGroupe
                                             }, void 0, false, {
                                                 fileName: "[project]/app/components/prof/prof_sout.tsx",
-                                                lineNumber: 279,
+                                                lineNumber: 278,
                                                 columnNumber: 21
                                             }, this)
                                         }, void 0, false, {
                                             fileName: "[project]/app/components/prof/prof_sout.tsx",
-                                            lineNumber: 278,
+                                            lineNumber: 277,
                                             columnNumber: 19
                                         }, this),
                                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -769,12 +767,12 @@ function ProfSoutenancesPage() {
                                                                 className: "h-5 w-5 text-primary"
                                                             }, void 0, false, {
                                                                 fileName: "[project]/app/components/prof/prof_sout.tsx",
-                                                                lineNumber: 286,
+                                                                lineNumber: 285,
                                                                 columnNumber: 25
                                                             }, this)
                                                         }, void 0, false, {
                                                             fileName: "[project]/app/components/prof/prof_sout.tsx",
-                                                            lineNumber: 285,
+                                                            lineNumber: 284,
                                                             columnNumber: 23
                                                         }, this),
                                                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -784,7 +782,7 @@ function ProfSoutenancesPage() {
                                                                     children: "Date"
                                                                 }, void 0, false, {
                                                                     fileName: "[project]/app/components/prof/prof_sout.tsx",
-                                                                    lineNumber: 289,
+                                                                    lineNumber: 288,
                                                                     columnNumber: 25
                                                                 }, this),
                                                                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -794,19 +792,19 @@ function ProfSoutenancesPage() {
                                                                     })
                                                                 }, void 0, false, {
                                                                     fileName: "[project]/app/components/prof/prof_sout.tsx",
-                                                                    lineNumber: 290,
+                                                                    lineNumber: 289,
                                                                     columnNumber: 25
                                                                 }, this)
                                                             ]
                                                         }, void 0, true, {
                                                             fileName: "[project]/app/components/prof/prof_sout.tsx",
-                                                            lineNumber: 288,
+                                                            lineNumber: 287,
                                                             columnNumber: 23
                                                         }, this)
                                                     ]
                                                 }, void 0, true, {
                                                     fileName: "[project]/app/components/prof/prof_sout.tsx",
-                                                    lineNumber: 284,
+                                                    lineNumber: 283,
                                                     columnNumber: 21
                                                 }, this),
                                                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -818,12 +816,12 @@ function ProfSoutenancesPage() {
                                                                 className: "h-5 w-5 text-primary"
                                                             }, void 0, false, {
                                                                 fileName: "[project]/app/components/prof/prof_sout.tsx",
-                                                                lineNumber: 297,
+                                                                lineNumber: 296,
                                                                 columnNumber: 25
                                                             }, this)
                                                         }, void 0, false, {
                                                             fileName: "[project]/app/components/prof/prof_sout.tsx",
-                                                            lineNumber: 296,
+                                                            lineNumber: 295,
                                                             columnNumber: 23
                                                         }, this),
                                                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -833,7 +831,7 @@ function ProfSoutenancesPage() {
                                                                     children: "Heure"
                                                                 }, void 0, false, {
                                                                     fileName: "[project]/app/components/prof/prof_sout.tsx",
-                                                                    lineNumber: 300,
+                                                                    lineNumber: 299,
                                                                     columnNumber: 25
                                                                 }, this),
                                                                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -841,19 +839,19 @@ function ProfSoutenancesPage() {
                                                                     children: soutenance.time
                                                                 }, void 0, false, {
                                                                     fileName: "[project]/app/components/prof/prof_sout.tsx",
-                                                                    lineNumber: 301,
+                                                                    lineNumber: 300,
                                                                     columnNumber: 25
                                                                 }, this)
                                                             ]
                                                         }, void 0, true, {
                                                             fileName: "[project]/app/components/prof/prof_sout.tsx",
-                                                            lineNumber: 299,
+                                                            lineNumber: 298,
                                                             columnNumber: 23
                                                         }, this)
                                                     ]
                                                 }, void 0, true, {
                                                     fileName: "[project]/app/components/prof/prof_sout.tsx",
-                                                    lineNumber: 295,
+                                                    lineNumber: 294,
                                                     columnNumber: 21
                                                 }, this),
                                                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -865,12 +863,12 @@ function ProfSoutenancesPage() {
                                                                 className: "h-5 w-5 text-primary"
                                                             }, void 0, false, {
                                                                 fileName: "[project]/app/components/prof/prof_sout.tsx",
-                                                                lineNumber: 306,
+                                                                lineNumber: 305,
                                                                 columnNumber: 25
                                                             }, this)
                                                         }, void 0, false, {
                                                             fileName: "[project]/app/components/prof/prof_sout.tsx",
-                                                            lineNumber: 305,
+                                                            lineNumber: 304,
                                                             columnNumber: 23
                                                         }, this),
                                                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -880,7 +878,7 @@ function ProfSoutenancesPage() {
                                                                     children: "Lieu"
                                                                 }, void 0, false, {
                                                                     fileName: "[project]/app/components/prof/prof_sout.tsx",
-                                                                    lineNumber: 309,
+                                                                    lineNumber: 308,
                                                                     columnNumber: 25
                                                                 }, this),
                                                                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -888,19 +886,19 @@ function ProfSoutenancesPage() {
                                                                     children: soutenance.location
                                                                 }, void 0, false, {
                                                                     fileName: "[project]/app/components/prof/prof_sout.tsx",
-                                                                    lineNumber: 310,
+                                                                    lineNumber: 309,
                                                                     columnNumber: 25
                                                                 }, this)
                                                             ]
                                                         }, void 0, true, {
                                                             fileName: "[project]/app/components/prof/prof_sout.tsx",
-                                                            lineNumber: 308,
+                                                            lineNumber: 307,
                                                             columnNumber: 23
                                                         }, this)
                                                     ]
                                                 }, void 0, true, {
                                                     fileName: "[project]/app/components/prof/prof_sout.tsx",
-                                                    lineNumber: 304,
+                                                    lineNumber: 303,
                                                     columnNumber: 21
                                                 }, this),
                                                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -912,12 +910,12 @@ function ProfSoutenancesPage() {
                                                                 className: "h-5 w-5 text-primary"
                                                             }, void 0, false, {
                                                                 fileName: "[project]/app/components/prof/prof_sout.tsx",
-                                                                lineNumber: 315,
+                                                                lineNumber: 314,
                                                                 columnNumber: 25
                                                             }, this)
                                                         }, void 0, false, {
                                                             fileName: "[project]/app/components/prof/prof_sout.tsx",
-                                                            lineNumber: 314,
+                                                            lineNumber: 313,
                                                             columnNumber: 23
                                                         }, this),
                                                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -927,7 +925,7 @@ function ProfSoutenancesPage() {
                                                                     children: "Jury"
                                                                 }, void 0, false, {
                                                                     fileName: "[project]/app/components/prof/prof_sout.tsx",
-                                                                    lineNumber: 318,
+                                                                    lineNumber: 317,
                                                                     columnNumber: 25
                                                                 }, this),
                                                                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -935,53 +933,53 @@ function ProfSoutenancesPage() {
                                                                     children: formatJuryNames(soutenance.juryNames)
                                                                 }, void 0, false, {
                                                                     fileName: "[project]/app/components/prof/prof_sout.tsx",
-                                                                    lineNumber: 319,
+                                                                    lineNumber: 318,
                                                                     columnNumber: 25
                                                                 }, this)
                                                             ]
                                                         }, void 0, true, {
                                                             fileName: "[project]/app/components/prof/prof_sout.tsx",
-                                                            lineNumber: 317,
+                                                            lineNumber: 316,
                                                             columnNumber: 23
                                                         }, this)
                                                     ]
                                                 }, void 0, true, {
                                                     fileName: "[project]/app/components/prof/prof_sout.tsx",
-                                                    lineNumber: 313,
+                                                    lineNumber: 312,
                                                     columnNumber: 21
                                                 }, this)
                                             ]
                                         }, void 0, true, {
                                             fileName: "[project]/app/components/prof/prof_sout.tsx",
-                                            lineNumber: 283,
+                                            lineNumber: 282,
                                             columnNumber: 19
                                         }, this)
                                     ]
                                 }, void 0, true, {
                                     fileName: "[project]/app/components/prof/prof_sout.tsx",
-                                    lineNumber: 277,
+                                    lineNumber: 276,
                                     columnNumber: 17
                                 }, this)
                             ]
                         }, soutenance.idSoutenance, true, {
                             fileName: "[project]/app/components/prof/prof_sout.tsx",
-                            lineNumber: 267,
+                            lineNumber: 266,
                             columnNumber: 15
                         }, this))
                 }, void 0, false, {
                     fileName: "[project]/app/components/prof/prof_sout.tsx",
-                    lineNumber: 265,
+                    lineNumber: 264,
                     columnNumber: 11
                 }, this)
             }, void 0, false, {
                 fileName: "[project]/app/components/prof/prof_sout.tsx",
-                lineNumber: 255,
+                lineNumber: 254,
                 columnNumber: 7
             }, this)
         ]
     }, void 0, true, {
         fileName: "[project]/app/components/prof/prof_sout.tsx",
-        lineNumber: 218,
+        lineNumber: 217,
         columnNumber: 5
     }, this);
 }
@@ -1044,24 +1042,14 @@ function ListeSoutenances() {
     ;
     return /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
         className: "p-6",
-        children: [
-            /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("h1", {
-                className: "text-4xl font-bold mb-8",
-                children: "📋 Liste des Soutenances "
-            }, void 0, false, {
-                fileName: "[project]/app/pages/prof_sout/page.tsx",
-                lineNumber: 50,
-                columnNumber: 7
-            }, this),
-            /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$app$2f$components$2f$prof$2f$prof_sout$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["default"], {
-                soutenances: soutenancess
-            }, void 0, false, {
-                fileName: "[project]/app/pages/prof_sout/page.tsx",
-                lineNumber: 51,
-                columnNumber: 7
-            }, this)
-        ]
-    }, void 0, true, {
+        children: /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$app$2f$components$2f$prof$2f$prof_sout$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["default"], {
+            soutenances: soutenancess
+        }, void 0, false, {
+            fileName: "[project]/app/pages/prof_sout/page.tsx",
+            lineNumber: 51,
+            columnNumber: 7
+        }, this)
+    }, void 0, false, {
         fileName: "[project]/app/pages/prof_sout/page.tsx",
         lineNumber: 49,
         columnNumber: 5

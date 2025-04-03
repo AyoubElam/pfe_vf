@@ -141,14 +141,14 @@ export default function ProfSoutenancesPage() {
     const fetchSoutenances = async () => {
       try {
         setLoading(true);
-        let url = `http://localhost:5000/api/prof_sout/soutenances/${idEncadrant}`;
+        const url = new URL(`http://localhost:5000/api/prof/encadrant/${idEncadrant}/soutenances`);
+        
         if (yearFilter && yearFilter !== "all") {
-          url += `?year=${yearFilter}`;
+          url.searchParams.append('year', yearFilter);
         }
-        const response = await fetch(url);
-        if (!response.ok) {
-          throw new Error("Network response was not ok");
-        }
+    
+        const response = await fetch(url.toString());
+        if (!response.ok) throw new Error("Network response was not ok");
         const data = await response.json();
         setSoutenances(data);
       } catch (error) {
@@ -158,7 +158,6 @@ export default function ProfSoutenancesPage() {
         setLoading(false);
       }
     };
-
     fetchSoutenances();
   }, [idEncadrant, yearFilter]);
 

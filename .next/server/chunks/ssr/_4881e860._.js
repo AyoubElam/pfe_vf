@@ -697,7 +697,7 @@ function SoutenancesPage() {
         try {
             setLoading(true);
             console.log("Fetching from:", `/api/etu_sout/group-only/${studentGroupId}`);
-            const response = await fetch(`http://localhost:5000/api/etu_sout/group-only/${studentGroupId}`);
+            const response = await fetch(`http://localhost:5000/api/etu/group-only/${studentGroupId}`);
             console.log("Response status:", response.status);
             if (!response.ok) {
                 throw new Error("Failed to fetch soutenances");

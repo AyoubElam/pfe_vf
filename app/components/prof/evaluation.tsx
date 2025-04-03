@@ -69,33 +69,31 @@ const EvaluationPage: React.FC = () => {
   const fetchStudents = async () => {
     try {
       setLoading(true);
-      setError(null);
-      const res = await fetch(`http://localhost:5000/api/groups-students/${idEncadrant}`);
-      if (!res.ok) {
-        const errorData = await res.json();
-        throw new Error(errorData.error || "Error loading data");
-      }
-      const data: StudentGroup[] = await res.json();
-      if (data.length === 0) {
-        setError("No groups found for this encadrant");
-        setLoading(false);
-        return;
-      }
-      if (data.some((student) => !student.idSoutenance)) {
-        throw new Error("Some students are missing idSoutenance from the backend");
-      }
-      const studentsWithTotal = data.map((student) => ({
-        ...student,
-        noteTotale: calculateTotal(student),
+      const res = await fetch(`http://localhost:5000/api/evaluation/groups-students/${idEncadrant}`);
+      if (!res.ok) throw new Error("Error loading data");
+      
+      const data = await res.json();
+      
+      // Transform the API data to match frontend expectations using actual values from the backend
+      const transformedData = data.map((item: any) => ({
+        ...item,
+        etudiant: item.etudiant,   // Use the actual full name from the backend
+        nomGroupe: item.nomGroupe, // Use the actual group name from the backend
+        noteRapport: item.noteRapport ? Number(item.noteRapport) : null,
+        notePresentation: item.notePresentation ? Number(item.notePresentation) : null,
+        noteDiscussion: item.noteDiscussion ? Number(item.noteDiscussion) : null,
+        noteSavoirFaireSavoirEtre: item.noteSavoirFaireSavoirEtre ? Number(item.noteSavoirFaireSavoirEtre) : null,
+        noteTotale: item.noteTotale ? Number(item.noteTotale) : null
       }));
-      setStudents(studentsWithTotal);
+  
+      setStudents(transformedData);
     } catch (error: any) {
-      console.error("Error fetching students:", error);
       setError(error.message);
     } finally {
       setLoading(false);
     }
   };
+  
 
   useEffect(() => {
     fetchStudents();
@@ -166,7 +164,7 @@ const EvaluationPage: React.FC = () => {
         noteSavoirFaireSavoirEtre: student.noteSavoirFaireSavoirEtre,
         remarque: student.remarque,
       };
-      const response = await fetch("http://localhost:5000/api/evaluations", {
+      const response = await fetch("http://localhost:5000/api/evaluation", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ idEncadrant, evaluation }),
@@ -204,8 +202,8 @@ const EvaluationPage: React.FC = () => {
         noteSavoirFaireSavoirEtre: student.noteSavoirFaireSavoirEtre,
         remarque: student.remarque,
       };
-      const response = await fetch("http://localhost:5000/api/evaluations", {
-        method: "PUT",
+      const response = await fetch("http://localhost:5000/api/evaluation", {
+        method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ idEncadrant, evaluation }),
       });

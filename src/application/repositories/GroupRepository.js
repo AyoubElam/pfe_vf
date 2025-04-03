@@ -1,5 +1,5 @@
 import db from "../../../config/db.js";
-import { Group } from "../../entities/models/g";
+import { Group } from "../../entities/models/Group.js";
 
 export class GroupRepository {
   async getAll() {

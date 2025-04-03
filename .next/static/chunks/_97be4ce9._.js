@@ -348,11 +348,16 @@ function SoutenancesPage() {
             const fetchSoutenances = {
                 "SoutenancesPage.useEffect.fetchSoutenances": async ()=>{
                     try {
+                        setLoading(true);
                         const response = await fetch(`http://localhost:5000/api/soutenances/tuteur/${idTuteur}`);
                         if (!response.ok) {
                             throw new Error("Failed to fetch soutenances");
                         }
                         const data = await response.json();
+                        console.log("API Response:", data); // Debug log
+                        if (!Array.isArray(data)) {
+                            throw new Error("Invalid data format received");
+                        }
                         setSoutenances(data);
                     } catch (err) {
                         setError(err instanceof Error ? err.message : "An unknown error occurred");
@@ -366,7 +371,8 @@ function SoutenancesPage() {
     }["SoutenancesPage.useEffect"], [
         idTuteur
     ]);
-    const groupName = soutenances.length > 0 ? soutenances[0].nomGroupe : "Inconnu";
+    // Improved group name handling
+    const groupName = soutenances.length > 0 ? soutenances[0].groupNames : "Votre groupe";
     if (loading) {
         return /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$card$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["Card"], {
             className: "w-full shadow-md",
@@ -379,17 +385,17 @@ function SoutenancesPage() {
                             className: "h-8 w-3/4"
                         }, void 0, false, {
                             fileName: "[project]/app/components/tuteur_sout/sout_ table.tsx",
-                            lineNumber: 166,
+                            lineNumber: 176,
                             columnNumber: 13
                         }, this)
                     }, void 0, false, {
                         fileName: "[project]/app/components/tuteur_sout/sout_ table.tsx",
-                        lineNumber: 165,
+                        lineNumber: 175,
                         columnNumber: 11
                     }, this)
                 }, void 0, false, {
                     fileName: "[project]/app/components/tuteur_sout/sout_ table.tsx",
-                    lineNumber: 164,
+                    lineNumber: 174,
                     columnNumber: 9
                 }, this),
                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$card$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["CardContent"], {
@@ -412,33 +418,33 @@ function SoutenancesPage() {
                                                         className: "h-6 w-24"
                                                     }, void 0, false, {
                                                         fileName: "[project]/app/components/tuteur_sout/sout_ table.tsx",
-                                                        lineNumber: 178,
+                                                        lineNumber: 188,
                                                         columnNumber: 21
                                                     }, this),
                                                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$skeleton$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["Skeleton"], {
                                                         className: "h-6 w-20"
                                                     }, void 0, false, {
                                                         fileName: "[project]/app/components/tuteur_sout/sout_ table.tsx",
-                                                        lineNumber: 179,
+                                                        lineNumber: 189,
                                                         columnNumber: 21
                                                     }, this)
                                                 ]
                                             }, void 0, true, {
                                                 fileName: "[project]/app/components/tuteur_sout/sout_ table.tsx",
-                                                lineNumber: 177,
+                                                lineNumber: 187,
                                                 columnNumber: 19
                                             }, this),
                                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$skeleton$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["Skeleton"], {
                                                 className: "h-10 w-40"
                                             }, void 0, false, {
                                                 fileName: "[project]/app/components/tuteur_sout/sout_ table.tsx",
-                                                lineNumber: 181,
+                                                lineNumber: 191,
                                                 columnNumber: 19
                                             }, this)
                                         ]
                                     }, void 0, true, {
                                         fileName: "[project]/app/components/tuteur_sout/sout_ table.tsx",
-                                        lineNumber: 176,
+                                        lineNumber: 186,
                                         columnNumber: 17
                                     }, this),
                                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -452,34 +458,34 @@ function SoutenancesPage() {
                                                 className: "h-6 w-full"
                                             }, j, false, {
                                                 fileName: "[project]/app/components/tuteur_sout/sout_ table.tsx",
-                                                lineNumber: 185,
+                                                lineNumber: 195,
                                                 columnNumber: 21
                                             }, this))
                                     }, void 0, false, {
                                         fileName: "[project]/app/components/tuteur_sout/sout_ table.tsx",
-                                        lineNumber: 183,
+                                        lineNumber: 193,
                                         columnNumber: 17
                                     }, this)
                                 ]
                             }, i, true, {
                                 fileName: "[project]/app/components/tuteur_sout/sout_ table.tsx",
-                                lineNumber: 172,
+                                lineNumber: 182,
                                 columnNumber: 15
                             }, this))
                     }, void 0, false, {
                         fileName: "[project]/app/components/tuteur_sout/sout_ table.tsx",
-                        lineNumber: 170,
+                        lineNumber: 180,
                         columnNumber: 11
                     }, this)
                 }, void 0, false, {
                     fileName: "[project]/app/components/tuteur_sout/sout_ table.tsx",
-                    lineNumber: 169,
+                    lineNumber: 179,
                     columnNumber: 9
                 }, this)
             ]
         }, void 0, true, {
             fileName: "[project]/app/components/tuteur_sout/sout_ table.tsx",
-            lineNumber: 163,
+            lineNumber: 173,
             columnNumber: 7
         }, this);
     }
@@ -495,7 +501,7 @@ function SoutenancesPage() {
                             className: "h-12 w-12 text-destructive"
                         }, void 0, false, {
                             fileName: "[project]/app/components/tuteur_sout/sout_ table.tsx",
-                            lineNumber: 201,
+                            lineNumber: 211,
                             columnNumber: 13
                         }, this),
                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("h3", {
@@ -503,7 +509,7 @@ function SoutenancesPage() {
                             children: "Erreur de chargement"
                         }, void 0, false, {
                             fileName: "[project]/app/components/tuteur_sout/sout_ table.tsx",
-                            lineNumber: 202,
+                            lineNumber: 212,
                             columnNumber: 13
                         }, this),
                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("p", {
@@ -511,7 +517,7 @@ function SoutenancesPage() {
                             children: error
                         }, void 0, false, {
                             fileName: "[project]/app/components/tuteur_sout/sout_ table.tsx",
-                            lineNumber: 203,
+                            lineNumber: 213,
                             columnNumber: 13
                         }, this),
                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$button$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["Button"], {
@@ -521,23 +527,23 @@ function SoutenancesPage() {
                             children: "Réessayer"
                         }, void 0, false, {
                             fileName: "[project]/app/components/tuteur_sout/sout_ table.tsx",
-                            lineNumber: 204,
+                            lineNumber: 214,
                             columnNumber: 13
                         }, this)
                     ]
                 }, void 0, true, {
                     fileName: "[project]/app/components/tuteur_sout/sout_ table.tsx",
-                    lineNumber: 200,
+                    lineNumber: 210,
                     columnNumber: 11
                 }, this)
             }, void 0, false, {
                 fileName: "[project]/app/components/tuteur_sout/sout_ table.tsx",
-                lineNumber: 199,
+                lineNumber: 209,
                 columnNumber: 9
             }, this)
         }, void 0, false, {
             fileName: "[project]/app/components/tuteur_sout/sout_ table.tsx",
-            lineNumber: 198,
+            lineNumber: 208,
             columnNumber: 7
         }, this);
     }
@@ -559,14 +565,14 @@ function SoutenancesPage() {
                                     children: groupName
                                 }, void 0, false, {
                                     fileName: "[project]/app/components/tuteur_sout/sout_ table.tsx",
-                                    lineNumber: 223,
-                                    columnNumber: 13
+                                    lineNumber: 233,
+                                    columnNumber: 3
                                 }, this)
                             ]
                         }, void 0, true, {
                             fileName: "[project]/app/components/tuteur_sout/sout_ table.tsx",
-                            lineNumber: 221,
-                            columnNumber: 11
+                            lineNumber: 231,
+                            columnNumber: 9
                         }, this),
                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$button$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["Button"], {
                             variant: "default",
@@ -577,31 +583,31 @@ function SoutenancesPage() {
                                     className: "h-4 w-4"
                                 }, void 0, false, {
                                     fileName: "[project]/app/components/tuteur_sout/sout_ table.tsx",
-                                    lineNumber: 230,
+                                    lineNumber: 240,
                                     columnNumber: 13
                                 }, this),
                                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("span", {
                                     children: "Visualitaion des documents"
                                 }, void 0, false, {
                                     fileName: "[project]/app/components/tuteur_sout/sout_ table.tsx",
-                                    lineNumber: 231,
+                                    lineNumber: 241,
                                     columnNumber: 13
                                 }, this)
                             ]
                         }, void 0, true, {
                             fileName: "[project]/app/components/tuteur_sout/sout_ table.tsx",
-                            lineNumber: 225,
+                            lineNumber: 235,
                             columnNumber: 11
                         }, this)
                     ]
                 }, void 0, true, {
                     fileName: "[project]/app/components/tuteur_sout/sout_ table.tsx",
-                    lineNumber: 220,
+                    lineNumber: 230,
                     columnNumber: 9
                 }, this)
             }, void 0, false, {
                 fileName: "[project]/app/components/tuteur_sout/sout_ table.tsx",
-                lineNumber: 219,
+                lineNumber: 229,
                 columnNumber: 7
             }, this),
             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$card$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["CardContent"], {
@@ -613,7 +619,7 @@ function SoutenancesPage() {
                             className: "h-12 w-12 text-muted-foreground"
                         }, void 0, false, {
                             fileName: "[project]/app/components/tuteur_sout/sout_ table.tsx",
-                            lineNumber: 238,
+                            lineNumber: 248,
                             columnNumber: 13
                         }, this),
                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("h3", {
@@ -621,7 +627,7 @@ function SoutenancesPage() {
                             children: "Aucune soutenance planifiée"
                         }, void 0, false, {
                             fileName: "[project]/app/components/tuteur_sout/sout_ table.tsx",
-                            lineNumber: 239,
+                            lineNumber: 249,
                             columnNumber: 13
                         }, this),
                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("p", {
@@ -629,13 +635,13 @@ function SoutenancesPage() {
                             children: "Vous n'avez pas encore de soutenances programmées."
                         }, void 0, false, {
                             fileName: "[project]/app/components/tuteur_sout/sout_ table.tsx",
-                            lineNumber: 242,
+                            lineNumber: 252,
                             columnNumber: 13
                         }, this)
                     ]
                 }, void 0, true, {
                     fileName: "[project]/app/components/tuteur_sout/sout_ table.tsx",
-                    lineNumber: 237,
+                    lineNumber: 247,
                     columnNumber: 11
                 }, this) : /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
                     className: "flex flex-col items-center justify-center space-y-6 max-w-xl mx-auto",
@@ -648,19 +654,19 @@ function SoutenancesPage() {
                                         status: soutenance.status
                                     }, void 0, false, {
                                         fileName: "[project]/app/components/tuteur_sout/sout_ table.tsx",
-                                        lineNumber: 255,
+                                        lineNumber: 265,
                                         columnNumber: 19
                                     }, this)
                                 }, void 0, false, {
                                     fileName: "[project]/app/components/tuteur_sout/sout_ table.tsx",
-                                    lineNumber: 254,
+                                    lineNumber: 264,
                                     columnNumber: 17
                                 }, this),
                                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
                                     className: "absolute -top-10 -right-10 w-20 h-20 bg-primary/5 rounded-full blur-xl group-hover:bg-primary/10 transition-all duration-500"
                                 }, void 0, false, {
                                     fileName: "[project]/app/components/tuteur_sout/sout_ table.tsx",
-                                    lineNumber: 259,
+                                    lineNumber: 269,
                                     columnNumber: 17
                                 }, this),
                                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -674,12 +680,12 @@ function SoutenancesPage() {
                                                 children: soutenance.nomGroupe
                                             }, void 0, false, {
                                                 fileName: "[project]/app/components/tuteur_sout/sout_ table.tsx",
-                                                lineNumber: 263,
+                                                lineNumber: 273,
                                                 columnNumber: 21
                                             }, this)
                                         }, void 0, false, {
                                             fileName: "[project]/app/components/tuteur_sout/sout_ table.tsx",
-                                            lineNumber: 262,
+                                            lineNumber: 272,
                                             columnNumber: 19
                                         }, this),
                                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -694,12 +700,12 @@ function SoutenancesPage() {
                                                                 className: "h-5 w-5 text-primary"
                                                             }, void 0, false, {
                                                                 fileName: "[project]/app/components/tuteur_sout/sout_ table.tsx",
-                                                                lineNumber: 274,
+                                                                lineNumber: 284,
                                                                 columnNumber: 25
                                                             }, this)
                                                         }, void 0, false, {
                                                             fileName: "[project]/app/components/tuteur_sout/sout_ table.tsx",
-                                                            lineNumber: 273,
+                                                            lineNumber: 283,
                                                             columnNumber: 23
                                                         }, this),
                                                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -709,7 +715,7 @@ function SoutenancesPage() {
                                                                     children: "Date"
                                                                 }, void 0, false, {
                                                                     fileName: "[project]/app/components/tuteur_sout/sout_ table.tsx",
-                                                                    lineNumber: 277,
+                                                                    lineNumber: 287,
                                                                     columnNumber: 25
                                                                 }, this),
                                                                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -719,19 +725,19 @@ function SoutenancesPage() {
                                                                     })
                                                                 }, void 0, false, {
                                                                     fileName: "[project]/app/components/tuteur_sout/sout_ table.tsx",
-                                                                    lineNumber: 280,
+                                                                    lineNumber: 290,
                                                                     columnNumber: 25
                                                                 }, this)
                                                             ]
                                                         }, void 0, true, {
                                                             fileName: "[project]/app/components/tuteur_sout/sout_ table.tsx",
-                                                            lineNumber: 276,
+                                                            lineNumber: 286,
                                                             columnNumber: 23
                                                         }, this)
                                                     ]
                                                 }, void 0, true, {
                                                     fileName: "[project]/app/components/tuteur_sout/sout_ table.tsx",
-                                                    lineNumber: 272,
+                                                    lineNumber: 282,
                                                     columnNumber: 21
                                                 }, this),
                                                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -743,12 +749,12 @@ function SoutenancesPage() {
                                                                 className: "h-5 w-5 text-primary"
                                                             }, void 0, false, {
                                                                 fileName: "[project]/app/components/tuteur_sout/sout_ table.tsx",
-                                                                lineNumber: 290,
+                                                                lineNumber: 300,
                                                                 columnNumber: 25
                                                             }, this)
                                                         }, void 0, false, {
                                                             fileName: "[project]/app/components/tuteur_sout/sout_ table.tsx",
-                                                            lineNumber: 289,
+                                                            lineNumber: 299,
                                                             columnNumber: 23
                                                         }, this),
                                                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -758,7 +764,7 @@ function SoutenancesPage() {
                                                                     children: "Heure"
                                                                 }, void 0, false, {
                                                                     fileName: "[project]/app/components/tuteur_sout/sout_ table.tsx",
-                                                                    lineNumber: 293,
+                                                                    lineNumber: 303,
                                                                     columnNumber: 25
                                                                 }, this),
                                                                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -766,19 +772,19 @@ function SoutenancesPage() {
                                                                     children: soutenance.time
                                                                 }, void 0, false, {
                                                                     fileName: "[project]/app/components/tuteur_sout/sout_ table.tsx",
-                                                                    lineNumber: 296,
+                                                                    lineNumber: 306,
                                                                     columnNumber: 25
                                                                 }, this)
                                                             ]
                                                         }, void 0, true, {
                                                             fileName: "[project]/app/components/tuteur_sout/sout_ table.tsx",
-                                                            lineNumber: 292,
+                                                            lineNumber: 302,
                                                             columnNumber: 23
                                                         }, this)
                                                     ]
                                                 }, void 0, true, {
                                                     fileName: "[project]/app/components/tuteur_sout/sout_ table.tsx",
-                                                    lineNumber: 288,
+                                                    lineNumber: 298,
                                                     columnNumber: 21
                                                 }, this),
                                                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -790,12 +796,12 @@ function SoutenancesPage() {
                                                                 className: "h-5 w-5 text-primary"
                                                             }, void 0, false, {
                                                                 fileName: "[project]/app/components/tuteur_sout/sout_ table.tsx",
-                                                                lineNumber: 302,
+                                                                lineNumber: 312,
                                                                 columnNumber: 25
                                                             }, this)
                                                         }, void 0, false, {
                                                             fileName: "[project]/app/components/tuteur_sout/sout_ table.tsx",
-                                                            lineNumber: 301,
+                                                            lineNumber: 311,
                                                             columnNumber: 23
                                                         }, this),
                                                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -805,7 +811,7 @@ function SoutenancesPage() {
                                                                     children: "Lieu"
                                                                 }, void 0, false, {
                                                                     fileName: "[project]/app/components/tuteur_sout/sout_ table.tsx",
-                                                                    lineNumber: 305,
+                                                                    lineNumber: 315,
                                                                     columnNumber: 25
                                                                 }, this),
                                                                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -813,19 +819,19 @@ function SoutenancesPage() {
                                                                     children: soutenance.location
                                                                 }, void 0, false, {
                                                                     fileName: "[project]/app/components/tuteur_sout/sout_ table.tsx",
-                                                                    lineNumber: 308,
+                                                                    lineNumber: 318,
                                                                     columnNumber: 25
                                                                 }, this)
                                                             ]
                                                         }, void 0, true, {
                                                             fileName: "[project]/app/components/tuteur_sout/sout_ table.tsx",
-                                                            lineNumber: 304,
+                                                            lineNumber: 314,
                                                             columnNumber: 23
                                                         }, this)
                                                     ]
                                                 }, void 0, true, {
                                                     fileName: "[project]/app/components/tuteur_sout/sout_ table.tsx",
-                                                    lineNumber: 300,
+                                                    lineNumber: 310,
                                                     columnNumber: 21
                                                 }, this),
                                                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -837,12 +843,12 @@ function SoutenancesPage() {
                                                                 className: "h-5 w-5 text-primary"
                                                             }, void 0, false, {
                                                                 fileName: "[project]/app/components/tuteur_sout/sout_ table.tsx",
-                                                                lineNumber: 314,
+                                                                lineNumber: 324,
                                                                 columnNumber: 25
                                                             }, this)
                                                         }, void 0, false, {
                                                             fileName: "[project]/app/components/tuteur_sout/sout_ table.tsx",
-                                                            lineNumber: 313,
+                                                            lineNumber: 323,
                                                             columnNumber: 23
                                                         }, this),
                                                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -852,7 +858,7 @@ function SoutenancesPage() {
                                                                     children: "Jury"
                                                                 }, void 0, false, {
                                                                     fileName: "[project]/app/components/tuteur_sout/sout_ table.tsx",
-                                                                    lineNumber: 317,
+                                                                    lineNumber: 327,
                                                                     columnNumber: 25
                                                                 }, this),
                                                                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -860,53 +866,53 @@ function SoutenancesPage() {
                                                                     children: formatJuryNames(soutenance.juryNames)
                                                                 }, void 0, false, {
                                                                     fileName: "[project]/app/components/tuteur_sout/sout_ table.tsx",
-                                                                    lineNumber: 320,
+                                                                    lineNumber: 330,
                                                                     columnNumber: 25
                                                                 }, this)
                                                             ]
                                                         }, void 0, true, {
                                                             fileName: "[project]/app/components/tuteur_sout/sout_ table.tsx",
-                                                            lineNumber: 316,
+                                                            lineNumber: 326,
                                                             columnNumber: 23
                                                         }, this)
                                                     ]
                                                 }, void 0, true, {
                                                     fileName: "[project]/app/components/tuteur_sout/sout_ table.tsx",
-                                                    lineNumber: 312,
+                                                    lineNumber: 322,
                                                     columnNumber: 21
                                                 }, this)
                                             ]
                                         }, void 0, true, {
                                             fileName: "[project]/app/components/tuteur_sout/sout_ table.tsx",
-                                            lineNumber: 271,
+                                            lineNumber: 281,
                                             columnNumber: 19
                                         }, this)
                                     ]
                                 }, void 0, true, {
                                     fileName: "[project]/app/components/tuteur_sout/sout_ table.tsx",
-                                    lineNumber: 261,
+                                    lineNumber: 271,
                                     columnNumber: 17
                                 }, this)
                             ]
                         }, soutenance.idSoutenance, true, {
                             fileName: "[project]/app/components/tuteur_sout/sout_ table.tsx",
-                            lineNumber: 249,
+                            lineNumber: 259,
                             columnNumber: 15
                         }, this))
                 }, void 0, false, {
                     fileName: "[project]/app/components/tuteur_sout/sout_ table.tsx",
-                    lineNumber: 247,
+                    lineNumber: 257,
                     columnNumber: 11
                 }, this)
             }, void 0, false, {
                 fileName: "[project]/app/components/tuteur_sout/sout_ table.tsx",
-                lineNumber: 235,
+                lineNumber: 245,
                 columnNumber: 7
             }, this)
         ]
     }, void 0, true, {
         fileName: "[project]/app/components/tuteur_sout/sout_ table.tsx",
-        lineNumber: 218,
+        lineNumber: 228,
         columnNumber: 5
     }, this);
 }

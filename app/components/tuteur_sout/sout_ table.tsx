@@ -28,10 +28,10 @@ interface Soutenance {
   date: string;
   time: string;
   location: string;
-  nomGroupe: string;
-  juryNames: string[] | string | null;
+  groupNames: string;  // Changed from nomGroupe
+  juryNames: string;
   status: string;
-  idGroupe: number;
+  groupIds: number[];
 }
 
 interface StatusConfig {
@@ -139,11 +139,20 @@ const idTuteur = "T001";
 useEffect(() => {
   const fetchSoutenances = async () => {
     try {
+      setLoading(true);
       const response = await fetch(`http://localhost:5000/api/soutenances/tuteur/${idTuteur}`);
+      
       if (!response.ok) {
         throw new Error("Failed to fetch soutenances");
       }
+
       const data = await response.json();
+      console.log("API Response:", data); // Debug log
+      
+      if (!Array.isArray(data)) {
+        throw new Error("Invalid data format received");
+      }
+
       setSoutenances(data);
     } catch (err) {
       setError(err instanceof Error ? err.message : "An unknown error occurred");
@@ -154,9 +163,10 @@ useEffect(() => {
 
   fetchSoutenances();
 }, [idTuteur]);
-
-  const groupName =
-    soutenances.length > 0 ? soutenances[0].nomGroupe : "Inconnu";
+  // Improved group name handling
+  const groupName = soutenances.length > 0 
+  ? soutenances[0].groupNames 
+  : "Votre groupe";
 
   if (loading) {
     return (
@@ -218,10 +228,10 @@ useEffect(() => {
     <Card className="w-full shadow-lg border-0 bg-gradient-to-b from-background to-muted/20">
       <CardHeader className="pb-4 border-b border-border/40">
         <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
-          <CardTitle className="text-2xl font-bold text-center md:text-left">
-            Soutenances du{" "}
-            <span className="text-primary font-extrabold">{groupName}</span>
-          </CardTitle>
+        <CardTitle className="text-2xl font-bold text-center md:text-left">
+  Soutenances du{" "}
+  <span className="text-primary font-extrabold">{groupName}</span>
+</CardTitle>
           <Button
             variant="default"
             className="rounded-full h-10 px-4 flex items-center gap-2 shadow-md"

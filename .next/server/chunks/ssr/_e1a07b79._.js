@@ -713,13 +713,15 @@ function TuteurGroupDocumentsPage() {
         setIsLoading(true);
         setFetchError(null);
         try {
-            const response = await fetch(`http://localhost:5000/api/tut_soumettre/group-documents?idTuteur=${idTuteur}`);
-            if (!response.ok) throw new Error("Impossible de récupérer les documents du groupe");
+            const response = await fetch(`http://localhost:5000/api/group-documents?idTuteur=${idTuteur}`);
+            if (!response.ok) {
+                const errorData = await response.json();
+                throw new Error(errorData.error || "Impossible de récupérer les documents du groupe");
+            }
             const data = await response.json();
-            console.log("Fetched documents:", JSON.stringify(data, null, 2)); // Debug log
             setSubmittedDocuments(data);
         } catch (error) {
-            setFetchError("Erreur lors de la récupération des documents");
+            setFetchError(error instanceof Error ? error.message : "Erreur inconnue");
             console.error("Fetch error:", error);
         } finally{
             setIsLoading(false);
@@ -738,59 +740,47 @@ function TuteurGroupDocumentsPage() {
         setCurrentDoc(null);
     };
     const submitValidation = async ()=>{
-        const payload = {
-            idPFE: currentDoc?.idPFE,
-            pfeLivrableId: currentDoc?.id,
-            idTuteur,
-            validationStatus,
-            comment: comment || ""
-        };
-        console.log("Submitting validation with payload:", payload);
-        if (!payload.idPFE || !payload.pfeLivrableId || !payload.idTuteur || !payload.validationStatus) {
-            console.error("Missing fields in payload:", payload);
-            alert("Please ensure all required fields are filled.");
-            return;
-        }
+        if (!currentDoc) return;
         try {
-            const res = await fetch("http://localhost:5000/api/validate_document", {
+            const response = await fetch("http://localhost:5000/api/validate_document", {
                 method: "POST",
                 headers: {
                     "Content-Type": "application/json"
                 },
-                body: JSON.stringify(payload)
+                body: JSON.stringify({
+                    idPFE: currentDoc.idPFE,
+                    pfeLivrableId: currentDoc.id,
+                    idTuteur,
+                    validationStatus,
+                    comment: comment || null
+                })
             });
-            if (res.ok) {
-                fetchDocuments();
-                closeValidationForm();
-            } else {
-                const errorData = await res.json();
-                console.log("Validation error:", errorData);
-                alert(`Validation failed: ${errorData.error}`);
+            if (!response.ok) {
+                const errorData = await response.json();
+                throw new Error(errorData.error || "Échec de la validation");
             }
+            fetchDocuments();
+            closeValidationForm();
         } catch (error) {
-            console.error("Network error:", error);
-            alert("Network error occurred: " + error.message);
+            console.error("Validation error:", error);
+            setFetchError(error instanceof Error ? error.message : "Erreur inconnue");
         }
     };
     const deleteValidation = async ()=>{
         if (!currentDoc) return;
         try {
             const response = await fetch(`http://localhost:5000/api/validate_document?idPFE=${currentDoc.idPFE}&pfeLivrableId=${currentDoc.id}&idTuteur=${idTuteur}`, {
-                method: "DELETE",
-                headers: {
-                    "Content-Type": "application/json"
-                }
+                method: "DELETE"
             });
-            if (response.ok) {
-                fetchDocuments();
-                closeValidationForm();
-            } else {
+            if (!response.ok) {
                 const errorData = await response.json();
-                setFetchError(`Échec de la suppression de la validation : ${errorData.error || "Erreur inconnue"}`);
+                throw new Error(errorData.error || "Échec de la suppression");
             }
+            fetchDocuments();
+            closeValidationForm();
         } catch (error) {
-            console.error("Erreur lors de la suppression de la validation :", error);
-            setFetchError("Erreur de connexion au serveur lors de la suppression de la validation");
+            console.error("Deletion error:", error);
+            setFetchError(error instanceof Error ? error.message : "Erreur inconnue");
         }
     };
     (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["useEffect"])(()=>{
@@ -805,7 +795,7 @@ function TuteurGroupDocumentsPage() {
                     className: "h-4 w-4 text-green-500"
                 }, void 0, false, {
                     fileName: "[project]/app/components/tuteur_sout/tut_soumettre.tsx",
-                    lineNumber: 154,
+                    lineNumber: 145,
                     columnNumber: 32
                 }, this);
             case "rejected":
@@ -813,7 +803,7 @@ function TuteurGroupDocumentsPage() {
                     className: "h-4 w-4 text-red-500"
                 }, void 0, false, {
                     fileName: "[project]/app/components/tuteur_sout/tut_soumettre.tsx",
-                    lineNumber: 155,
+                    lineNumber: 146,
                     columnNumber: 31
                 }, this);
             default:
@@ -821,7 +811,7 @@ function TuteurGroupDocumentsPage() {
                     className: "h-4 w-4 text-amber-500"
                 }, void 0, false, {
                     fileName: "[project]/app/components/tuteur_sout/tut_soumettre.tsx",
-                    lineNumber: 156,
+                    lineNumber: 147,
                     columnNumber: 23
                 }, this);
         }
@@ -881,7 +871,7 @@ function TuteurGroupDocumentsPage() {
                                 children: "Documents des Groupes Supervisés"
                             }, void 0, false, {
                                 fileName: "[project]/app/components/tuteur_sout/tut_soumettre.tsx",
-                                lineNumber: 195,
+                                lineNumber: 186,
                                 columnNumber: 11
                             }, this),
                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$card$2e$tsx__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["CardDescription"], {
@@ -889,13 +879,13 @@ function TuteurGroupDocumentsPage() {
                                 children: "Consultez et validez les documents soumis par les groupes que vous encadrez"
                             }, void 0, false, {
                                 fileName: "[project]/app/components/tuteur_sout/tut_soumettre.tsx",
-                                lineNumber: 198,
+                                lineNumber: 189,
                                 columnNumber: 11
                             }, this)
                         ]
                     }, void 0, true, {
                         fileName: "[project]/app/components/tuteur_sout/tut_soumettre.tsx",
-                        lineNumber: 194,
+                        lineNumber: 185,
                         columnNumber: 9
                     }, this),
                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$card$2e$tsx__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["CardContent"], {
@@ -909,27 +899,27 @@ function TuteurGroupDocumentsPage() {
                                         className: "h-4 w-4"
                                     }, void 0, false, {
                                         fileName: "[project]/app/components/tuteur_sout/tut_soumettre.tsx",
-                                        lineNumber: 206,
+                                        lineNumber: 197,
                                         columnNumber: 15
                                     }, this),
                                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$alert$2e$tsx__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["AlertTitle"], {
                                         children: "Erreur"
                                     }, void 0, false, {
                                         fileName: "[project]/app/components/tuteur_sout/tut_soumettre.tsx",
-                                        lineNumber: 207,
+                                        lineNumber: 198,
                                         columnNumber: 15
                                     }, this),
                                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$alert$2e$tsx__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["AlertDescription"], {
                                         children: fetchError
                                     }, void 0, false, {
                                         fileName: "[project]/app/components/tuteur_sout/tut_soumettre.tsx",
-                                        lineNumber: 208,
+                                        lineNumber: 199,
                                         columnNumber: 15
                                     }, this)
                                 ]
                             }, void 0, true, {
                                 fileName: "[project]/app/components/tuteur_sout/tut_soumettre.tsx",
-                                lineNumber: 205,
+                                lineNumber: 196,
                                 columnNumber: 13
                             }, this),
                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$tabs$2e$tsx__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["Tabs"], {
@@ -948,7 +938,7 @@ function TuteurGroupDocumentsPage() {
                                                         children: "Tous"
                                                     }, void 0, false, {
                                                         fileName: "[project]/app/components/tuteur_sout/tut_soumettre.tsx",
-                                                        lineNumber: 214,
+                                                        lineNumber: 205,
                                                         columnNumber: 17
                                                     }, this),
                                                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$tabs$2e$tsx__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["TabsTrigger"], {
@@ -957,7 +947,7 @@ function TuteurGroupDocumentsPage() {
                                                         children: "En attente"
                                                     }, void 0, false, {
                                                         fileName: "[project]/app/components/tuteur_sout/tut_soumettre.tsx",
-                                                        lineNumber: 215,
+                                                        lineNumber: 206,
                                                         columnNumber: 17
                                                     }, this),
                                                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$tabs$2e$tsx__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["TabsTrigger"], {
@@ -966,7 +956,7 @@ function TuteurGroupDocumentsPage() {
                                                         children: "Validés"
                                                     }, void 0, false, {
                                                         fileName: "[project]/app/components/tuteur_sout/tut_soumettre.tsx",
-                                                        lineNumber: 216,
+                                                        lineNumber: 207,
                                                         columnNumber: 17
                                                     }, this),
                                                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$tabs$2e$tsx__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["TabsTrigger"], {
@@ -975,13 +965,13 @@ function TuteurGroupDocumentsPage() {
                                                         children: "Rejetés"
                                                     }, void 0, false, {
                                                         fileName: "[project]/app/components/tuteur_sout/tut_soumettre.tsx",
-                                                        lineNumber: 217,
+                                                        lineNumber: 208,
                                                         columnNumber: 17
                                                     }, this)
                                                 ]
                                             }, void 0, true, {
                                                 fileName: "[project]/app/components/tuteur_sout/tut_soumettre.tsx",
-                                                lineNumber: 213,
+                                                lineNumber: 204,
                                                 columnNumber: 15
                                             }, this),
                                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -1000,19 +990,19 @@ function TuteurGroupDocumentsPage() {
                                                                             className: "h-3.5 w-3.5 mr-1.5"
                                                                         }, void 0, false, {
                                                                             fileName: "[project]/app/components/tuteur_sout/tut_soumettre.tsx",
-                                                                            lineNumber: 223,
+                                                                            lineNumber: 214,
                                                                             columnNumber: 23
                                                                         }, this),
                                                                         activeFilter ? `Groupe: ${activeFilter}` : "Filtrer par groupe"
                                                                     ]
                                                                 }, void 0, true, {
                                                                     fileName: "[project]/app/components/tuteur_sout/tut_soumettre.tsx",
-                                                                    lineNumber: 222,
+                                                                    lineNumber: 213,
                                                                     columnNumber: 21
                                                                 }, this)
                                                             }, void 0, false, {
                                                                 fileName: "[project]/app/components/tuteur_sout/tut_soumettre.tsx",
-                                                                lineNumber: 221,
+                                                                lineNumber: 212,
                                                                 columnNumber: 19
                                                             }, this),
                                                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$dropdown$2d$menu$2e$tsx__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["DropdownMenuContent"], {
@@ -1023,7 +1013,7 @@ function TuteurGroupDocumentsPage() {
                                                                         children: "Tous les groupes"
                                                                     }, void 0, false, {
                                                                         fileName: "[project]/app/components/tuteur_sout/tut_soumettre.tsx",
-                                                                        lineNumber: 229,
+                                                                        lineNumber: 220,
                                                                         columnNumber: 23
                                                                     }, this),
                                                                     uniqueGroups.map((group)=>/*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$dropdown$2d$menu$2e$tsx__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["DropdownMenuItem"], {
@@ -1031,19 +1021,19 @@ function TuteurGroupDocumentsPage() {
                                                                             children: group
                                                                         }, group, false, {
                                                                             fileName: "[project]/app/components/tuteur_sout/tut_soumettre.tsx",
-                                                                            lineNumber: 232,
+                                                                            lineNumber: 223,
                                                                             columnNumber: 23
                                                                         }, this))
                                                                 ]
                                                             }, void 0, true, {
                                                                 fileName: "[project]/app/components/tuteur_sout/tut_soumettre.tsx",
-                                                                lineNumber: 227,
+                                                                lineNumber: 218,
                                                                 columnNumber: 19
                                                             }, this)
                                                         ]
                                                     }, void 0, true, {
                                                         fileName: "[project]/app/components/tuteur_sout/tut_soumettre.tsx",
-                                                        lineNumber: 220,
+                                                        lineNumber: 211,
                                                         columnNumber: 17
                                                     }, this),
                                                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$button$2e$tsx__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["Button"], {
@@ -1057,26 +1047,26 @@ function TuteurGroupDocumentsPage() {
                                                                 className: `h-3.5 w-3.5 mr-1.5 ${isLoading ? "animate-spin" : ""}`
                                                             }, void 0, false, {
                                                                 fileName: "[project]/app/components/tuteur_sout/tut_soumettre.tsx",
-                                                                lineNumber: 245,
+                                                                lineNumber: 236,
                                                                 columnNumber: 19
                                                             }, this),
                                                             "Actualiser"
                                                         ]
                                                     }, void 0, true, {
                                                         fileName: "[project]/app/components/tuteur_sout/tut_soumettre.tsx",
-                                                        lineNumber: 238,
+                                                        lineNumber: 229,
                                                         columnNumber: 17
                                                     }, this)
                                                 ]
                                             }, void 0, true, {
                                                 fileName: "[project]/app/components/tuteur_sout/tut_soumettre.tsx",
-                                                lineNumber: 219,
+                                                lineNumber: 210,
                                                 columnNumber: 15
                                             }, this)
                                         ]
                                     }, void 0, true, {
                                         fileName: "[project]/app/components/tuteur_sout/tut_soumettre.tsx",
-                                        lineNumber: 212,
+                                        lineNumber: 203,
                                         columnNumber: 13
                                     }, this),
                                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$tabs$2e$tsx__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["TabsContent"], {
@@ -1093,7 +1083,7 @@ function TuteurGroupDocumentsPage() {
                                                                 className: "h-5 w-5 text-primary"
                                                             }, void 0, false, {
                                                                 fileName: "[project]/app/components/tuteur_sout/tut_soumettre.tsx",
-                                                                lineNumber: 254,
+                                                                lineNumber: 245,
                                                                 columnNumber: 19
                                                             }, this),
                                                             "Documents ",
@@ -1107,13 +1097,13 @@ function TuteurGroupDocumentsPage() {
                                                                 ]
                                                             }, void 0, true, {
                                                                 fileName: "[project]/app/components/tuteur_sout/tut_soumettre.tsx",
-                                                                lineNumber: 256,
+                                                                lineNumber: 247,
                                                                 columnNumber: 36
                                                             }, this)
                                                         ]
                                                     }, void 0, true, {
                                                         fileName: "[project]/app/components/tuteur_sout/tut_soumettre.tsx",
-                                                        lineNumber: 253,
+                                                        lineNumber: 244,
                                                         columnNumber: 17
                                                     }, this),
                                                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$badge$2e$tsx__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["Badge"], {
@@ -1124,7 +1114,7 @@ function TuteurGroupDocumentsPage() {
                                                                 className: "h-3.5 w-3.5 mr-1.5"
                                                             }, void 0, false, {
                                                                 fileName: "[project]/app/components/tuteur_sout/tut_soumettre.tsx",
-                                                                lineNumber: 259,
+                                                                lineNumber: 250,
                                                                 columnNumber: 19
                                                             }, this),
                                                             filteredDocuments.length,
@@ -1133,13 +1123,13 @@ function TuteurGroupDocumentsPage() {
                                                         ]
                                                     }, void 0, true, {
                                                         fileName: "[project]/app/components/tuteur_sout/tut_soumettre.tsx",
-                                                        lineNumber: 258,
+                                                        lineNumber: 249,
                                                         columnNumber: 17
                                                     }, this)
                                                 ]
                                             }, void 0, true, {
                                                 fileName: "[project]/app/components/tuteur_sout/tut_soumettre.tsx",
-                                                lineNumber: 252,
+                                                lineNumber: 243,
                                                 columnNumber: 15
                                             }, this),
                                             isLoading ? /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -1149,7 +1139,7 @@ function TuteurGroupDocumentsPage() {
                                                         className: "h-5 w-5 animate-spin mr-2 text-primary"
                                                     }, void 0, false, {
                                                         fileName: "[project]/app/components/tuteur_sout/tut_soumettre.tsx",
-                                                        lineNumber: 266,
+                                                        lineNumber: 257,
                                                         columnNumber: 19
                                                     }, this),
                                                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("p", {
@@ -1157,13 +1147,13 @@ function TuteurGroupDocumentsPage() {
                                                         children: "Chargement des documents..."
                                                     }, void 0, false, {
                                                         fileName: "[project]/app/components/tuteur_sout/tut_soumettre.tsx",
-                                                        lineNumber: 267,
+                                                        lineNumber: 258,
                                                         columnNumber: 19
                                                     }, this)
                                                 ]
                                             }, void 0, true, {
                                                 fileName: "[project]/app/components/tuteur_sout/tut_soumettre.tsx",
-                                                lineNumber: 265,
+                                                lineNumber: 256,
                                                 columnNumber: 17
                                             }, this) : filteredDocuments.length > 0 ? /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
                                                 className: "space-y-4",
@@ -1182,12 +1172,12 @@ function TuteurGroupDocumentsPage() {
                                                                                     className: "h-5 w-5"
                                                                                 }, void 0, false, {
                                                                                     fileName: "[project]/app/components/tuteur_sout/tut_soumettre.tsx",
-                                                                                    lineNumber: 279,
+                                                                                    lineNumber: 270,
                                                                                     columnNumber: 57
                                                                                 }, this)
                                                                             }, void 0, false, {
                                                                                 fileName: "[project]/app/components/tuteur_sout/tut_soumettre.tsx",
-                                                                                lineNumber: 278,
+                                                                                lineNumber: 269,
                                                                                 columnNumber: 27
                                                                             }, this),
                                                                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -1197,7 +1187,7 @@ function TuteurGroupDocumentsPage() {
                                                                                         children: livrableNames[doc.type]
                                                                                     }, void 0, false, {
                                                                                         fileName: "[project]/app/components/tuteur_sout/tut_soumettre.tsx",
-                                                                                        lineNumber: 282,
+                                                                                        lineNumber: 273,
                                                                                         columnNumber: 29
                                                                                     }, this),
                                                                                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -1214,7 +1204,7 @@ function TuteurGroupDocumentsPage() {
                                                                                                 ]
                                                                                             }, void 0, true, {
                                                                                                 fileName: "[project]/app/components/tuteur_sout/tut_soumettre.tsx",
-                                                                                                lineNumber: 284,
+                                                                                                lineNumber: 275,
                                                                                                 columnNumber: 31
                                                                                             }, this),
                                                                                             doc.authorName && /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$badge$2e$tsx__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["Badge"], {
@@ -1223,7 +1213,7 @@ function TuteurGroupDocumentsPage() {
                                                                                                 children: doc.authorName
                                                                                             }, void 0, false, {
                                                                                                 fileName: "[project]/app/components/tuteur_sout/tut_soumettre.tsx",
-                                                                                                lineNumber: 285,
+                                                                                                lineNumber: 276,
                                                                                                 columnNumber: 50
                                                                                             }, this),
                                                                                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$badge$2e$tsx__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["Badge"], {
@@ -1236,30 +1226,30 @@ function TuteurGroupDocumentsPage() {
                                                                                                     ]
                                                                                                 }, void 0, true, {
                                                                                                     fileName: "[project]/app/components/tuteur_sout/tut_soumettre.tsx",
-                                                                                                    lineNumber: 289,
+                                                                                                    lineNumber: 280,
                                                                                                     columnNumber: 33
                                                                                                 }, this)
                                                                                             }, void 0, false, {
                                                                                                 fileName: "[project]/app/components/tuteur_sout/tut_soumettre.tsx",
-                                                                                                lineNumber: 286,
+                                                                                                lineNumber: 277,
                                                                                                 columnNumber: 31
                                                                                             }, this)
                                                                                         ]
                                                                                     }, void 0, true, {
                                                                                         fileName: "[project]/app/components/tuteur_sout/tut_soumettre.tsx",
-                                                                                        lineNumber: 283,
+                                                                                        lineNumber: 274,
                                                                                         columnNumber: 29
                                                                                     }, this)
                                                                                 ]
                                                                             }, void 0, true, {
                                                                                 fileName: "[project]/app/components/tuteur_sout/tut_soumettre.tsx",
-                                                                                lineNumber: 281,
+                                                                                lineNumber: 272,
                                                                                 columnNumber: 27
                                                                             }, this)
                                                                         ]
                                                                     }, void 0, true, {
                                                                         fileName: "[project]/app/components/tuteur_sout/tut_soumettre.tsx",
-                                                                        lineNumber: 277,
+                                                                        lineNumber: 268,
                                                                         columnNumber: 25
                                                                     }, this),
                                                                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -1271,46 +1261,46 @@ function TuteurGroupDocumentsPage() {
                                                                                 asChild: true,
                                                                                 className: "h-8 text-xs",
                                                                                 children: /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("a", {
-                                                                                    href: `${("TURBOPACK compile-time value", "http://localhost:5000") || "http://localhost:5000"}${doc.fichier}`,
+                                                                                    href: `http://localhost:5000${doc.fichier}`,
                                                                                     download: doc.fichier.split("/").pop(),
                                                                                     children: [
                                                                                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$lucide$2d$react$2f$dist$2f$esm$2f$icons$2f$download$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__$3c$export__default__as__Download$3e$__["Download"], {
                                                                                             className: "h-3.5 w-3.5 mr-1.5"
                                                                                         }, void 0, false, {
                                                                                             fileName: "[project]/app/components/tuteur_sout/tut_soumettre.tsx",
-                                                                                            lineNumber: 303,
+                                                                                            lineNumber: 294,
                                                                                             columnNumber: 31
                                                                                         }, this),
                                                                                         "Télécharger"
                                                                                     ]
                                                                                 }, void 0, true, {
                                                                                     fileName: "[project]/app/components/tuteur_sout/tut_soumettre.tsx",
-                                                                                    lineNumber: 299,
+                                                                                    lineNumber: 290,
                                                                                     columnNumber: 29
                                                                                 }, this)
                                                                             }, void 0, false, {
                                                                                 fileName: "[project]/app/components/tuteur_sout/tut_soumettre.tsx",
-                                                                                lineNumber: 298,
+                                                                                lineNumber: 289,
                                                                                 columnNumber: 27
                                                                             }, this),
                                                                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$button$2e$tsx__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["Button"], {
                                                                                 variant: "outline",
                                                                                 size: "sm",
-                                                                                onClick: ()=>window.open(`${("TURBOPACK compile-time value", "http://localhost:5000") || "http://localhost:5000"}${doc.fichier}`, "_blank"),
+                                                                                onClick: ()=>window.open(`http://localhost:5000${doc.fichier}`, "_blank"),
                                                                                 className: "h-8 text-xs",
                                                                                 children: [
                                                                                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$lucide$2d$react$2f$dist$2f$esm$2f$icons$2f$eye$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__$3c$export__default__as__Eye$3e$__["Eye"], {
                                                                                         className: "h-3.5 w-3.5 mr-1.5"
                                                                                     }, void 0, false, {
                                                                                         fileName: "[project]/app/components/tuteur_sout/tut_soumettre.tsx",
-                                                                                        lineNumber: 313,
+                                                                                        lineNumber: 304,
                                                                                         columnNumber: 29
                                                                                     }, this),
                                                                                     "Prévisualiser"
                                                                                 ]
                                                                             }, void 0, true, {
                                                                                 fileName: "[project]/app/components/tuteur_sout/tut_soumettre.tsx",
-                                                                                lineNumber: 307,
+                                                                                lineNumber: 298,
                                                                                 columnNumber: 27
                                                                             }, this),
                                                                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$button$2e$tsx__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["Button"], {
@@ -1323,26 +1313,26 @@ function TuteurGroupDocumentsPage() {
                                                                                         className: "h-3.5 w-3.5 mr-1.5"
                                                                                     }, void 0, false, {
                                                                                         fileName: "[project]/app/components/tuteur_sout/tut_soumettre.tsx",
-                                                                                        lineNumber: 322,
+                                                                                        lineNumber: 313,
                                                                                         columnNumber: 29
                                                                                     }, this),
                                                                                     doc.validationStatus ? "Modifier" : "Valider"
                                                                                 ]
                                                                             }, void 0, true, {
                                                                                 fileName: "[project]/app/components/tuteur_sout/tut_soumettre.tsx",
-                                                                                lineNumber: 316,
+                                                                                lineNumber: 307,
                                                                                 columnNumber: 27
                                                                             }, this)
                                                                         ]
                                                                     }, void 0, true, {
                                                                         fileName: "[project]/app/components/tuteur_sout/tut_soumettre.tsx",
-                                                                        lineNumber: 297,
+                                                                        lineNumber: 288,
                                                                         columnNumber: 25
                                                                     }, this)
                                                                 ]
                                                             }, void 0, true, {
                                                                 fileName: "[project]/app/components/tuteur_sout/tut_soumettre.tsx",
-                                                                lineNumber: 276,
+                                                                lineNumber: 267,
                                                                 columnNumber: 23
                                                             }, this),
                                                             doc.comment && /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -1353,7 +1343,7 @@ function TuteurGroupDocumentsPage() {
                                                                         children: "Commentaire:"
                                                                     }, void 0, false, {
                                                                         fileName: "[project]/app/components/tuteur_sout/tut_soumettre.tsx",
-                                                                        lineNumber: 329,
+                                                                        lineNumber: 320,
                                                                         columnNumber: 27
                                                                     }, this),
                                                                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -1361,24 +1351,24 @@ function TuteurGroupDocumentsPage() {
                                                                         children: doc.comment
                                                                     }, void 0, false, {
                                                                         fileName: "[project]/app/components/tuteur_sout/tut_soumettre.tsx",
-                                                                        lineNumber: 330,
+                                                                        lineNumber: 321,
                                                                         columnNumber: 27
                                                                     }, this)
                                                                 ]
                                                             }, void 0, true, {
                                                                 fileName: "[project]/app/components/tuteur_sout/tut_soumettre.tsx",
-                                                                lineNumber: 328,
+                                                                lineNumber: 319,
                                                                 columnNumber: 25
                                                             }, this)
                                                         ]
                                                     }, `${doc.idPFE}-${doc.id}-${doc.type}-${index}`, true, {
                                                         fileName: "[project]/app/components/tuteur_sout/tut_soumettre.tsx",
-                                                        lineNumber: 272,
+                                                        lineNumber: 263,
                                                         columnNumber: 21
                                                     }, this))
                                             }, void 0, false, {
                                                 fileName: "[project]/app/components/tuteur_sout/tut_soumettre.tsx",
-                                                lineNumber: 270,
+                                                lineNumber: 261,
                                                 columnNumber: 17
                                             }, this) : /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
                                                 className: "flex flex-col items-center justify-center p-8 bg-muted/10 rounded-xl border border-border/40",
@@ -1387,7 +1377,7 @@ function TuteurGroupDocumentsPage() {
                                                         className: "h-8 w-8 text-muted-foreground mb-2"
                                                     }, void 0, false, {
                                                         fileName: "[project]/app/components/tuteur_sout/tut_soumettre.tsx",
-                                                        lineNumber: 338,
+                                                        lineNumber: 329,
                                                         columnNumber: 19
                                                     }, this),
                                                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("p", {
@@ -1395,7 +1385,7 @@ function TuteurGroupDocumentsPage() {
                                                         children: activeFilter ? `Aucun document ${activeTab !== "all" ? getStatusText(activeTab).toLowerCase() : ""} pour le groupe ${activeFilter}.` : activeTab !== "all" ? `Aucun document ${getStatusText(activeTab).toLowerCase()}.` : "Aucun document soumis par vos groupes pour le moment."
                                                     }, void 0, false, {
                                                         fileName: "[project]/app/components/tuteur_sout/tut_soumettre.tsx",
-                                                        lineNumber: 339,
+                                                        lineNumber: 330,
                                                         columnNumber: 19
                                                     }, this),
                                                     (activeFilter || activeTab !== "all") && /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$button$2e$tsx__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["Button"], {
@@ -1408,31 +1398,31 @@ function TuteurGroupDocumentsPage() {
                                                         children: "Voir tous les documents"
                                                     }, void 0, false, {
                                                         fileName: "[project]/app/components/tuteur_sout/tut_soumettre.tsx",
-                                                        lineNumber: 347,
+                                                        lineNumber: 338,
                                                         columnNumber: 21
                                                     }, this)
                                                 ]
                                             }, void 0, true, {
                                                 fileName: "[project]/app/components/tuteur_sout/tut_soumettre.tsx",
-                                                lineNumber: 337,
+                                                lineNumber: 328,
                                                 columnNumber: 17
                                             }, this)
                                         ]
                                     }, void 0, true, {
                                         fileName: "[project]/app/components/tuteur_sout/tut_soumettre.tsx",
-                                        lineNumber: 251,
+                                        lineNumber: 242,
                                         columnNumber: 13
                                     }, this)
                                 ]
                             }, void 0, true, {
                                 fileName: "[project]/app/components/tuteur_sout/tut_soumettre.tsx",
-                                lineNumber: 211,
+                                lineNumber: 202,
                                 columnNumber: 11
                             }, this)
                         ]
                     }, void 0, true, {
                         fileName: "[project]/app/components/tuteur_sout/tut_soumettre.tsx",
-                        lineNumber: 203,
+                        lineNumber: 194,
                         columnNumber: 9
                     }, this),
                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$card$2e$tsx__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["CardFooter"], {
@@ -1446,7 +1436,7 @@ function TuteurGroupDocumentsPage() {
                                 ]
                             }, void 0, true, {
                                 fileName: "[project]/app/components/tuteur_sout/tut_soumettre.tsx",
-                                lineNumber: 362,
+                                lineNumber: 353,
                                 columnNumber: 11
                             }, this),
                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("p", {
@@ -1457,19 +1447,19 @@ function TuteurGroupDocumentsPage() {
                                 ]
                             }, void 0, true, {
                                 fileName: "[project]/app/components/tuteur_sout/tut_soumettre.tsx",
-                                lineNumber: 363,
+                                lineNumber: 354,
                                 columnNumber: 11
                             }, this)
                         ]
                     }, void 0, true, {
                         fileName: "[project]/app/components/tuteur_sout/tut_soumettre.tsx",
-                        lineNumber: 361,
+                        lineNumber: 352,
                         columnNumber: 9
                     }, this)
                 ]
             }, void 0, true, {
                 fileName: "[project]/app/components/tuteur_sout/tut_soumettre.tsx",
-                lineNumber: 193,
+                lineNumber: 184,
                 columnNumber: 7
             }, this),
             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$dialog$2e$tsx__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["Dialog"], {
@@ -1484,7 +1474,7 @@ function TuteurGroupDocumentsPage() {
                                     children: currentDoc?.validationStatus ? "Modifier la validation" : "Valider le document"
                                 }, void 0, false, {
                                     fileName: "[project]/app/components/tuteur_sout/tut_soumettre.tsx",
-                                    lineNumber: 370,
+                                    lineNumber: 361,
                                     columnNumber: 13
                                 }, this),
                                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$dialog$2e$tsx__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["DialogDescription"], {
@@ -1496,7 +1486,7 @@ function TuteurGroupDocumentsPage() {
                                                 children: livrableNames[currentDoc.type]
                                             }, void 0, false, {
                                                 fileName: "[project]/app/components/tuteur_sout/tut_soumettre.tsx",
-                                                lineNumber: 374,
+                                                lineNumber: 365,
                                                 columnNumber: 19
                                             }, this),
                                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$badge$2e$tsx__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["Badge"], {
@@ -1504,24 +1494,24 @@ function TuteurGroupDocumentsPage() {
                                                 children: currentDoc.nomGroupe
                                             }, void 0, false, {
                                                 fileName: "[project]/app/components/tuteur_sout/tut_soumettre.tsx",
-                                                lineNumber: 375,
+                                                lineNumber: 366,
                                                 columnNumber: 19
                                             }, this)
                                         ]
                                     }, void 0, true, {
                                         fileName: "[project]/app/components/tuteur_sout/tut_soumettre.tsx",
-                                        lineNumber: 373,
+                                        lineNumber: 364,
                                         columnNumber: 17
                                     }, this)
                                 }, void 0, false, {
                                     fileName: "[project]/app/components/tuteur_sout/tut_soumettre.tsx",
-                                    lineNumber: 371,
+                                    lineNumber: 362,
                                     columnNumber: 13
                                 }, this)
                             ]
                         }, void 0, true, {
                             fileName: "[project]/app/components/tuteur_sout/tut_soumettre.tsx",
-                            lineNumber: 369,
+                            lineNumber: 360,
                             columnNumber: 11
                         }, this),
                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -1535,7 +1525,7 @@ function TuteurGroupDocumentsPage() {
                                             children: "Statut de validation"
                                         }, void 0, false, {
                                             fileName: "[project]/app/components/tuteur_sout/tut_soumettre.tsx",
-                                            lineNumber: 383,
+                                            lineNumber: 374,
                                             columnNumber: 15
                                         }, this),
                                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$select$2e$tsx__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["Select"], {
@@ -1547,12 +1537,12 @@ function TuteurGroupDocumentsPage() {
                                                         placeholder: "Sélectionner un statut"
                                                     }, void 0, false, {
                                                         fileName: "[project]/app/components/tuteur_sout/tut_soumettre.tsx",
-                                                        lineNumber: 389,
+                                                        lineNumber: 380,
                                                         columnNumber: 19
                                                     }, this)
                                                 }, void 0, false, {
                                                     fileName: "[project]/app/components/tuteur_sout/tut_soumettre.tsx",
-                                                    lineNumber: 388,
+                                                    lineNumber: 379,
                                                     columnNumber: 17
                                                 }, this),
                                                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$select$2e$tsx__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["SelectContent"], {
@@ -1566,19 +1556,19 @@ function TuteurGroupDocumentsPage() {
                                                                         className: "h-4 w-4 text-amber-500"
                                                                     }, void 0, false, {
                                                                         fileName: "[project]/app/components/tuteur_sout/tut_soumettre.tsx",
-                                                                        lineNumber: 394,
+                                                                        lineNumber: 385,
                                                                         columnNumber: 23
                                                                     }, this),
                                                                     "En attente"
                                                                 ]
                                                             }, void 0, true, {
                                                                 fileName: "[project]/app/components/tuteur_sout/tut_soumettre.tsx",
-                                                                lineNumber: 393,
+                                                                lineNumber: 384,
                                                                 columnNumber: 21
                                                             }, this)
                                                         }, void 0, false, {
                                                             fileName: "[project]/app/components/tuteur_sout/tut_soumettre.tsx",
-                                                            lineNumber: 392,
+                                                            lineNumber: 383,
                                                             columnNumber: 19
                                                         }, this),
                                                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$select$2e$tsx__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["SelectItem"], {
@@ -1590,19 +1580,19 @@ function TuteurGroupDocumentsPage() {
                                                                         className: "h-4 w-4 text-green-500"
                                                                     }, void 0, false, {
                                                                         fileName: "[project]/app/components/tuteur_sout/tut_soumettre.tsx",
-                                                                        lineNumber: 400,
+                                                                        lineNumber: 391,
                                                                         columnNumber: 23
                                                                     }, this),
                                                                     "Validé"
                                                                 ]
                                                             }, void 0, true, {
                                                                 fileName: "[project]/app/components/tuteur_sout/tut_soumettre.tsx",
-                                                                lineNumber: 399,
+                                                                lineNumber: 390,
                                                                 columnNumber: 21
                                                             }, this)
                                                         }, void 0, false, {
                                                             fileName: "[project]/app/components/tuteur_sout/tut_soumettre.tsx",
-                                                            lineNumber: 398,
+                                                            lineNumber: 389,
                                                             columnNumber: 19
                                                         }, this),
                                                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$select$2e$tsx__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["SelectItem"], {
@@ -1614,37 +1604,37 @@ function TuteurGroupDocumentsPage() {
                                                                         className: "h-4 w-4 text-red-500"
                                                                     }, void 0, false, {
                                                                         fileName: "[project]/app/components/tuteur_sout/tut_soumettre.tsx",
-                                                                        lineNumber: 406,
+                                                                        lineNumber: 397,
                                                                         columnNumber: 23
                                                                     }, this),
                                                                     "Rejeté"
                                                                 ]
                                                             }, void 0, true, {
                                                                 fileName: "[project]/app/components/tuteur_sout/tut_soumettre.tsx",
-                                                                lineNumber: 405,
+                                                                lineNumber: 396,
                                                                 columnNumber: 21
                                                             }, this)
                                                         }, void 0, false, {
                                                             fileName: "[project]/app/components/tuteur_sout/tut_soumettre.tsx",
-                                                            lineNumber: 404,
+                                                            lineNumber: 395,
                                                             columnNumber: 19
                                                         }, this)
                                                     ]
                                                 }, void 0, true, {
                                                     fileName: "[project]/app/components/tuteur_sout/tut_soumettre.tsx",
-                                                    lineNumber: 391,
+                                                    lineNumber: 382,
                                                     columnNumber: 17
                                                 }, this)
                                             ]
                                         }, void 0, true, {
                                             fileName: "[project]/app/components/tuteur_sout/tut_soumettre.tsx",
-                                            lineNumber: 384,
+                                            lineNumber: 375,
                                             columnNumber: 15
                                         }, this)
                                     ]
                                 }, void 0, true, {
                                     fileName: "[project]/app/components/tuteur_sout/tut_soumettre.tsx",
-                                    lineNumber: 382,
+                                    lineNumber: 373,
                                     columnNumber: 13
                                 }, this),
                                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -1655,7 +1645,7 @@ function TuteurGroupDocumentsPage() {
                                             children: "Commentaire"
                                         }, void 0, false, {
                                             fileName: "[project]/app/components/tuteur_sout/tut_soumettre.tsx",
-                                            lineNumber: 414,
+                                            lineNumber: 405,
                                             columnNumber: 15
                                         }, this),
                                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$textarea$2e$tsx__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["Textarea"], {
@@ -1667,19 +1657,19 @@ function TuteurGroupDocumentsPage() {
                                             className: "resize-none"
                                         }, void 0, false, {
                                             fileName: "[project]/app/components/tuteur_sout/tut_soumettre.tsx",
-                                            lineNumber: 415,
+                                            lineNumber: 406,
                                             columnNumber: 15
                                         }, this)
                                     ]
                                 }, void 0, true, {
                                     fileName: "[project]/app/components/tuteur_sout/tut_soumettre.tsx",
-                                    lineNumber: 413,
+                                    lineNumber: 404,
                                     columnNumber: 13
                                 }, this)
                             ]
                         }, void 0, true, {
                             fileName: "[project]/app/components/tuteur_sout/tut_soumettre.tsx",
-                            lineNumber: 381,
+                            lineNumber: 372,
                             columnNumber: 11
                         }, this),
                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$dialog$2e$tsx__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["DialogFooter"], {
@@ -1695,19 +1685,19 @@ function TuteurGroupDocumentsPage() {
                                                 className: "h-4 w-4 mr-2"
                                             }, void 0, false, {
                                                 fileName: "[project]/app/components/tuteur_sout/tut_soumettre.tsx",
-                                                lineNumber: 430,
+                                                lineNumber: 421,
                                                 columnNumber: 19
                                             }, this),
                                             "Supprimer"
                                         ]
                                     }, void 0, true, {
                                         fileName: "[project]/app/components/tuteur_sout/tut_soumettre.tsx",
-                                        lineNumber: 429,
+                                        lineNumber: 420,
                                         columnNumber: 17
                                     }, this)
                                 }, void 0, false, {
                                     fileName: "[project]/app/components/tuteur_sout/tut_soumettre.tsx",
-                                    lineNumber: 427,
+                                    lineNumber: 418,
                                     columnNumber: 13
                                 }, this),
                                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -1720,7 +1710,7 @@ function TuteurGroupDocumentsPage() {
                                             children: "Annuler"
                                         }, void 0, false, {
                                             fileName: "[project]/app/components/tuteur_sout/tut_soumettre.tsx",
-                                            lineNumber: 436,
+                                            lineNumber: 427,
                                             columnNumber: 15
                                         }, this),
                                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$button$2e$tsx__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["Button"], {
@@ -1732,7 +1722,7 @@ function TuteurGroupDocumentsPage() {
                                                         className: "h-4 w-4 mr-2"
                                                     }, void 0, false, {
                                                         fileName: "[project]/app/components/tuteur_sout/tut_soumettre.tsx",
-                                                        lineNumber: 440,
+                                                        lineNumber: 431,
                                                         columnNumber: 21
                                                     }, this),
                                                     "Modifier"
@@ -1740,36 +1730,36 @@ function TuteurGroupDocumentsPage() {
                                             }, void 0, true) : "Soumettre"
                                         }, void 0, false, {
                                             fileName: "[project]/app/components/tuteur_sout/tut_soumettre.tsx",
-                                            lineNumber: 437,
+                                            lineNumber: 428,
                                             columnNumber: 15
                                         }, this)
                                     ]
                                 }, void 0, true, {
                                     fileName: "[project]/app/components/tuteur_sout/tut_soumettre.tsx",
-                                    lineNumber: 435,
+                                    lineNumber: 426,
                                     columnNumber: 13
                                 }, this)
                             ]
                         }, void 0, true, {
                             fileName: "[project]/app/components/tuteur_sout/tut_soumettre.tsx",
-                            lineNumber: 426,
+                            lineNumber: 417,
                             columnNumber: 11
                         }, this)
                     ]
                 }, void 0, true, {
                     fileName: "[project]/app/components/tuteur_sout/tut_soumettre.tsx",
-                    lineNumber: 368,
+                    lineNumber: 359,
                     columnNumber: 9
                 }, this)
             }, void 0, false, {
                 fileName: "[project]/app/components/tuteur_sout/tut_soumettre.tsx",
-                lineNumber: 367,
+                lineNumber: 358,
                 columnNumber: 7
             }, this)
         ]
     }, void 0, true, {
         fileName: "[project]/app/components/tuteur_sout/tut_soumettre.tsx",
-        lineNumber: 192,
+        lineNumber: 183,
         columnNumber: 5
     }, this);
 }

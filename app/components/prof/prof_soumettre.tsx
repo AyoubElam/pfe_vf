@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 "use client"
 
 import type React from "react"
@@ -84,7 +85,7 @@ export default function EncadrantGroupDocumentsPage() {
     setIsLoading(true)
     setFetchError(null)
     try {
-      const response = await fetch(`${API_BASE_URL}/api/prof-documents?idEncadrant=${idEncadrant}`)
+      const response = await fetch(`${API_BASE_URL}/api/prof/documents?idEncadrant=${idEncadrant}`)
       if (!response.ok) {
         const errorData = await response.json()
         throw new Error(errorData.error || "Impossible de récupérer les documents des groupes")
@@ -126,7 +127,7 @@ export default function EncadrantGroupDocumentsPage() {
     console.log("Submitting validation with payload:", JSON.stringify(payload, null, 2))
 
     try {
-      const response = await fetch(`${API_BASE_URL}/api/prof-documents/validate`, {
+      const response = await fetch(`${API_BASE_URL}/api/prof/documents/validate`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(payload),
@@ -150,8 +151,8 @@ export default function EncadrantGroupDocumentsPage() {
 
     try {
       const response = await fetch(
-        `${API_BASE_URL}/api/prof-documents/validate?idPFE=${currentDoc.idPFE}&pfeLivrableId=${currentDoc.id}&idEncadrant=${idEncadrant}`,
-        { method: "DELETE" },
+        `${API_BASE_URL}/api/prof/documents/validate?idPFE=${currentDoc.idPFE}&pfeLivrableId=${currentDoc.id}&idEncadrant=${idEncadrant}`,
+        { method: "DELETE" }
       )
       const responseData = await response.json()
       console.log("Delete response:", responseData)
